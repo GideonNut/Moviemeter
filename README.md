@@ -1,4 +1,4 @@
-# MovieMeter 🎬
+# MovieMeter
 
 ## Overview
 **MovieMeter** is a decentralized movie rating and voting platform built on the **Celo blockchain**. It allows users to transparently vote **"Yes"** or **"No"** on movies they like, ensuring a fair and tamper-proof voting process.
