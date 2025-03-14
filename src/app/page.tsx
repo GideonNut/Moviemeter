@@ -2,53 +2,36 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { 
-  ConnectButton, 
-  useActiveAccount, 
-  useReadContract, 
-  useSendTransaction, 
-  useContractEvents 
+import {
+  ConnectButton,
+  useActiveAccount,
+  useReadContract,
+  useSendTransaction,
+  useContractEvents,
 } from "thirdweb/react";
 import { getContract, defineChain, prepareContractCall } from "thirdweb";
 import { client } from "./client";
-import thirdwebIcon from "@public/thirdweb.svg";
 
 
 const alfajores = defineChain({
   id: 44787,
   rpc: "https://alfajores-forno.celo-testnet.org",
-  nativeCurrency: {
-    name: "Celo",
-    symbol: "CELO",
-    decimals: 18,
-  },
+  nativeCurrency: { name: "Celo", symbol: "CELO", decimals: 18 },
 });
 
-// Smart contract address
 const contractAddress = "0x3eD5D4A503999C5aEB13CD71Eb1d395043368723";
-
-// Get contract instance
-const contract = getContract({
-  client,
-  chain: alfajores,
-  address: contractAddress,
-});
+const contract = getContract({ client, chain: alfajores, address: contractAddress });
 
 export default function Home() {
   const account = useActiveAccount();
   const address = account?.address;
+
   return (
     <main className="p-4 pb-10 min-h-[100vh] flex items-center justify-center container max-w-screen-lg mx-auto">
       <div className="py-20">
         <Header />
         <div className="flex justify-center mb-20">
-          <ConnectButton
-            client={client}
-            appMetadata={{
-              name: "Movie Voting DApp",
-              url: "https://example.com",
-            }}
-          />
+          <ConnectButton client={client} appMetadata={{ name: "Movie Voting DApp", url: "https://example.com" }} />
         </div>
         {address && <MovieCards address={address} />}
       </div>
@@ -59,7 +42,7 @@ export default function Home() {
 function Header() {
   return (
     <header className="flex flex-col items-center mb-20 md:mb-20">
-      <Image src={thirdwebIcon} alt="Thirdweb Logo" className="size-[150px] md:size-[150px]" />
+      <Image src="/thirdweb.svg" alt="Thirdweb Logo" width={150} height={150} className="size-[150px] md:size-[150px]" />
       <h1 className="text-2xl md:text-6xl font-semibold tracking-tighter mb-6 text-zinc-100">
         Vote for Your Favorite <span className="inline-block -skew-x-6 text-blue-500">Movies</span>
       </h1>
@@ -68,7 +51,7 @@ function Header() {
   );
 }
 
-function MovieCards({ address }: { address: string }) {
+function MovieCards({ address }) {
   const movies = [
     { id: 0, title: "Inception", description: "A thief enters dreams to steal secrets." },
     { id: 1, title: "Interstellar", description: "A space epic exploring love and time." },
@@ -84,19 +67,22 @@ function MovieCards({ address }: { address: string }) {
   );
 }
 
-function MovieCard({ id, title, description, contract, address }: { id: number; title: string; description: string; contract: any; address: string }) {
+function MovieCard({ id, title, description, contract, address }) {
   const [hasVoted, setHasVoted] = useState(false);
   const { data: votes, refetch, isLoading } = useReadContract({ contract, method: "getVotes", params: [id] });
+
   useEffect(() => {
     if (votes && votes.voters.includes(address)) {
       setHasVoted(true);
     }
   }, [votes, address]);
+
   useContractEvents({
     contract,
     events: ["Voted"],
-    onLogs: () => refetch(),
+    onEvents: () => refetch(),
   });
+
   return (
     <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full text-center">
       <h2 className="text-lg font-semibold mb-2">{title}</h2>
@@ -106,9 +92,10 @@ function MovieCard({ id, title, description, contract, address }: { id: number; 
   );
 }
 
-function VoteButtons({ id, contract, hasVoted, setHasVoted }: { id: number; contract: any; hasVoted: boolean; setHasVoted: (voted: boolean) => void }) {
+function VoteButtons({ id, contract, hasVoted, setHasVoted }) {
   const { mutate: sendTransaction, isPending } = useSendTransaction();
-  const handleVote = async (voteType: boolean) => {
+
+  const handleVote = async (voteType) => {
     if (hasVoted) return;
     try {
       setHasVoted(true);
@@ -122,13 +109,22 @@ function VoteButtons({ id, contract, hasVoted, setHasVoted }: { id: number; cont
       setHasVoted(false);
     }
   };
+
   return (
     <div className="flex gap-3 mt-4">
-      <button onClick={() => handleVote(true)} disabled={isPending || hasVoted} className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-        {isPending ? "Voting..." : hasVoted ? "Voted " : " Yes"}
+      <button
+        onClick={() => handleVote(true)}
+        disabled={isPending || hasVoted}
+        className={`px-4 py-2 rounded-lg ${hasVoted ? "bg-gray-500" : "bg-gray-600 hover:bg-green-700"} text-white`}
+      >
+        {isPending ? "Voting..." : hasVoted ? "Voted" : "Yes"}
       </button>
-      <button onClick={() => handleVote(false)} disabled={isPending || hasVoted} className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-        {isPending ? "Voting..." : hasVoted ? "Voted " : " No"}
+      <button
+        onClick={() => handleVote(false)}
+        disabled={isPending || hasVoted}
+        className={`px-4 py-2 rounded-lg ${hasVoted ? "bg-gray-500" : "bg-gray-600 hover:bg-red-700"} text-white`}
+      >
+        {isPending ? "Voting..." : hasVoted ? "Voted" : "No"}
       </button>
     </div>
   );
