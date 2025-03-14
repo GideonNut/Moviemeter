@@ -12,7 +12,6 @@ import {
 import { getContract, defineChain, prepareContractCall } from "thirdweb";
 import { client } from "./client";
 
-
 const alfajores = defineChain({
   id: 44787,
   rpc: "https://alfajores-forno.celo-testnet.org",
@@ -69,11 +68,13 @@ function MovieCards({ address }) {
 
 function MovieCard({ id, title, description, contract, address }) {
   const [hasVoted, setHasVoted] = useState(false);
-  const { data: votes, refetch, isLoading } = useReadContract({ contract, method: "getVotes", params: [id] });
+  const { data: votes, refetch } = useReadContract({ contract, method: "getVotes", params: [id] });
+  const [voteCount, setVoteCount] = useState({ yes: 0, no: 0 });
 
   useEffect(() => {
-    if (votes && votes.voters.includes(address)) {
-      setHasVoted(true);
+    if (votes) {
+      setVoteCount({ yes: votes.yes || 0, no: votes.no || 0 });
+      if (votes.voters.includes(address)) setHasVoted(true);
     }
   }, [votes, address]);
 
@@ -87,22 +88,37 @@ function MovieCard({ id, title, description, contract, address }) {
     <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full text-center">
       <h2 className="text-lg font-semibold mb-2">{title}</h2>
       <p className="text-sm text-zinc-400 mb-4">{description}</p>
-      <VoteButtons id={id} contract={contract} hasVoted={hasVoted} setHasVoted={setHasVoted} />
+      <VoteButtons id={id} contract={contract} hasVoted={hasVoted} setHasVoted={setHasVoted} voteCount={voteCount} setVoteCount={setVoteCount} />
     </div>
   );
 }
 
-function VoteButtons({ id, contract, hasVoted, setHasVoted }) {
+function VoteButtons({ id, contract, hasVoted, setHasVoted, voteCount, setVoteCount }) {
   const { mutate: sendTransaction, isPending } = useSendTransaction();
 
   const handleVote = async (voteType) => {
     if (hasVoted) return;
+    
     try {
       setHasVoted(true);
+
+      // **Optimistic Update**: Increase vote count **before** sending the transaction
+      setVoteCount((prev) => ({
+        ...prev,
+        [voteType ? "yes" : "no"]: prev[voteType ? "yes" : "no"] + 1,
+      }));
+
       const transaction = prepareContractCall({ contract, method: "function vote(uint256, bool)", params: [id, voteType] });
       sendTransaction(transaction, {
         onSuccess: () => console.log("Voted successfully"),
-        onError: () => setHasVoted(false),
+        onError: () => {
+          // **Revert the count if transaction fails**
+          setVoteCount((prev) => ({
+            ...prev,
+            [voteType ? "yes" : "no"]: prev[voteType ? "yes" : "no"] - 1,
+          }));
+          setHasVoted(false);
+        },
       });
     } catch (error) {
       console.error("Voting failed:", error);
@@ -111,21 +127,27 @@ function VoteButtons({ id, contract, hasVoted, setHasVoted }) {
   };
 
   return (
-    <div className="flex gap-3 mt-4">
-      <button
-        onClick={() => handleVote(true)}
-        disabled={isPending || hasVoted}
-        className={`px-4 py-2 rounded-lg ${hasVoted ? "bg-gray-500" : "bg-gray-600 hover:bg-green-700"} text-white`}
-      >
-        {isPending ? "Voting..." : hasVoted ? "Voted" : "Yes"}
-      </button>
-      <button
-        onClick={() => handleVote(false)}
-        disabled={isPending || hasVoted}
-        className={`px-4 py-2 rounded-lg ${hasVoted ? "bg-gray-500" : "bg-gray-600 hover:bg-red-700"} text-white`}
-      >
-        {isPending ? "Voting..." : hasVoted ? "Voted" : "No"}
-      </button>
+    <div className="flex flex-col gap-3 mt-4">
+      <div className="flex gap-3 justify-center items-center">
+        <button
+          onClick={() => handleVote(true)}
+          disabled={isPending || hasVoted}
+          className={`px-4 py-2 rounded-lg ${hasVoted ? "bg-gray-500" : "bg-gray-600 hover:bg-green-700"} text-white`}
+        >
+          {isPending ? "Voting..." : hasVoted ? "Voted" : "Yes"}
+        </button>
+        <span className="text-white font-bold">{voteCount.yes}</span>
+      </div>
+      <div className="flex gap-3 justify-center items-center">
+        <button
+          onClick={() => handleVote(false)}
+          disabled={isPending || hasVoted}
+          className={`px-4 py-2 rounded-lg ${hasVoted ? "bg-gray-500" : "bg-gray-600 hover:bg-red-700"} text-white`}
+        >
+          {isPending ? "Voting..." : hasVoted ? "Voted" : "No"}
+        </button>
+        <span className="text-white font-bold">{voteCount.no}</span>
+      </div>
     </div>
   );
 }
