@@ -13,7 +13,7 @@ import { getContract, defineChain, prepareContractCall } from "thirdweb";
 import { client } from "./client";
 import thirdwebIcon from "@public/thirdweb.svg";
 
-// Define the Celo Alfajores Testnet Chain
+
 const alfajores = defineChain({
   id: 44787,
   rpc: "https://alfajores-forno.celo-testnet.org",
@@ -125,10 +125,10 @@ function VoteButtons({ id, contract, hasVoted, setHasVoted }: { id: number; cont
   return (
     <div className="flex gap-3 mt-4">
       <button onClick={() => handleVote(true)} disabled={isPending || hasVoted} className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-        {isPending ? "Voting..." : hasVoted ? "Voted 👍" : " Yes"}
+        {isPending ? "Voting..." : hasVoted ? "Voted " : " Yes"}
       </button>
       <button onClick={() => handleVote(false)} disabled={isPending || hasVoted} className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-        {isPending ? "Voting..." : hasVoted ? "Voted 👎" : " No"}
+        {isPending ? "Voting..." : hasVoted ? "Voted " : " No"}
       </button>
     </div>
   );
