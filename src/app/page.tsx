@@ -45,36 +45,50 @@ function Header() {
       <h1 className="text-2xl md:text-6xl font-semibold tracking-tighter mb-6 text-zinc-100">
         Vote for Your Favorite <span className="inline-block -skew-x-6 text-blue-500">Movies</span>
       </h1>
-      <p className="text-zinc-300 text-base">Your <code className="bg-zinc-800 text-zinc-300 px-2 rounded py-1 text-sm mx-1">Blockchain</code> IMDb.</p>
+      <p className="text-zinc-300 text-base">
+        Your <code className="bg-zinc-800 text-zinc-300 px-2 rounded py-1 text-sm mx-1">Blockchain</code> IMDb.
+      </p>
     </header>
   );
 }
 
-function MovieCards({ address }) {
+
+function MovieCards({ address }: { address: string }) {
   const movies = [
     { id: 0, title: "Inception", description: "A thief enters dreams to steal secrets." },
     { id: 1, title: "Interstellar", description: "A space epic exploring love and time." },
     { id: 2, title: "The Dark Knight", description: "Batman faces off against the Joker." },
     { id: 3, title: "Avengers: Endgame", description: "The Avengers assemble for one last fight." },
   ];
+
   return (
     <div className="grid gap-6 lg:grid-cols-3 justify-center">
       {movies.map((movie) => (
-        <MovieCard key={movie.id} {...movie} contract={contract} address={address} />
+        <MovieCard key={movie.id} {...movie} address={address} />
       ))}
     </div>
   );
 }
 
-function MovieCard({ id, title, description, contract, address }) {
+
+function MovieCard({ id, title, description, address }: { id: number; title: string; description: string; address: string }) {
   const [hasVoted, setHasVoted] = useState(false);
-  const { data: votes, refetch } = useReadContract({ contract, method: "getVotes", params: [id] });
-  const [voteCount, setVoteCount] = useState({ yes: 0, no: 0 });
+  const [voteCountYes, setVoteCountYes] = useState(0);
+  const [voteCountNo, setVoteCountNo] = useState(0);
+
+  const { data: votes, refetch, isLoading } = useReadContract({
+    contract,
+    method: "getVotes",
+    params: [id],
+  });
 
   useEffect(() => {
     if (votes) {
-      setVoteCount({ yes: votes.yes || 0, no: votes.no || 0 });
-      if (votes.voters.includes(address)) setHasVoted(true);
+      setVoteCountYes(votes.yes);
+      setVoteCountNo(votes.no);
+      if (votes.voters.includes(address)) {
+        setHasVoted(true);
+      }
     }
   }, [votes, address]);
 
@@ -88,36 +102,59 @@ function MovieCard({ id, title, description, contract, address }) {
     <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full text-center">
       <h2 className="text-lg font-semibold mb-2">{title}</h2>
       <p className="text-sm text-zinc-400 mb-4">{description}</p>
-      <VoteButtons id={id} contract={contract} hasVoted={hasVoted} setHasVoted={setHasVoted} voteCount={voteCount} setVoteCount={setVoteCount} />
+      <VoteButtons id={id} hasVoted={hasVoted} setHasVoted={setHasVoted} voteCountYes={voteCountYes} voteCountNo={voteCountNo} setVoteCountYes={setVoteCountYes} setVoteCountNo={setVoteCountNo} />
     </div>
   );
 }
 
-function VoteButtons({ id, contract, hasVoted, setHasVoted, voteCount, setVoteCount }) {
+
+function VoteButtons({
+  id,
+  hasVoted,
+  setHasVoted,
+  voteCountYes,
+  voteCountNo,
+  setVoteCountYes,
+  setVoteCountNo,
+}: {
+  id: number;
+  hasVoted: boolean;
+  setHasVoted: (value: boolean) => void;
+  voteCountYes: number;
+  voteCountNo: number;
+  setVoteCountYes: (value: number) => void;
+  setVoteCountNo: (value: number) => void;
+}) {
   const { mutate: sendTransaction, isPending } = useSendTransaction();
 
-  const handleVote = async (voteType) => {
+  const handleVote = async (voteType: boolean) => {
     if (hasVoted) return;
-    
     try {
       setHasVoted(true);
 
-      // **Optimistic Update**: Increase vote count **before** sending the transaction
-      setVoteCount((prev) => ({
-        ...prev,
-        [voteType ? "yes" : "no"]: prev[voteType ? "yes" : "no"] + 1,
-      }));
+     
+      if (voteType) {
+        setVoteCountYes((prev) => prev + 1);
+      } else {
+        setVoteCountNo((prev) => prev + 1);
+      }
 
-      const transaction = prepareContractCall({ contract, method: "function vote(uint256, bool)", params: [id, voteType] });
+      const transaction = prepareContractCall({
+        contract,
+        method: "function vote(uint256, bool)",
+        params: [id, voteType],
+      });
+
       sendTransaction(transaction, {
         onSuccess: () => console.log("Voted successfully"),
         onError: () => {
-          // **Revert the count if transaction fails**
-          setVoteCount((prev) => ({
-            ...prev,
-            [voteType ? "yes" : "no"]: prev[voteType ? "yes" : "no"] - 1,
-          }));
           setHasVoted(false);
+         
+          if (voteType) {
+            setVoteCountYes((prev) => prev - 1);
+          } else {
+            setVoteCountNo((prev) => prev - 1);
+          }
         },
       });
     } catch (error) {
@@ -127,26 +164,22 @@ function VoteButtons({ id, contract, hasVoted, setHasVoted, voteCount, setVoteCo
   };
 
   return (
-    <div className="flex flex-col gap-3 mt-4">
-      <div className="flex gap-3 justify-center items-center">
+    <div className="flex flex-col items-center gap-3 mt-4">
+      <div className="flex gap-3">
         <button
           onClick={() => handleVote(true)}
           disabled={isPending || hasVoted}
           className={`px-4 py-2 rounded-lg ${hasVoted ? "bg-gray-500" : "bg-gray-600 hover:bg-green-700"} text-white`}
         >
-          {isPending ? "Voting..." : hasVoted ? "Voted" : "Yes"}
+          {isPending ? "Voting..." : hasVoted ? "Voted" : "Yes"} ({voteCountYes})
         </button>
-        <span className="text-white font-bold">{voteCount.yes}</span>
-      </div>
-      <div className="flex gap-3 justify-center items-center">
         <button
           onClick={() => handleVote(false)}
           disabled={isPending || hasVoted}
           className={`px-4 py-2 rounded-lg ${hasVoted ? "bg-gray-500" : "bg-gray-600 hover:bg-red-700"} text-white`}
         >
-          {isPending ? "Voting..." : hasVoted ? "Voted" : "No"}
+          {isPending ? "Voting..." : hasVoted ? "Voted" : "No"} ({voteCountNo})
         </button>
-        <span className="text-white font-bold">{voteCount.no}</span>
       </div>
     </div>
   );
