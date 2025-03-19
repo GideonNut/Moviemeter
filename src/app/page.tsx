@@ -157,7 +157,11 @@ function VoteButtons({ id, hasVoted, setHasVoted, voteCountYes, voteCountNo, set
       if (voteType) setVoteCountYes((prev) => prev + 1);
       else setVoteCountNo((prev) => prev + 1);
 
-      const transaction = prepareContractCall({ contract, method: "function vote(uint256, bool)", params: [id, voteType] });
+      const transaction = prepareContractCall({
+        contract,
+        method: "function vote(uint256, bool)",
+        params: [BigInt(id), voteType], // Convert 'id' to bigint
+      });
 
       sendTransaction(transaction, {
         onSuccess: () => console.log("Voted successfully"),
