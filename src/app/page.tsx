@@ -18,21 +18,59 @@ const alfajores = defineChain({
   nativeCurrency: { name: "Celo", symbol: "CELO", decimals: 18 },
 });
 
-const contractAddress = "0x3eD5D4A503999C5aEB13CD71Eb1d395043368723";
+const contractAddress: string = "0x3eD5D4A503999C5aEB13CD71Eb1d395043368723";
 const contract = getContract({ client, chain: alfajores, address: contractAddress });
+
+interface Movie {
+  id: number;
+  title: string;
+  description: string;
+}
+
+interface MovieCardsProps {
+  address: string;
+  searchQuery: string;
+}
+
+interface MovieCardProps {
+  id: number;
+  title: string;
+  description: string;
+  address: string;
+}
+
+interface VoteButtonsProps {
+  id: number;
+  hasVoted: boolean;
+  setHasVoted: (value: boolean) => void;
+  voteCountYes: number;
+  voteCountNo: number;
+  setVoteCountYes: (value: (prev: number) => number) => void;
+  setVoteCountNo: (value: (prev: number) => number) => void;
+}
 
 export default function Home() {
   const account = useActiveAccount();
-  const address = account?.address;
+  const address: string | undefined = account?.address;
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   return (
     <main className="p-4 pb-10 min-h-[100vh] flex items-center justify-center container max-w-screen-lg mx-auto">
       <div className="py-20">
         <Header />
-        <div className="flex justify-center mb-20">
+        <div className="flex flex-col items-center mb-10">
           <ConnectButton client={client} appMetadata={{ name: "Movie Voting DApp", url: "https://example.com" }} />
+          {address && (
+            <input
+              type="text"
+              placeholder="Search movies..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="mt-6 p-3 border border-zinc-800 rounded-lg bg-zinc-900 text-white w-full max-w-md focus:outline-none hover:bg-zinc-800"
+            />
+          )}
         </div>
-        {address && <MovieCards address={address} />}
+        {address && <MovieCards address={address} searchQuery={searchQuery} />}
       </div>
     </main>
   );
@@ -52,31 +90,33 @@ function Header() {
   );
 }
 
-
-function MovieCards({ address }: { address: string }) {
-  const movies = [
+function MovieCards({ address, searchQuery }: MovieCardsProps) {
+  const movies: Movie[] = [
     { id: 0, title: "Inception", description: "A thief enters dreams to steal secrets." },
     { id: 1, title: "Interstellar", description: "A space epic exploring love and time." },
     { id: 2, title: "The Dark Knight", description: "Batman faces off against the Joker." },
     { id: 3, title: "Avengers: Endgame", description: "The Avengers assemble for one last fight." },
   ];
 
+  const filteredMovies = movies.filter((movie) =>
+    movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="grid gap-6 lg:grid-cols-3 justify-center">
-      {movies.map((movie) => (
+      {filteredMovies.map((movie) => (
         <MovieCard key={movie.id} {...movie} address={address} />
       ))}
     </div>
   );
 }
 
+function MovieCard({ id, title, description, address }: MovieCardProps) {
+  const [hasVoted, setHasVoted] = useState<boolean>(false);
+  const [voteCountYes, setVoteCountYes] = useState<number>(0);
+  const [voteCountNo, setVoteCountNo] = useState<number>(0);
 
-function MovieCard({ id, title, description, address }: { id: number; title: string; description: string; address: string }) {
-  const [hasVoted, setHasVoted] = useState(false);
-  const [voteCountYes, setVoteCountYes] = useState(0);
-  const [voteCountNo, setVoteCountNo] = useState(0);
-
-  const { data: votes, refetch, isLoading } = useReadContract({
+  const { data: votes, refetch } = useReadContract({
     contract,
     method: "getVotes",
     params: [id],
@@ -107,54 +147,24 @@ function MovieCard({ id, title, description, address }: { id: number; title: str
   );
 }
 
-
-function VoteButtons({
-  id,
-  hasVoted,
-  setHasVoted,
-  voteCountYes,
-  voteCountNo,
-  setVoteCountYes,
-  setVoteCountNo,
-}: {
-  id: number;
-  hasVoted: boolean;
-  setHasVoted: (value: boolean) => void;
-  voteCountYes: number;
-  voteCountNo: number;
-  setVoteCountYes: (value: number) => void;
-  setVoteCountNo: (value: number) => void;
-}) {
+function VoteButtons({ id, hasVoted, setHasVoted, voteCountYes, voteCountNo, setVoteCountYes, setVoteCountNo }: VoteButtonsProps) {
   const { mutate: sendTransaction, isPending } = useSendTransaction();
 
   const handleVote = async (voteType: boolean) => {
     if (hasVoted) return;
     try {
       setHasVoted(true);
+      if (voteType) setVoteCountYes((prev) => prev + 1);
+      else setVoteCountNo((prev) => prev + 1);
 
-     
-      if (voteType) {
-        setVoteCountYes((prev) => prev + 1);
-      } else {
-        setVoteCountNo((prev) => prev + 1);
-      }
-
-      const transaction = prepareContractCall({
-        contract,
-        method: "function vote(uint256, bool)",
-        params: [id, voteType],
-      });
+      const transaction = prepareContractCall({ contract, method: "function vote(uint256, bool)", params: [id, voteType] });
 
       sendTransaction(transaction, {
         onSuccess: () => console.log("Voted successfully"),
         onError: () => {
           setHasVoted(false);
-         
-          if (voteType) {
-            setVoteCountYes((prev) => prev - 1);
-          } else {
-            setVoteCountNo((prev) => prev - 1);
-          }
+          if (voteType) setVoteCountYes((prev) => prev - 1);
+          else setVoteCountNo((prev) => prev - 1);
         },
       });
     } catch (error) {
@@ -166,19 +176,11 @@ function VoteButtons({
   return (
     <div className="flex flex-col items-center gap-3 mt-4">
       <div className="flex gap-3">
-        <button
-          onClick={() => handleVote(true)}
-          disabled={isPending || hasVoted}
-          className={`px-4 py-2 rounded-lg ${hasVoted ? "bg-gray-500" : "bg-gray-600 hover:bg-green-700"} text-white`}
-        >
-          {isPending ? "Voting..." : hasVoted ? "Voted" : "Yes"} ({voteCountYes})
+        <button onClick={() => handleVote(true)} disabled={isPending || hasVoted} className="px-4 py-2 rounded-lg text-white">
+          Yes ({voteCountYes})
         </button>
-        <button
-          onClick={() => handleVote(false)}
-          disabled={isPending || hasVoted}
-          className={`px-4 py-2 rounded-lg ${hasVoted ? "bg-gray-500" : "bg-gray-600 hover:bg-red-700"} text-white`}
-        >
-          {isPending ? "Voting..." : hasVoted ? "Voted" : "No"} ({voteCountNo})
+        <button onClick={() => handleVote(false)} disabled={isPending || hasVoted} className="px-4 py-2 rounded-lg text-white">
+          No ({voteCountNo})
         </button>
       </div>
     </div>
