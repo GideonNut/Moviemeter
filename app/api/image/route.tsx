@@ -9,30 +9,19 @@ const movies = [
   { id: "3", title: "Avengers: Endgame", description: "The Avengers assemble for one last fight." },
 ]
 
+export const runtime = "edge"
+
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url)
-  const movieId = searchParams.get("id") || "0"
-  const isOwner = searchParams.get("isOwner") === "true"
+  try {
+    const { searchParams } = new URL(req.url)
+    const movieId = searchParams.get("id") || "0"
+    const isOwner = searchParams.get("isOwner") === "true"
 
-  // Find the movie by ID
-  const movie = movies.find((m) => m.id === movieId) || movies[0]
+    // Find the movie by ID
+    const movie = movies.find((m) => m.id === movieId) || movies[0]
 
-  // Generate the image
-  return new ImageResponse(
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "100%",
-        height: "100%",
-        backgroundColor: "#18181b", // zinc-950
-        color: "#e5e5e5", // neutral-200
-        padding: "40px",
-        fontFamily: "Inter, sans-serif",
-      }}
-    >
+    // Generate the image
+    return new ImageResponse(
       <div
         style={{
           display: "flex",
@@ -40,75 +29,93 @@ export async function GET(req: NextRequest) {
           alignItems: "center",
           justifyContent: "center",
           width: "100%",
+          height: "100%",
+          backgroundColor: "#18181b", // zinc-950
+          color: "#e5e5e5", // neutral-200
+          padding: "40px",
+          fontFamily: "sans-serif",
         }}
       >
-        <h1
-          style={{
-            fontSize: "48px",
-            fontWeight: "bold",
-            marginBottom: "20px",
-            color: "#be123c", // rose-700
-          }}
-        >
-          MovieMeter
-        </h1>
-        {isOwner && (
-          <p
-            style={{
-              fontSize: "20px",
-              marginBottom: "20px",
-              color: "#fbbf24", // amber-400
-            }}
-          >
-            Welcome back, MovieMeter creator!
-          </p>
-        )}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: "#27272a", // zinc-800
-            borderRadius: "12px",
-            padding: "24px",
-            width: "80%",
-            marginTop: "20px",
+            width: "100%",
           }}
         >
-          <h2
+          <h1
             style={{
-              fontSize: "36px",
+              fontSize: "48px",
               fontWeight: "bold",
-              marginBottom: "12px",
+              marginBottom: "20px",
+              color: "#be123c", // rose-700
             }}
           >
-            {movie.title}
-          </h2>
-          <p
+            MovieMeter
+          </h1>
+          {isOwner && (
+            <p
+              style={{
+                fontSize: "20px",
+                marginBottom: "20px",
+                color: "#fbbf24", // amber-400
+              }}
+            >
+              Welcome back, MovieMeter creator!
+            </p>
+          )}
+          <div
             style={{
-              fontSize: "24px",
-              color: "#a1a1aa", // zinc-400
-              marginBottom: "24px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#27272a", // zinc-800
+              borderRadius: "12px",
+              padding: "24px",
+              width: "80%",
+              marginTop: "20px",
             }}
           >
-            {movie.description}
-          </p>
-          <p
-            style={{
-              fontSize: "20px",
-              marginTop: "24px",
-            }}
-          >
-            Do you like this movie?
-          </p>
+            <h2
+              style={{
+                fontSize: "36px",
+                fontWeight: "bold",
+                marginBottom: "12px",
+              }}
+            >
+              {movie.title}
+            </h2>
+            <p
+              style={{
+                fontSize: "24px",
+                color: "#a1a1aa", // zinc-400
+                marginBottom: "24px",
+              }}
+            >
+              {movie.description}
+            </p>
+            <p
+              style={{
+                fontSize: "20px",
+                marginTop: "24px",
+              }}
+            >
+              Do you like this movie?
+            </p>
+          </div>
         </div>
-      </div>
-    </div>,
-    {
-      width: 1200,
-      height: 630,
-    },
-  )
+      </div>,
+      {
+        width: 1200,
+        height: 630,
+      },
+    )
+  } catch (error) {
+    console.error("Error generating image:", error)
+    return new Response("Error generating image", { status: 500 })
+  }
 }
 
