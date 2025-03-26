@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
 
-    // Return the HTML with the frame metadata
+    
     return new NextResponse(
       `
       <!DOCTYPE html>
