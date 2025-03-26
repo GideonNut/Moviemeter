@@ -12,6 +12,7 @@ const movies = [
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const movieId = searchParams.get("id") || "0"
+  const isOwner = searchParams.get("isOwner") === "true"
 
   // Find the movie by ID
   const movie = movies.find((m) => m.id === movieId) || movies[0]
@@ -51,6 +52,17 @@ export async function GET(req: NextRequest) {
         >
           MovieMeter
         </h1>
+        {isOwner && (
+          <p
+            style={{
+              fontSize: "20px",
+              marginBottom: "20px",
+              color: "#fbbf24", // amber-400
+            }}
+          >
+            Welcome back, MovieMeter creator!
+          </p>
+        )}
         <div
           style={{
             display: "flex",

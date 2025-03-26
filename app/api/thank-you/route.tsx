@@ -13,9 +13,14 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const movieId = searchParams.get("id") || "0"
   const vote = searchParams.get("vote") || "yes"
+  const fidString = searchParams.get("fid")
+  const fid = fidString ? Number.parseInt(fidString) : null
 
   // Find the movie by ID
   const movie = movies.find((m) => m.id === movieId) || movies[0]
+
+  // Check if this is the owner's FID
+  const isOwner = fid === 1006311
 
   // Generate the image
   return new ImageResponse(
@@ -72,7 +77,7 @@ export async function GET(req: NextRequest) {
               marginBottom: "12px",
             }}
           >
-            Thank You!
+            {isOwner ? "Thanks, MovieMeter Owner!" : "Thank You!"}
           </h2>
           <p
             style={{
@@ -89,8 +94,21 @@ export async function GET(req: NextRequest) {
               marginTop: "24px",
             }}
           >
-            Your vote has been recorded on the Celo blockchain.
+            {isOwner
+              ? "Your vote has been recorded as the creator of MovieMeter!"
+              : "Your vote has been recorded on the Celo blockchain."}
           </p>
+          {fid && (
+            <p
+              style={{
+                fontSize: "16px",
+                marginTop: "12px",
+                color: "#a1a1aa", // zinc-400
+              }}
+            >
+              Farcaster ID: {fid}
+            </p>
+          )}
         </div>
       </div>
     </div>,
