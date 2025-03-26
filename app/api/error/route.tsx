@@ -27,16 +27,20 @@ export async function GET() {
           width: "100%",
         }}
       >
-        <h1
+        {/* MovieMeter Logo - Rendered as text with styling to match the logo */}
+        <div
           style={{
-            fontSize: "48px",
+            fontSize: "60px",
             fontWeight: "bold",
             marginBottom: "20px",
             color: "#be123c", // rose-700
+            fontFamily: "cursive, sans-serif",
+            textAlign: "center",
           }}
         >
           MovieMeter
-        </h1>
+        </div>
+
         <div
           style={{
             display: "flex",
