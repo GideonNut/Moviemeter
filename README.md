@@ -3,7 +3,7 @@
 MovieMeter is a decentralized movie voting application built on the Celo blockchain. Users can vote for their favorite movies, and the results are recorded on-chain and shown at the Must-Watch part of the site.
 
 ## Check us out
-https://mm-jljggr.vercel.app/
+moviemeter12.vercel.app
 
 ## Features
 - Vote on your favorite movies using blockchain technology.
@@ -14,6 +14,7 @@ https://mm-jljggr.vercel.app/
 ## Smart Contract Details
 - **Network**: Celo Alfajores Testnet
 - **Contract Address**: `0x3eD5D4A503999C5aEB13CD71Eb1d395043368723`
+- **Contract link**: https://alfajores.celoscan.io/address/0x3eD5D4A503999C5aEB13CD71Eb1d395043368723
 
 ## Tech Stack
 - **Frontend**: Next.js, TypeScript, Tailwind CSS
