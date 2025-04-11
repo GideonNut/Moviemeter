@@ -1,9 +1,8 @@
 # MovieMeter - A Web3 Movie Voting DApp
-
 MovieMeter is a decentralized movie voting application built on the Celo blockchain. Users can vote for their favorite movies, and the results are recorded on-chain and shown at the Must-Watch part of the site.
 
 ## Check us out
-moviemeter12.vercel.app
+[moviemeter,io](https://mm-xhvpyf.vercel.app/)
 
 ## Features
 - Vote on your favorite movies using blockchain technology.
