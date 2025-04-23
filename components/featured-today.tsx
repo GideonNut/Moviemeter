@@ -5,39 +5,27 @@ import Image from "next/image"
 import Link from "next/link"
 import { ChevronRight } from "lucide-react"
 
-// Sample featured content with real images
+// Sample featured content with themed placeholder images
 const featuredContent = [
   {
     id: "sxsw",
     title: "2025 SXSW Film & TV Festival Cheat Sheet",
     description: "See our picks",
-    imageUrls: [
-      "https://m.media-amazon.com/images/M/MV5BYTdiOTIyZTQtNmQ1OS00NjZlLWIyMTgtYzk5Y2M3ZDVmMDk1XkEyXkFqcGdeQXVyMTAzMDg4NzU0._V1_.jpg",
-      "https://m.media-amazon.com/images/M/MV5BNDJmMzQyMzAtMzMxMy00NTI3LTgzOGMtZDU3Yzu0MmM3MWM3XkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_.jpg",
-      "https://m.media-amazon.com/images/M/MV5BZTFkNmE5MjUtZDE1Yi00ZmQyLTk2YWUtN2EwODA1Y2FlMGFlXkEyXkFqcGdeQXVyMTM1MTE1NDMx._V1_.jpg",
-    ],
+    imageUrl: "/placeholder.svg?height=300&width=500&text=SXSW+2025+Festival+Guide",
     type: "list",
   },
   {
     id: "trending-stars",
     title: "Trending: Stars to Watch",
     description: "See the gallery",
-    imageUrls: [
-      "https://m.media-amazon.com/images/M/MV5BNzg1MTUyNDYxOF5BMl5BanBnXkFtZTgwNTQ4MTE2MjE@._V1_.jpg",
-      "https://m.media-amazon.com/images/M/MV5BMjExOTY3NzExM15BMl5BanBnXkFtZTgwOTM5ODczOTE@._V1_.jpg",
-      "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ3OTQ3NDE@._V1_.jpg",
-    ],
+    imageUrl: "/placeholder.svg?height=300&width=500&text=Rising+Stars+of+2025",
     type: "photos",
   },
   {
     id: "upcoming-releases",
     title: "Most Anticipated Spring Releases",
     description: "View the list",
-    imageUrls: [
-      "https://m.media-amazon.com/images/M/MV5BMTU0MjAwMDkxNV5BMl5BanBnXkFtZTgwMTA4ODIxNjM@._V1_.jpg",
-      "https://m.media-amazon.com/images/M/MV5BNzVkOWM5YTEtMDdkNi00YjMzLWEzNWEtODEwN2IyZTc4Yjg2XkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg",
-      "https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGdeQXVyNzAwMjU2MTY@._V1_.jpg",
-    ],
+    imageUrl: "/placeholder.svg?height=300&width=500&text=Spring+2025+Movie+Preview",
     type: "list",
   },
 ]
@@ -67,7 +55,7 @@ export default function FeaturedToday() {
           <Link href={`/featured/${item.id}`} key={item.id} className="group">
             <div className="bg-zinc-900 rounded-lg overflow-hidden hover:bg-zinc-800 transition-colors">
               <div className="relative h-48 overflow-hidden">
-                <Image src={item.imageUrls[0] || "/placeholder.svg"} alt={item.title} fill className="object-cover" />
+                <Image src={item.imageUrl || "/placeholder.svg"} alt={item.title} fill className="object-cover" />
               </div>
 
               <div className="p-4">
@@ -81,4 +69,3 @@ export default function FeaturedToday() {
     </section>
   )
 }
-
