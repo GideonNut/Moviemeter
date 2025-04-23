@@ -46,4 +46,3 @@ export default function MovieGrid({ movies, title, onSelectMovie }: MovieGridPro
     </div>
   )
 }
-
