@@ -85,4 +85,3 @@ export default function VideoPlayer({ src, title, onClose }: VideoPlayerProps) {
     </div>
   )
 }
-
