@@ -11,17 +11,17 @@ export const metadata: Metadata = {
   description: "Vote for your favorite movies on the blockchain",
   icons: {
     icon: {
-      url: "/mm-logo-new.png",
+      url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo%20png-r3dxjfHmuTVCaDvJ5i6eDlG2qHoJ5N.png",
       sizes: "512x512",
       type: "image/png",
     },
     apple: {
-      url: "/mm-logo-new.png",
+      url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo%20png-r3dxjfHmuTVCaDvJ5i6eDlG2qHoJ5N.png",
       sizes: "512x512",
       type: "image/png",
     },
   },
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -31,13 +31,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-zinc-950 text-white`}>
+      <body className={`${inter.className} bg-black text-white`}>
         <Providers>{children}</Providers>
       </body>
     </html>
   )
 }
-
-
-
-import './globals.css'
