@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { trackFrameView } from "@/lib/analytics"
 
 export const runtime = "edge"
 
@@ -7,9 +8,12 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const movieId = searchParams.get("id") || "0"
 
+    // Track the frame view
+    trackFrameView(movieId)
+
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
 
-    
+    // Return the HTML with the frame metadata
     return new NextResponse(
       `
       <!DOCTYPE html>
@@ -25,6 +29,7 @@ export async function GET(req: NextRequest) {
         <body>
           <h1>MovieMeter Frame</h1>
           <p>This is a Farcaster Frame for MovieMeter.</p>
+          <p>You're viewing the frame for movie ID: ${movieId}</p>
         </body>
       </html>
     `,

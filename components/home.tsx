@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { ConnectButton, useActiveAccount, useReadContract, useSendTransaction, useContractEvents } from "thirdweb/react"
 import { getContract, defineChain, prepareContractCall } from "thirdweb"
 import { client } from "../app/client"
+import { Share2 } from "lucide-react"
 
 const alfajores = defineChain({
   id: 44787,
@@ -73,10 +75,14 @@ export default function Home() {
 function Header() {
   return (
     <header className="flex flex-col items-center mb-20 md:mb-20">
-      <Image src="/logo.png" alt="MovieMeter Logo" width={250} height={150} className="size-[150px] md:size-[250px]" />
-      <h1 className="text-2xl md:text-6xl font-semibold tracking-tighter mb-6 text-zinc-100">
-        Vote for Your Favorite <span className="inline-block -skew-x-6 text-rose-600">Movies</span>
-      </h1>
+      <div className="relative w-[600px] h-[480px] mb-8">
+        <Image src="/mm-logo-new.png" alt="MovieMeter Logo" fill className="object-contain" priority />
+      </div>
+
+      <div className="relative w-full max-w-md mb-6">
+        <Image src="/moviemeter-logo.png" alt="MovieMeter" width={400} height={120} className="mx-auto" priority />
+      </div>
+
       <p className="text-zinc-300 text-base">
         Your <code className="bg-zinc-800 text-zinc-300 px-2 rounded py-1 text-sm mx-1">Blockchain</code> IMDb.
       </p>
@@ -107,6 +113,9 @@ function MovieCard({ id, title, description, address }: MovieCardProps) {
   const [hasVoted, setHasVoted] = useState<boolean>(false)
   const [voteCountYes, setVoteCountYes] = useState<number>(0)
   const [voteCountNo, setVoteCountNo] = useState<number>(0)
+  const [showFrameLink, setShowFrameLink] = useState(false)
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
+  const frameUrl = `${baseUrl}/api/frame?id=${id}`
 
   const { data: votes, refetch } = useReadContract({
     contract,
@@ -130,6 +139,12 @@ function MovieCard({ id, title, description, address }: MovieCardProps) {
     onEvents: () => refetch(),
   })
 
+  const copyFrameLink = () => {
+    navigator.clipboard.writeText(frameUrl)
+    setShowFrameLink(true)
+    setTimeout(() => setShowFrameLink(false), 3000)
+  }
+
   return (
     <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full text-center">
       <h2 className="text-lg font-semibold mb-2">{title}</h2>
@@ -143,6 +158,23 @@ function MovieCard({ id, title, description, address }: MovieCardProps) {
         setVoteCountYes={setVoteCountYes}
         setVoteCountNo={setVoteCountNo}
       />
+
+      {/* Farcaster Frame Link */}
+      <div className="mt-4 pt-4 border-t border-zinc-800">
+        <div className="flex justify-between items-center">
+          <Link href={frameUrl} target="_blank" className="text-rose-500 hover:text-rose-400 text-sm">
+            View Farcaster Frame
+          </Link>
+          <button
+            onClick={copyFrameLink}
+            className="text-zinc-400 hover:text-white p-2 rounded-full hover:bg-zinc-800"
+            title="Copy Frame Link"
+          >
+            <Share2 size={16} />
+          </button>
+        </div>
+        {showFrameLink && <div className="mt-2 text-xs text-green-500">Frame link copied to clipboard!</div>}
+      </div>
     </div>
   )
 }
@@ -191,16 +223,16 @@ function VoteButtons({
         <button
           onClick={() => handleVote(true)}
           disabled={isPending || hasVoted}
-          className="px-4 py-2 rounded-lg text-white"
+          className={`px-4 py-2 rounded-lg text-white ${hasVoted ? "bg-zinc-700" : "bg-green-600 hover:bg-green-700"}`}
         >
-          Yes ({voteCountYes})
+          👍 Yes ({voteCountYes})
         </button>
         <button
           onClick={() => handleVote(false)}
           disabled={isPending || hasVoted}
-          className="px-4 py-2 rounded-lg text-white"
+          className={`px-4 py-2 rounded-lg text-white ${hasVoted ? "bg-zinc-700" : "bg-red-600 hover:bg-red-700"}`}
         >
-          No ({voteCountNo})
+          👎 No ({voteCountNo})
         </button>
       </div>
     </div>
