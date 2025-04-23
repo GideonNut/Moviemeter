@@ -122,7 +122,7 @@ export const MovieProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   // Filter movies based on search query
   const filteredMovies = movies.filter((movie) => movie.title.toLowerCase().includes(searchQuery.toLowerCase()))
 
-  // Vote for a movie
+  // Update the voteForMovie function to properly handle transaction status and refresh data
   const voteForMovie = async (movieId: number, voteType: boolean) => {
     if (!address) {
       setError("Please connect your wallet to vote")
@@ -152,8 +152,38 @@ export const MovieProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       const transaction = prepareVoteTransaction(movieId, voteType)
 
       sendTransaction(transaction, {
-        onSuccess: () => {
-          console.log(`Successfully voted ${voteType ? "yes" : "no"} for movie ${movieId}`)
+        onSuccess: async (result) => {
+          console.log(`Successfully voted ${voteType ? "yes" : "no"} for movie ${movieId}`, result)
+
+          // Wait for transaction to be mined
+          try {
+            // Refresh the vote data from the blockchain after a short delay
+            // to allow the transaction to be processed
+            setTimeout(async () => {
+              try {
+                const voteData = await contract.read("getVotes", [movieId])
+
+                // Update the movie with the latest vote data from the blockchain
+                setMovies((prevMovies) =>
+                  prevMovies.map((movie) => {
+                    if (movie.id === movieId) {
+                      return {
+                        ...movie,
+                        voteCountYes: voteData ? Number(voteData.yes) : movie.voteCountYes,
+                        voteCountNo: voteData ? Number(voteData.no) : movie.voteCountNo,
+                        hasVoted: voteData ? voteData.voters.includes(address) : movie.hasVoted,
+                      }
+                    }
+                    return movie
+                  }),
+                )
+              } catch (refreshError) {
+                console.error("Error refreshing vote data:", refreshError)
+              }
+            }, 3000) // Wait 3 seconds for the transaction to be processed
+          } catch (waitError) {
+            console.error("Error waiting for transaction:", waitError)
+          }
         },
         onError: (error) => {
           console.error("Voting failed:", error)
@@ -194,4 +224,3 @@ export const MovieProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   return <MovieContext.Provider value={value}>{children}</MovieContext.Provider>
 }
-
