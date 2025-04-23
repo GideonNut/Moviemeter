@@ -97,4 +97,3 @@ export default function SharePage({ searchParams }: PageProps) {
     </div>
   )
 }
-
