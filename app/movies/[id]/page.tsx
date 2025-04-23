@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Star, Clock, Calendar, Heart, Share2, Play } from "lucide-react"
+import MovieAnalysis from "@/components/movie-analysis"
 
 // This would normally come from a database or API
 const getMovieDetails = (id: string) => {
@@ -133,6 +134,11 @@ export default function MoviePage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
+        {/* Groq AI Analysis Section */}
+        <section className="mt-12 mb-8">
+          <MovieAnalysis movieTitle={movie.title} />
+        </section>
+
         {/* Similar Movies Section */}
         <section className="mt-12 mb-8">
           <h2 className="text-2xl font-bold mb-4">More Like This</h2>
@@ -156,4 +162,3 @@ export default function MoviePage({ params }: { params: { id: string } }) {
     </main>
   )
 }
-
