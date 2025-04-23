@@ -86,3 +86,38 @@ export async function hasUserVotedForMovie(movieId: string, address: string): Pr
   }
 }
 
+/**
+ * Refresh vote data for all movies
+ * @param movieIds - Array of movie IDs to refresh
+ * @param address - User's wallet address
+ * @returns Promise with vote data for all movies
+ */
+export async function refreshAllVotes(movieIds: number[], address: string) {
+  try {
+    const votesData = await Promise.all(
+      movieIds.map(async (id) => {
+        try {
+          const voteData = await getMovieVotes(id.toString())
+          return {
+            id,
+            voteCountYes: voteData ? Number(voteData.yes) : 0,
+            voteCountNo: voteData ? Number(voteData.no) : 0,
+            hasVoted: voteData ? voteData.voters.includes(address) : false,
+          }
+        } catch (err) {
+          console.error(`Error loading votes for movie ${id}:`, err)
+          return {
+            id,
+            voteCountYes: 0,
+            voteCountNo: 0,
+            hasVoted: false,
+          }
+        }
+      }),
+    )
+    return votesData
+  } catch (error) {
+    console.error("Error refreshing all votes:", error)
+    return []
+  }
+}
