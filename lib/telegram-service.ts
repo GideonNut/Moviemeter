@@ -318,4 +318,3 @@ ${userVote ? `<b>User Vote:</b> ${userVote === "yes" ? "👍 Yes" : "👎 No"}` 
     return false
   }
 }
-
