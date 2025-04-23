@@ -92,5 +92,23 @@ export const movies: Movie[] = [
       "https://m.media-amazon.com/images/M/MV5BMTMwNzExMTcxOV5BMl5BanBnXkFtZTcwODU3MTIzMw@@._V1_.jpg",
     ],
   },
+  {
+    id: "4",
+    title: "Dune: Part Two",
+    description:
+      "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.",
+    releaseYear: "2024",
+    director: "Denis Villeneuve",
+    cast: ["Timothée Chalamet", "Zendaya", "Rebecca Ferguson"],
+    genres: ["Action", "Adventure", "Sci-Fi"],
+    rating: 8.6,
+    posterUrl: "/images/dune.jpg",
+    backdropUrl: "/images/dune.jpg",
+    trailerUrl: "https://www.youtube.com/embed/Way9Dexny3w",
+    screenshots: [
+      "https://i.ytimg.com/vi/Way9Dexny3w/hq720.jpg",
+      "https://i.ytimg.com/vi/Way9Dexny3w/hqdefault.jpg",
+      "https://i.ytimg.com/vi/Way9Dexny3w/maxresdefault.jpg",
+    ],
+  },
 ]
-
