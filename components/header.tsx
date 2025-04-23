@@ -14,12 +14,18 @@ export default function Header() {
   const account = useActiveAccount()
 
   return (
-    <header className="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
+    <header className="bg-black border-b border-[#222222] sticky top-0 z-50 backdrop-blur-sm bg-opacity-90">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <Image src="/moviemeter-logo.png" alt="MovieMeter" width={140} height={40} className="object-contain" />
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo%20png-r3dxjfHmuTVCaDvJ5i6eDlG2qHoJ5N.png"
+              alt="MovieMeter"
+              width={140}
+              height={40}
+              className="object-contain"
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -30,15 +36,24 @@ export default function Header() {
                 <Film size={16} className="mr-1.5" />
                 Movie Votings <ChevronDown size={14} className="ml-1" />
               </button>
-              <div className="absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg hidden group-hover:block">
+              <div className="absolute left-0 mt-1 w-48 bg-[#121212] rounded-lg shadow-lg hidden group-hover:block border border-[#222222]">
                 <div className="py-1">
-                  <Link href="/movies" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                  <Link
+                    href="/movies"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-[#1a1a1a] rounded-lg mx-1 my-1"
+                  >
                     All Movies
                   </Link>
-                  <Link href="/top-rated" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                  <Link
+                    href="/top-rated"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-[#1a1a1a] rounded-lg mx-1 my-1"
+                  >
                     Top Rated
                   </Link>
-                  <Link href="/coming-soon" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                  <Link
+                    href="/coming-soon"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-[#1a1a1a] rounded-lg mx-1 my-1"
+                  >
                     Coming Soon
                   </Link>
                 </div>
@@ -51,15 +66,24 @@ export default function Header() {
                 <Gift size={16} className="mr-1.5" />
                 Rewards <ChevronDown size={14} className="ml-1" />
               </button>
-              <div className="absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg hidden group-hover:block">
+              <div className="absolute left-0 mt-1 w-48 bg-[#121212] rounded-lg shadow-lg hidden group-hover:block border border-[#222222]">
                 <div className="py-1">
-                  <Link href="/rewards/earn" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                  <Link
+                    href="/rewards/earn"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-[#1a1a1a] rounded-lg mx-1 my-1"
+                  >
                     Earn Rewards
                   </Link>
-                  <Link href="/rewards/redeem" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                  <Link
+                    href="/rewards/redeem"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-[#1a1a1a] rounded-lg mx-1 my-1"
+                  >
                     Redeem Points
                   </Link>
-                  <Link href="/rewards/history" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                  <Link
+                    href="/rewards/history"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-[#1a1a1a] rounded-lg mx-1 my-1"
+                  >
                     Reward History
                   </Link>
                 </div>
@@ -72,14 +96,17 @@ export default function Header() {
                 <Sparkles size={16} className="mr-1.5" />
                 AI Recommendations <ChevronDown size={14} className="ml-1" />
               </button>
-              <div className="absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg hidden group-hover:block">
+              <div className="absolute left-0 mt-1 w-48 bg-[#121212] rounded-lg shadow-lg hidden group-hover:block border border-[#222222]">
                 <div className="py-1">
-                  <Link href="/recommendations" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                  <Link
+                    href="/recommendations"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-[#1a1a1a] rounded-lg mx-1 my-1"
+                  >
                     Get Recommendations
                   </Link>
                   <Link
                     href="/recommendations/popular"
-                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-[#1a1a1a] rounded-lg mx-1 my-1"
                   >
                     Popular Picks
                   </Link>
@@ -93,15 +120,24 @@ export default function Header() {
                 <Tv size={16} className="mr-1.5" />
                 TV Shows <ChevronDown size={14} className="ml-1" />
               </button>
-              <div className="absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg hidden group-hover:block">
+              <div className="absolute left-0 mt-1 w-48 bg-[#121212] rounded-lg shadow-lg hidden group-hover:block border border-[#222222]">
                 <div className="py-1">
-                  <Link href="/tv" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                  <Link
+                    href="/tv"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-[#1a1a1a] rounded-lg mx-1 my-1"
+                  >
                     All Shows
                   </Link>
-                  <Link href="/tv/popular" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                  <Link
+                    href="/tv/popular"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-[#1a1a1a] rounded-lg mx-1 my-1"
+                  >
                     Popular Shows
                   </Link>
-                  <Link href="/tv/upcoming" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                  <Link
+                    href="/tv/upcoming"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-[#1a1a1a] rounded-lg mx-1 my-1"
+                  >
                     Upcoming Releases
                   </Link>
                 </div>
@@ -114,14 +150,17 @@ export default function Header() {
                 <Users size={16} className="mr-1.5" />
                 Celebs <ChevronDown size={14} className="ml-1" />
               </button>
-              <div className="absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg hidden group-hover:block">
+              <div className="absolute left-0 mt-1 w-48 bg-[#121212] rounded-lg shadow-lg hidden group-hover:block border border-[#222222]">
                 <div className="py-1">
-                  <Link href="/celebrities" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                  <Link
+                    href="/celebrities"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-[#1a1a1a] rounded-lg mx-1 my-1"
+                  >
                     All Celebrities
                   </Link>
                   <Link
                     href="/celebrities/trending"
-                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-[#1a1a1a] rounded-lg mx-1 my-1"
                   >
                     Trending Stars
                   </Link>
@@ -129,23 +168,26 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Telegram channel link */}
+            {/* Community channel link */}
             <div className="relative group">
               <button className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2">
                 <MessageCircle size={16} className="mr-1.5" />
-                Movies Society <ChevronDown size={14} className="ml-1" />
+                Community <ChevronDown size={14} className="ml-1" />
               </button>
-              <div className="absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg hidden group-hover:block">
+              <div className="absolute left-0 mt-1 w-48 bg-[#121212] rounded-lg shadow-lg hidden group-hover:block border border-[#222222]">
                 <div className="py-1">
                   <Link
                     href="https://t.me/movies_society"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-[#1a1a1a] rounded-lg mx-1 my-1"
                   >
                     Join Telegram Channel
                   </Link>
-                  <Link href="/recommendations" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                  <Link
+                    href="/recommendations"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-[#1a1a1a] rounded-lg mx-1 my-1"
+                  >
                     View Recommendations
                   </Link>
                 </div>
@@ -162,7 +204,7 @@ export default function Header() {
                   <input
                     type="text"
                     placeholder="Search MovieMeter"
-                    className="w-48 bg-zinc-800 text-white rounded-md py-1.5 pl-8 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-rose-600"
+                    className="w-48 bg-[#121212] text-white rounded-full py-1.5 pl-8 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-[#ad264a] border border-[#222222]"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     autoFocus
@@ -190,7 +232,7 @@ export default function Header() {
             <ConnectButton
               client={client}
               appMetadata={{ name: "MovieMeter", url: "https://moviemeter.vercel.app" }}
-              className="bg-rose-600 hover:bg-rose-700 text-white py-1.5 px-4 rounded text-sm font-medium md:py-1.5 md:px-4 md:text-sm py-1 px-2 text-xs"
+              className="bg-[#ad264a] hover:bg-[#c13a5e] text-white py-1.5 px-4 rounded-full text-sm font-medium transition-colors duration-300"
             />
 
             {/* Mobile Menu Button */}
@@ -206,14 +248,14 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-zinc-800 py-2">
+        <div className="md:hidden bg-[#121212] py-2 border-t border-[#222222]">
           {/* Mobile Search */}
           <div className="px-4 py-2">
             <div className="relative">
               <input
                 type="text"
                 placeholder="Search MovieMeter"
-                className="w-full bg-zinc-700 text-white rounded-md py-2 pl-10 pr-4 focus:outline-none"
+                className="w-full bg-black text-white rounded-full py-2 pl-10 pr-4 focus:outline-none border border-[#222222]"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -253,7 +295,7 @@ export default function Header() {
               rel="noopener noreferrer"
               className="block py-2 text-zinc-300 hover:text-white"
             >
-              Movies Society Channel
+              Community Channel
             </Link>
           </nav>
         </div>
@@ -261,4 +303,3 @@ export default function Header() {
     </header>
   )
 }
-
