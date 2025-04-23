@@ -5,78 +5,47 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Star, ThumbsUp, Search, Loader2 } from "lucide-react"
+import { Star, ThumbsUp, Loader2, Sparkles } from "lucide-react"
 import Header from "@/components/header"
 import TelegramRecommendations from "@/components/telegram-recommendations"
-import type { MovieData } from "@/lib/ai-agent"
+import type { MovieRecommendation } from "@/lib/groq-service"
 
 export default function RecommendationsPage() {
   const [preferences, setPreferences] = useState("")
-  const [recommendations, setRecommendations] = useState<(MovieData & { recommendationReason?: string })[]>([])
+  const [recommendations, setRecommendations] = useState<MovieRecommendation[]>([])
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const getRecommendations = async () => {
     if (!preferences.trim()) return
 
     try {
       setLoading(true)
+      setError(null)
 
-      // In a real implementation, this would call your API
-      // For demo purposes, we'll use mock data
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      const response = await fetch("/api/recommendations/groq", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          preferences,
+          count: 3,
+        }),
+      })
 
-      const mockRecommendations: (MovieData & { recommendationReason: string })[] = [
-        {
-          id: "2",
-          title: "The Dark Knight",
-          description:
-            "Batman faces off against the Joker in an epic battle for Gotham's soul. As the Joker unleashes chaos, Batman must confront his own demons while trying to save the city.",
-          releaseDate: "2008-07-18",
-          genres: ["Action", "Crime", "Drama"],
-          rating: 9.0,
-          lastUpdated: new Date().toISOString(),
-          posterUrl: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_.jpg",
-          backdropUrl: "https://m.media-amazon.com/images/M/MV5BMTM5OTMyMjIxOV5BMl5BanBnXkFtZTcwNzU3MTIzMw@@._V1_.jpg",
-          recommendationReason:
-            "Based on your interest in complex characters and psychological thrillers, this film offers an intense exploration of chaos versus order with Heath Ledger's iconic performance as the Joker.",
-        },
-        {
-          id: "1",
-          title: "Interstellar",
-          description:
-            "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival. The film explores themes of love, time, and the human spirit.",
-          releaseDate: "2014-11-07",
-          genres: ["Adventure", "Drama", "Sci-Fi"],
-          rating: 8.6,
-          lastUpdated: new Date().toISOString(),
-          posterUrl:
-            "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg",
-          backdropUrl: "https://m.media-amazon.com/images/M/MV5BMjIxNTU4MzY4MF5BMl5BanBnXkFtZTgwMzM4ODI3MjE@._V1_.jpg",
-          recommendationReason:
-            "Your preference for thought-provoking sci-fi aligns perfectly with this film's blend of emotional storytelling and scientific concepts like relativity and higher dimensions.",
-        },
-        {
-          id: "5",
-          title: "Blade Runner 2049",
-          description:
-            "A young blade runner's discovery of a long-buried secret leads him to track down former blade runner Rick Deckard, who's been missing for thirty years.",
-          releaseDate: "2017-10-06",
-          genres: ["Action", "Drama", "Mystery", "Sci-Fi"],
-          rating: 8.0,
-          lastUpdated: new Date().toISOString(),
-          posterUrl: "https://m.media-amazon.com/images/M/MV5BNzA1Njg4NzYxOV5BMl5BanBnXkFtZTgwODk5NjU3MzI@._V1_.jpg",
-          backdropUrl:
-            "https://m.media-amazon.com/images/M/MV5BZWQzZmFhMTMtNjUzYS00YjYyLWE5ZDYtY2Q0ZTVjZDZkYTljXkEyXkFqcGdeQXVyMjM4NTM5NDY@._V1_.jpg",
-          recommendationReason:
-            "Given your interest in visually stunning films with philosophical themes, this sequel expands on the original's questions about humanity and identity with breathtaking cinematography.",
-        },
-      ]
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || "Failed to get recommendations")
+      }
 
-      setRecommendations(mockRecommendations)
+      const data = await response.json()
+      setRecommendations(data.data)
       setSubmitted(true)
-    } catch (error) {
-      console.error("Error getting recommendations:", error)
+    } catch (err) {
+      console.error("Error getting recommendations:", err)
+      setError((err as Error).message || "Failed to get recommendations")
     } finally {
       setLoading(false)
     }
@@ -92,51 +61,43 @@ export default function RecommendationsPage() {
     if (!submitted && recommendations.length === 0) {
       setRecommendations([
         {
-          id: "0",
           title: "Inception",
           description:
             "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
-          releaseDate: "2010-07-16",
+          releaseYear: "2010",
           genres: ["Action", "Adventure", "Sci-Fi"],
           rating: 8.8,
-          lastUpdated: new Date().toISOString(),
+          reason: "Popular recommendation for first-time visitors",
           posterUrl: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_.jpg",
-          backdropUrl:
-            "https://m.media-amazon.com/images/M/MV5BMTM4OGIzMWMtMjkwZS00ZTIwLWI1MTktY2E1NWI0NGM0MWRjXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_.jpg",
         },
         {
-          id: "3",
-          title: "Avengers: Endgame",
-          description:
-            "After the devastating events of Infinity War, the universe is in ruins. With the help of remaining allies, the Avengers assemble once more to reverse Thanos' actions and restore balance to the universe.",
-          releaseDate: "2019-04-26",
-          genres: ["Action", "Adventure", "Drama"],
-          rating: 8.4,
-          lastUpdated: new Date().toISOString(),
-          posterUrl: "https://m.media-amazon.com/images/M/MV5BMTc5MDE2ODcwNV5BMl5BanBnXkFtZTgwMzI2NzQ2NzM@._V1_.jpg",
-          backdropUrl:
-            "https://m.media-amazon.com/images/M/MV5BNzk1OGU2NmMtNTdhZC00NjdlLWE5YTMtZTQ0MGExZTQzOGQyXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_.jpg",
-        },
-        {
-          id: "4",
           title: "Parasite",
           description:
             "Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.",
-          releaseDate: "2019-10-11",
+          releaseYear: "2019",
           genres: ["Comedy", "Drama", "Thriller"],
           rating: 8.5,
-          lastUpdated: new Date().toISOString(),
+          reason: "Popular recommendation for first-time visitors",
           posterUrl:
             "https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWE0ZDYtZTI3MjcwN2Q5NTVkXkEyXkFqcGdeQXVyODk4OTc3MTY@._V1_.jpg",
-          backdropUrl:
-            "https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWE0ZDYtZTI3MjcwN2Q5NTVkXkEyXkFqcGdeQXVyODk4OTc3MTY@._V1_.jpg",
+        },
+        {
+          title: "Everything Everywhere All at Once",
+          description:
+            "An aging Chinese immigrant is swept up in an insane adventure, where she alone can save the world by exploring other universes connecting with the lives she could have led.",
+          releaseYear: "2022",
+          genres: ["Action", "Adventure", "Comedy"],
+          rating: 8.0,
+          reason: "Popular recommendation for first-time visitors",
+          posterUrl:
+            "https://m.media-amazon.com/images/M/MV5BYTdiOTIyZTQtNmQ1OS00NjZlLWIyMTgtYzk5Y2M3ZDVmMDk1XkEyXkFqcGdeQXVyMTAzMDg4NzU0._V1_.jpg",
         },
       ])
     }
   }, [submitted, recommendations.length])
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-black text-white">
       <Header />
 
       <div className="container mx-auto px-4 py-8">
@@ -148,7 +109,7 @@ export default function RecommendationsPage() {
             </p>
           </div>
 
-          <div className="bg-zinc-900 p-6 rounded-lg mb-10">
+          <div className="bg-zinc-900 p-6 rounded-lg mb-10 border border-zinc-800">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="preferences" className="block text-sm font-medium text-zinc-300 mb-2">
@@ -158,7 +119,7 @@ export default function RecommendationsPage() {
                   id="preferences"
                   rows={3}
                   placeholder="E.g., I like sci-fi movies with complex plots, psychological thrillers, and visually stunning films. I enjoy Christopher Nolan's work and movies that make me think."
-                  className="w-full bg-zinc-800 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-1 focus:ring-rose-600"
+                  className="w-full bg-zinc-800 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-1 focus:ring-rose-600 border border-zinc-700"
                   value={preferences}
                   onChange={(e) => setPreferences(e.target.value)}
                 />
@@ -176,8 +137,8 @@ export default function RecommendationsPage() {
                     </>
                   ) : (
                     <>
-                      <Search size={20} className="mr-2" />
-                      Get Recommendations
+                      <Sparkles size={20} className="mr-2" />
+                      Get Groq Recommendations
                     </>
                   )}
                 </button>
@@ -185,16 +146,32 @@ export default function RecommendationsPage() {
             </form>
           </div>
 
+          {error && (
+            <div className="bg-red-900/20 border border-red-900 text-red-200 p-4 rounded-lg mb-6">
+              <p className="flex items-center">
+                <span className="mr-2">⚠️</span>
+                {error}
+              </p>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             {/* AI Recommendations */}
             <div className="md:col-span-2">
               <div className="mb-6">
-                <h2 className="text-2xl font-bold mb-4">
-                  {submitted ? "Your Personalized Recommendations" : "Popular Recommendations"}
+                <h2 className="text-2xl font-bold mb-4 flex items-center">
+                  {submitted ? (
+                    <>
+                      <Sparkles size={20} className="mr-2 text-rose-500" />
+                      Your Groq-Powered Recommendations
+                    </>
+                  ) : (
+                    "Popular Recommendations"
+                  )}
                 </h2>
                 <div className="grid grid-cols-1 gap-6">
-                  {recommendations.map((movie) => (
-                    <div key={movie.id} className="bg-zinc-900 rounded-lg overflow-hidden">
+                  {recommendations.map((movie, index) => (
+                    <div key={index} className="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800">
                       <div className="flex flex-col md:flex-row">
                         <div className="relative w-full md:w-1/3 aspect-[2/3] md:h-auto">
                           <Image
@@ -214,22 +191,22 @@ export default function RecommendationsPage() {
                         <div className="p-4 flex-1">
                           <h3 className="font-bold text-lg mb-1">{movie.title}</h3>
                           <p className="text-zinc-400 text-sm mb-2">
-                            {new Date(movie.releaseDate).getFullYear()} • {movie.genres?.join(", ")}
+                            {movie.releaseYear} • {movie.genres?.join(", ")}
                           </p>
                           <p className="text-zinc-300 text-sm line-clamp-3 mb-3">{movie.description}</p>
 
-                          {movie.recommendationReason && (
-                            <div className="bg-zinc-800 p-3 rounded-md mt-3">
-                              <p className="text-sm text-zinc-300 italic">
+                          {movie.reason && (
+                            <div className="bg-zinc-800 p-3 rounded-md mt-3 border border-zinc-700">
+                              <p className="text-sm text-zinc-300">
                                 <span className="font-semibold text-rose-500">Why we recommend this: </span>
-                                {movie.recommendationReason}
+                                {movie.reason}
                               </p>
                             </div>
                           )}
 
                           <div className="mt-4 flex justify-between">
                             <Link
-                              href={`/movies/${movie.id}`}
+                              href={`/movies/${index}`}
                               className="text-rose-500 hover:text-rose-400 text-sm font-medium"
                             >
                               View Details
@@ -253,24 +230,27 @@ export default function RecommendationsPage() {
           </div>
 
           <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-lg">
-            <h3 className="text-lg font-semibold mb-3">How Our AI Recommendations Work</h3>
+            <h3 className="text-lg font-semibold mb-3 flex items-center">
+              <Sparkles size={18} className="mr-2 text-rose-500" />
+              How Our Groq-Powered Recommendations Work
+            </h3>
             <p className="text-zinc-400 mb-4">
-              Our advanced AI analyzes your preferences, viewing history, and similar users' tastes to suggest movies
-              you're likely to enjoy. We also pull fresh recommendations from our Movies Society Telegram channel to
-              keep you updated with the latest trends!
+              Our advanced AI system uses Groq's powerful language models to analyze your preferences, viewing history,
+              and similar users' tastes to suggest movies you're likely to enjoy. We also pull fresh recommendations
+              from our Movies Society Telegram channel to keep you updated with the latest trends!
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-              <div className="bg-zinc-800 p-4 rounded-lg">
+              <div className="bg-zinc-800 p-4 rounded-lg border border-zinc-700">
                 <div className="text-rose-500 font-bold text-lg mb-2">1</div>
                 <h4 className="font-medium mb-1">Analyze Preferences</h4>
-                <p className="text-zinc-500 text-sm">We process your movie preferences and viewing history</p>
+                <p className="text-zinc-500 text-sm">Groq processes your movie preferences and viewing history</p>
               </div>
-              <div className="bg-zinc-800 p-4 rounded-lg">
+              <div className="bg-zinc-800 p-4 rounded-lg border border-zinc-700">
                 <div className="text-rose-500 font-bold text-lg mb-2">2</div>
                 <h4 className="font-medium mb-1">Match Patterns</h4>
                 <p className="text-zinc-500 text-sm">Our AI identifies patterns and similar content</p>
               </div>
-              <div className="bg-zinc-800 p-4 rounded-lg">
+              <div className="bg-zinc-800 p-4 rounded-lg border border-zinc-700">
                 <div className="text-rose-500 font-bold text-lg mb-2">3</div>
                 <h4 className="font-medium mb-1">Personalize Results</h4>
                 <p className="text-zinc-500 text-sm">We deliver tailored recommendations just for you</p>
@@ -282,4 +262,3 @@ export default function RecommendationsPage() {
     </main>
   )
 }
-
