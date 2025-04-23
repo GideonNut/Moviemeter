@@ -52,4 +52,3 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return new NextResponse("Error generating frame embed", { status: 500 })
   }
 }
-
