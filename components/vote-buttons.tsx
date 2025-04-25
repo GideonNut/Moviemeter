@@ -3,6 +3,7 @@
 import { useMovies } from "@/lib/state/MovieContext"
 import { useActiveAccount } from "thirdweb/react"
 import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface VoteButtonsProps {
   movieId: number
@@ -22,14 +23,24 @@ export default function VoteButtons({ movieId }: VoteButtonsProps) {
     return (
       <div className="flex flex-col items-center gap-3 mt-4">
         <div className="flex gap-3 w-full">
-          <button disabled className="flex-1 px-4 py-2 rounded-full text-white bg-[#222222]">
-            👍 Yes (...)
-          </button>
-          <button disabled className="flex-1 px-4 py-2 rounded-full text-white bg-[#222222]">
-            👎 No (...)
-          </button>
+          <motion.div
+            className="flex-1 h-10 bg-[#222222] rounded-full"
+            animate={{ opacity: [0.5, 0.8, 0.5] }}
+            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.5 }}
+          />
+          <motion.div
+            className="flex-1 h-10 bg-[#222222] rounded-full"
+            animate={{ opacity: [0.5, 0.8, 0.5] }}
+            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.5, delay: 0.2 }}
+          />
         </div>
-        <p className="text-sm text-zinc-400">Loading vote data...</p>
+        <motion.p
+          className="text-sm text-zinc-400"
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.5 }}
+        >
+          Loading vote data...
+        </motion.p>
       </div>
     )
   }
@@ -61,9 +72,11 @@ export default function VoteButtons({ movieId }: VoteButtonsProps) {
   return (
     <div className="flex flex-col items-center gap-3 mt-4">
       <div className="flex gap-3 w-full">
-        <button
+        <motion.button
           onClick={() => handleVote(true)}
           disabled={isVoting || localIsVoting || hasVoted || !account?.address}
+          whileHover={!hasVoted && account?.address ? { scale: 1.05 } : {}}
+          whileTap={!hasVoted && account?.address ? { scale: 0.95 } : {}}
           className={`flex-1 px-4 py-2 rounded-full text-white transition-colors duration-300 ${
             hasVoted ? "bg-[#222222]" : "bg-[#1a662a] hover:bg-[#1d7a32]"
           } disabled:opacity-50 disabled:cursor-not-allowed`}
@@ -90,10 +103,12 @@ export default function VoteButtons({ movieId }: VoteButtonsProps) {
           ) : (
             <>👍 Yes ({voteCountYes})</>
           )}
-        </button>
-        <button
+        </motion.button>
+        <motion.button
           onClick={() => handleVote(false)}
           disabled={isVoting || localIsVoting || hasVoted || !account?.address}
+          whileHover={!hasVoted && account?.address ? { scale: 1.05 } : {}}
+          whileTap={!hasVoted && account?.address ? { scale: 0.95 } : {}}
           className={`flex-1 px-4 py-2 rounded-full text-white transition-colors duration-300 ${
             hasVoted ? "bg-[#222222]" : "bg-[#662a2a] hover:bg-[#7a3232]"
           } disabled:opacity-50 disabled:cursor-not-allowed`}
@@ -120,11 +135,23 @@ export default function VoteButtons({ movieId }: VoteButtonsProps) {
           ) : (
             <>👎 No ({voteCountNo})</>
           )}
-        </button>
+        </motion.button>
       </div>
       {hasVoted && <p className="text-sm text-zinc-400">You've already voted on this movie</p>}
       {!account?.address && <p className="text-sm text-zinc-400">Connect your wallet to vote</p>}
-      {voteSuccess && <p className="text-sm text-green-500">Vote recorded successfully!</p>}
+      <AnimatePresence>
+        {voteSuccess && (
+          <motion.p
+            className="text-sm text-green-500"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            Vote recorded successfully!
+          </motion.p>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
