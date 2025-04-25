@@ -5,12 +5,14 @@ import Image from "next/image"
 import Link from "next/link"
 import { RefreshCw, ChevronRight, ChevronLeft } from "lucide-react"
 import type { MovieData } from "@/lib/ai-agent"
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function NewMoviesSection() {
   const [movies, setMovies] = useState<MovieData[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [isHovering, setIsHovering] = useState(false)
 
   const fetchMovies = async () => {
     try {
@@ -149,74 +151,142 @@ export default function NewMoviesSection() {
   }
 
   return (
-    <section className="mb-12">
+    <motion.section
+      className="mb-12"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold">AI-Discovered New Releases</h2>
-        <div className="flex items-center gap-2">
-          <button
+        <motion.h2
+          className="text-2xl font-bold"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          AI-Discovered New Releases
+        </motion.h2>
+        <motion.div
+          className="flex items-center gap-2"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <motion.button
             onClick={fetchMovies}
             disabled={loading}
             className="flex items-center text-rose-500 hover:text-rose-400"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <RefreshCw size={18} className={`mr-1 ${loading ? "animate-spin" : ""}`} />
             <span className="text-sm">Refresh</span>
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       </div>
 
-      {error && <div className="bg-red-900/20 border border-red-900 text-red-200 p-4 rounded-md mb-4">{error}</div>}
+      {error && (
+        <motion.div
+          className="bg-red-900/20 border border-red-900 text-red-200 p-4 rounded-md mb-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          {error}
+        </motion.div>
+      )}
 
-      <div className="relative group">
-        <div
+      <div
+        className="relative group"
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
+        <motion.div
           ref={scrollContainerRef}
           className="flex overflow-x-auto pb-4 scrollbar-hide gap-4 scroll-smooth"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
         >
-          {movies.map((movie) => (
-            <Link href={`/movies/${movie.id}`} key={movie.id} className="group flex-shrink-0 w-[180px]">
-              <div className="bg-zinc-900 rounded-lg overflow-hidden hover:bg-zinc-800 transition-colors h-full border border-zinc-800">
-                <div className="relative aspect-[2/3] w-full">
-                  <Image
-                    src={movie.posterUrl || "/placeholder.svg"}
-                    alt={movie.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-2 right-2 bg-rose-600 text-white text-xs font-bold px-2 py-1 rounded">
-                    NEW
-                  </div>
-                </div>
+          <AnimatePresence>
+            {movies.map((movie, index) => (
+              <motion.div
+                key={movie.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                className="flex-shrink-0 w-[180px]"
+              >
+                <Link href={`/movies/${movie.id}`} className="group">
+                  <div className="bg-zinc-900 rounded-lg overflow-hidden hover:bg-zinc-800 transition-colors h-full border border-zinc-800">
+                    <div className="relative aspect-[2/3] w-full">
+                      <Image
+                        src={movie.posterUrl || "/placeholder.svg"}
+                        alt={movie.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <motion.div
+                        className="absolute top-2 right-2 bg-rose-600 text-white text-xs font-bold px-2 py-1 rounded"
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3, delay: 0.5 + index * 0.05 }}
+                      >
+                        NEW
+                      </motion.div>
+                    </div>
 
-                <div className="p-2">
-                  <h2 className="font-medium text-sm group-hover:text-rose-500 transition-colors line-clamp-1">
-                    {movie.title}
-                  </h2>
-                  <p className="text-zinc-400 text-xs">{new Date(movie.releaseDate).getFullYear()}</p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+                    <div className="p-2">
+                      <h2 className="font-medium text-sm group-hover:text-rose-500 transition-colors line-clamp-1">
+                        {movie.title}
+                      </h2>
+                      <p className="text-zinc-400 text-xs">{new Date(movie.releaseDate).getFullYear()}</p>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
 
         {/* Navigation arrows */}
-        <button
-          onClick={scrollLeft}
-          className="absolute left-0 top-1/2 -translate-y-1/2 bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-          aria-label="Scroll left"
-        >
-          <ChevronLeft size={24} />
-        </button>
-        <button
-          onClick={scrollRight}
-          className="absolute right-0 top-1/2 -translate-y-1/2 bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-          aria-label="Scroll right"
-        >
-          <ChevronRight size={24} />
-        </button>
+        <AnimatePresence>
+          {(isHovering || movies.length > 0) && (
+            <>
+              <motion.button
+                onClick={scrollLeft}
+                className="absolute left-0 top-1/2 -translate-y-1/2 bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                aria-label="Scroll left"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: isHovering ? 1 : 0, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <ChevronLeft size={24} />
+              </motion.button>
+              <motion.button
+                onClick={scrollRight}
+                className="absolute right-0 top-1/2 -translate-y-1/2 bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                aria-label="Scroll right"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: isHovering ? 1 : 0, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                transition={{ duration: 0.2 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <ChevronRight size={24} />
+              </motion.button>
+            </>
+          )}
+        </AnimatePresence>
 
         {/* Add a gradient fade effect on the right side to indicate more content */}
         <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-black to-transparent pointer-events-none"></div>
       </div>
-    </section>
+    </motion.section>
   )
 }
