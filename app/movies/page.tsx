@@ -6,6 +6,7 @@ import Header from "@/components/header"
 import MovieCard from "@/components/movie-card"
 import { MovieProvider, useMovies } from "@/lib/state/MovieContext"
 import { AlertCircle, RefreshCw } from "lucide-react"
+import { motion } from "framer-motion"
 
 // Wrapper component that provides the MovieContext
 export default function MoviesPage() {
@@ -43,27 +44,63 @@ function MoviesPageContent() {
     }
   }
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.3,
+      },
+    },
+  }
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  }
+
   return (
     <main className="min-h-screen bg-black text-white">
       <Header />
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col items-center mb-10">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="container mx-auto px-4 py-8"
+      >
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center mb-10"
+        >
           <h1 className="text-3xl font-bold mb-6 text-white">Vote on Movies</h1>
 
           {!address && (
-            <div className="bg-[#121212] p-6 mb-8 text-center max-w-md w-full border border-[#222222] rounded-lg">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="bg-[#121212] p-6 mb-8 text-center max-w-md w-full border border-[#222222] rounded-lg"
+            >
               <p className="mb-4 text-zinc-300">Connect your wallet to vote on your favorite movies</p>
               <ConnectButton
                 client={client}
                 appMetadata={{ name: "MovieMeter", url: "https://moviemeter.vercel.app" }}
                 className="bg-[#ad264a] hover:bg-[#c13a5e] text-white py-2 px-6 rounded-full transition-colors duration-300"
               />
-            </div>
+            </motion.div>
           )}
 
           {address && (
-            <div className="w-full max-w-md">
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="w-full max-w-md"
+            >
               <div className="flex items-center gap-2 mb-4">
                 <div className="relative flex-1">
                   <input
@@ -87,32 +124,49 @@ function MoviesPageContent() {
                   <RefreshCw size={18} className={isRefreshing ? "animate-spin" : ""} />
                 </button>
               </div>
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
 
         {/* Display error message if there is one */}
         {error && (
-          <div className="bg-[#3a1a1a] border border-[#5a2a2a] text-red-200 p-4 rounded-xl mb-6 flex items-start max-w-2xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="bg-[#3a1a1a] border border-[#5a2a2a] text-red-200 p-4 rounded-xl mb-6 flex items-start max-w-2xl mx-auto"
+          >
             <AlertCircle className="mr-2 mt-0.5 flex-shrink-0" size={16} />
             <p>{error}</p>
-          </div>
+          </motion.div>
         )}
 
         {address && (
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-center">
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-center"
+          >
             {filteredMovies.map((movie) => (
-              <MovieCard key={movie.id} id={movie.id} title={movie.title} description={movie.description} />
+              <motion.div key={movie.id} variants={item}>
+                <MovieCard id={movie.id} title={movie.title} description={movie.description} />
+              </motion.div>
             ))}
 
             {filteredMovies.length === 0 && searchQuery && (
-              <div className="col-span-full text-center py-10">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="col-span-full text-center py-10"
+              >
                 <p className="text-zinc-400">No movies found matching "{searchQuery}"</p>
-              </div>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
     </main>
   )
 }
