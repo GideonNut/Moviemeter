@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Share2 } from "lucide-react"
 import VoteButtons from "./vote-buttons"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface MovieCardProps {
   id: number
@@ -25,13 +26,19 @@ export default function MovieCard({ id, title, description }: MovieCardProps) {
   }
 
   return (
-    <div className="bg-[#121212] rounded-lg overflow-hidden hover:bg-[#1a1a1a] transition-all duration-300 flex flex-col h-full border border-[#222222]">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      whileHover={{ y: -5, transition: { duration: 0.2 } }}
+      className="bg-[#121212] rounded-lg overflow-hidden hover:bg-[#1a1a1a] transition-all duration-300 flex flex-col h-full border border-[#222222]"
+    >
       <div className="relative aspect-[2/3] w-full overflow-hidden">
         <Image
           src={`/placeholder.svg?height=450&width=300&text=${encodeURIComponent(title)}`}
           alt={title}
           fill
-          className="object-cover"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[rgba(18,18,18,0.9)] to-transparent"></div>
       </div>
@@ -52,22 +59,32 @@ export default function MovieCard({ id, title, description }: MovieCardProps) {
             >
               View Farcaster Frame
             </Link>
-            <button
+            <motion.button
               onClick={copyFrameLink}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               className="text-zinc-400 hover:text-white p-2 rounded-full hover:bg-[#222222] transition-colors"
               title="Copy Frame Link"
               aria-label="Copy Frame Link"
             >
               <Share2 size={16} />
-            </button>
+            </motion.button>
           </div>
-          {showFrameLink && (
-            <div className="mt-2 text-xs text-green-500" role="alert">
-              Frame link copied to clipboard!
-            </div>
-          )}
+          <AnimatePresence>
+            {showFrameLink && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="mt-2 text-xs text-green-500"
+                role="alert"
+              >
+                Frame link copied to clipboard!
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
