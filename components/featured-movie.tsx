@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Play, ChevronLeft, ChevronRight } from "lucide-react"
 import VideoPlayer from "./video-player"
+import { motion, AnimatePresence } from "framer-motion"
 
 // Sample featured movies data with real images
 const featuredMovies = [
@@ -43,14 +44,17 @@ const featuredMovies = [
 export default function FeaturedMovie() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [direction, setDirection] = useState(0)
 
   const currentMovie = featuredMovies[currentIndex]
 
   const nextMovie = () => {
+    setDirection(1)
     setCurrentIndex((prev) => (prev + 1) % featuredMovies.length)
   }
 
   const prevMovie = () => {
+    setDirection(-1)
     setCurrentIndex((prev) => (prev - 1 + featuredMovies.length) % featuredMovies.length)
   }
 
@@ -59,71 +63,140 @@ export default function FeaturedMovie() {
     setCurrentIndex(0) // Index 0 is Final Destination: Bloodlines
   }, [])
 
+  const variants = {
+    enter: (direction: number) => {
+      return {
+        x: direction > 0 ? 1000 : -1000,
+        opacity: 0,
+      }
+    },
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction: number) => {
+      return {
+        zIndex: 0,
+        x: direction < 0 ? 1000 : -1000,
+        opacity: 0,
+      }
+    },
+  }
+
   return (
     <div className="relative rounded-lg overflow-hidden group">
       {/* Movie Poster/Trailer */}
       <div className="relative aspect-[16/9] w-full">
-        <Image
-          src={currentMovie.imageUrl || "/placeholder.svg"}
-          alt={currentMovie.title}
-          fill
-          className="object-cover"
-          priority
-        />
+        <AnimatePresence initial={false} custom={direction}>
+          <motion.div
+            key={currentIndex}
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.2 },
+            }}
+            className="absolute inset-0"
+          >
+            <Image
+              src={currentMovie.imageUrl || "/placeholder.svg"}
+              alt={currentMovie.title}
+              fill
+              className="object-cover"
+              priority
+            />
+          </motion.div>
+        </AnimatePresence>
 
         {/* Play Button Overlay */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <button
+          <motion.button
             onClick={() => setIsPlaying(true)}
-            className="bg-black/50 hover:bg-black/70 text-white rounded-full p-4 transition-all transform hover:scale-110"
+            className="bg-black/50 hover:bg-black/70 text-white rounded-full p-4 transition-all"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
           >
             <Play size={32} fill="white" />
-          </button>
+          </motion.button>
         </div>
 
         {/* Navigation Arrows */}
-        <button
+        <motion.button
           onClick={prevMovie}
           className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
         >
           <ChevronLeft size={24} />
-        </button>
-        <button
+        </motion.button>
+        <motion.button
           onClick={nextMovie}
           className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
         >
           <ChevronRight size={24} />
-        </button>
+        </motion.button>
       </div>
 
       {/* Movie Info */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6">
-        <div className="flex items-center mb-2">
-          <div className="bg-[#ad264a] text-white text-xs font-bold px-2 py-1 rounded mr-2">
-            {currentMovie.duration}
-          </div>
-        </div>
-        <h2 className="text-2xl md:text-3xl font-bold mb-2">{currentMovie.title}</h2>
-        <p className="text-zinc-300 text-sm md:text-base mb-4 max-w-2xl">{currentMovie.description}</p>
-        <div className="flex items-center">
-          <button
-            onClick={() => setIsPlaying(true)}
-            className="flex items-center bg-[#121212] hover:bg-[#1a1a1a] text-white rounded px-4 py-2"
+      <motion.div
+        className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
           >
-            <Play size={16} className="mr-2" />
-            Watch the Trailer
-          </button>
-        </div>
-      </div>
+            <div className="flex items-center mb-2">
+              <div className="bg-[#ad264a] text-white text-xs font-bold px-2 py-1 rounded mr-2">
+                {currentMovie.duration}
+              </div>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold mb-2">{currentMovie.title}</h2>
+            <p className="text-zinc-300 text-sm md:text-base mb-4 max-w-2xl">{currentMovie.description}</p>
+            <div className="flex items-center">
+              <motion.button
+                onClick={() => setIsPlaying(true)}
+                className="flex items-center bg-[#121212] hover:bg-[#1a1a1a] text-white rounded px-4 py-2"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Play size={16} className="mr-2" />
+                Watch the Trailer
+              </motion.button>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
 
       {/* Video Modal */}
-      {isPlaying && (
-        <VideoPlayer
-          src={currentMovie.trailerUrl}
-          title={`${currentMovie.title} - Trailer`}
-          onClose={() => setIsPlaying(false)}
-        />
-      )}
+      <AnimatePresence>
+        {isPlaying && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <VideoPlayer
+              src={currentMovie.trailerUrl}
+              title={`${currentMovie.title} - Trailer`}
+              onClose={() => setIsPlaying(false)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
