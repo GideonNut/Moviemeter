@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Sparkles, Loader2 } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface MovieAnalysisProps {
   movieTitle: string
@@ -47,51 +48,82 @@ export default function MovieAnalysis({ movieTitle }: MovieAnalysisProps) {
     fetchAnalysis()
   }, [movieTitle])
 
-  if (loading) {
-    return (
-      <div className="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
-        <div className="flex items-center justify-center py-8">
-          <Loader2 size={24} className="animate-spin text-rose-500 mr-2" />
-          <p>Generating AI analysis...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
-        <p className="text-red-400">{error}</p>
-      </div>
-    )
-  }
-
   return (
-    <div className="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
-      <h3 className="text-xl font-bold mb-4 flex items-center">
+    <motion.div
+      className="bg-zinc-900 rounded-lg p-6 border border-zinc-800"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <motion.h3
+        className="text-xl font-bold mb-4 flex items-center"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
         <Sparkles size={18} className="mr-2 text-rose-500" />
         Groq AI Analysis
-      </h3>
+      </motion.h3>
 
-      {analysis && (
-        <div className="mb-6">
-          <h4 className="text-lg font-semibold mb-2">Film Analysis</h4>
-          <p className="text-zinc-300 leading-relaxed">{analysis}</p>
-        </div>
-      )}
+      {loading ? (
+        <motion.div
+          className="flex items-center justify-center py-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Loader2 size={24} className="animate-spin text-rose-500 mr-2" />
+          <p>Generating AI analysis...</p>
+        </motion.div>
+      ) : error ? (
+        <motion.p
+          className="text-red-400"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          {error}
+        </motion.p>
+      ) : (
+        <>
+          {analysis && (
+            <motion.div
+              className="mb-6"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <h4 className="text-lg font-semibold mb-2">Film Analysis</h4>
+              <p className="text-zinc-300 leading-relaxed">{analysis}</p>
+            </motion.div>
+          )}
 
-      {questions.length > 0 && (
-        <div>
-          <h4 className="text-lg font-semibold mb-2">Discussion Questions</h4>
-          <ul className="space-y-2">
-            {questions.map((question, index) => (
-              <li key={index} className="bg-zinc-800 p-3 rounded-md border border-zinc-700">
-                <p className="text-zinc-300">{question}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {questions.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <h4 className="text-lg font-semibold mb-2">Discussion Questions</h4>
+              <div className="space-y-2">
+                <AnimatePresence>
+                  {questions.map((question, index) => (
+                    <motion.div
+                      key={index}
+                      className="bg-zinc-800 p-3 rounded-md border border-zinc-700"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
+                    >
+                      <p className="text-zinc-300">{question}</p>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+        </>
       )}
-    </div>
+    </motion.div>
   )
 }
