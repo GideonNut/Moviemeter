@@ -9,6 +9,7 @@ import { Star, ThumbsUp, Loader2, Sparkles } from "lucide-react"
 import Header from "@/components/header"
 import TelegramRecommendations from "@/components/telegram-recommendations"
 import type { MovieRecommendation } from "@/lib/groq-service"
+import { motion } from "framer-motion"
 
 export default function RecommendationsPage() {
   const [preferences, setPreferences] = useState("")
@@ -100,16 +101,31 @@ export default function RecommendationsPage() {
     <main className="min-h-screen bg-black text-white">
       <Header />
 
-      <div className="container mx-auto px-4 py-8">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="container mx-auto px-4 py-8"
+      >
         <div className="max-w-4xl mx-auto">
-          <div className="mb-8 text-center">
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="mb-8 text-center"
+          >
             <h1 className="text-3xl md:text-4xl font-bold mb-4">AI Movie Recommendations</h1>
             <p className="text-zinc-400 max-w-2xl mx-auto">
               Our AI analyzes your preferences to recommend movies you'll love. Tell us what you enjoy watching!
             </p>
-          </div>
+          </motion.div>
 
-          <div className="bg-zinc-900 p-6 rounded-lg mb-10 border border-zinc-800">
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-zinc-900 p-6 rounded-lg mb-10 border border-zinc-800"
+          >
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="preferences" className="block text-sm font-medium text-zinc-300 mb-2">
@@ -144,18 +160,28 @@ export default function RecommendationsPage() {
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
 
           {error && (
-            <div className="bg-red-900/20 border border-red-900 text-red-200 p-4 rounded-lg mb-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="bg-red-900/20 border border-red-900 text-red-200 p-4 rounded-lg mb-6"
+            >
               <p className="flex items-center">
                 <span className="mr-2">⚠️</span>
                 {error}
               </p>
-            </div>
+            </motion.div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10"
+          >
             {/* AI Recommendations */}
             <div className="md:col-span-2">
               <div className="mb-6">
@@ -171,7 +197,13 @@ export default function RecommendationsPage() {
                 </h2>
                 <div className="grid grid-cols-1 gap-6">
                   {recommendations.map((movie, index) => (
-                    <div key={index} className="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800">
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
+                      className="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800"
+                    >
                       <div className="flex flex-col md:flex-row">
                         <div className="relative w-full md:w-1/3 aspect-[2/3] md:h-auto">
                           <Image
@@ -217,48 +249,73 @@ export default function RecommendationsPage() {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </div>
             </div>
 
             {/* Telegram Recommendations */}
-            <div className="md:col-span-1">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="md:col-span-1"
+            >
               <TelegramRecommendations />
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-lg">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-lg"
+          >
             <h3 className="text-lg font-semibold mb-3 flex items-center">
               <Sparkles size={18} className="mr-2 text-rose-500" />
               How Our Groq-Powered Recommendations Work
             </h3>
             <p className="text-zinc-400 mb-4">
               Our advanced AI system uses Groq's powerful language models to analyze your preferences, viewing history,
-              and similar users' tastes to suggest movies you're likely to enjoy. We also pull fresh recommendations
-              from our Movies Society Telegram channel to keep you updated with the latest trends!
+              and similar users' tastes to suggest movies you'll likely enjoy. We also pull fresh recommendations from
+              our Movies Society Telegram channel to keep you updated with the latest trends!
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-              <div className="bg-zinc-800 p-4 rounded-lg border border-zinc-700">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.7 }}
+                className="bg-zinc-800 p-4 rounded-lg border border-zinc-700"
+              >
                 <div className="text-rose-500 font-bold text-lg mb-2">1</div>
                 <h4 className="font-medium mb-1">Analyze Preferences</h4>
                 <p className="text-zinc-500 text-sm">Groq processes your movie preferences and viewing history</p>
-              </div>
-              <div className="bg-zinc-800 p-4 rounded-lg border border-zinc-700">
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.8 }}
+                className="bg-zinc-800 p-4 rounded-lg border border-zinc-700"
+              >
                 <div className="text-rose-500 font-bold text-lg mb-2">2</div>
                 <h4 className="font-medium mb-1">Match Patterns</h4>
                 <p className="text-zinc-500 text-sm">Our AI identifies patterns and similar content</p>
-              </div>
-              <div className="bg-zinc-800 p-4 rounded-lg border border-zinc-700">
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.9 }}
+                className="bg-zinc-800 p-4 rounded-lg border border-zinc-700"
+              >
                 <div className="text-rose-500 font-bold text-lg mb-2">3</div>
                 <h4 className="font-medium mb-1">Personalize Results</h4>
                 <p className="text-zinc-500 text-sm">We deliver tailored recommendations just for you</p>
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </main>
   )
 }
