@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     // Track the frame view
     trackFrameView(movieId)
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter13.vercel.app"
 
     // Return the HTML with the frame metadata
     return new NextResponse(

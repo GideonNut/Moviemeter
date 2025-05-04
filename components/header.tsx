@@ -1,18 +1,26 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Search, Menu, ChevronDown, Bell, Sparkles, Film, Gift, Tv, Users, MessageCircle } from "lucide-react"
 import { ConnectButton, useActiveAccount } from "thirdweb/react"
 import { client } from "@/app/client"
 import { motion, AnimatePresence } from "framer-motion"
+import { useTheme } from "next-themes"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [showSearch, setShowSearch] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const { theme } = useTheme()
   const account = useActiveAccount()
+
+  // Avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const navItemVariants = {
     hidden: { opacity: 0, y: -10 },
@@ -38,13 +46,21 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo%20png-r3dxjfHmuTVCaDvJ5i6eDlG2qHoJ5N.png"
-                alt="MovieMeter"
-                width={140}
-                height={40}
-                className="object-contain"
-              />
+              {mounted ? (
+                <Image
+                  src={
+                    theme === "dark"
+                      ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/new%20logo%203-bvpmjn8Vd3DWpIvC4Hopal4wIzZYaY.png"
+                      : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/new%20logo%203%20black-wWW9kUeGZaf6PoxJENYzU33wt09hTr.png"
+                  }
+                  alt="MovieMeter"
+                  width={140}
+                  height={40}
+                  className="object-contain"
+                />
+              ) : (
+                <div className="w-[140px] h-[40px]" /> // Placeholder to prevent layout shift
+              )}
             </motion.div>
           </Link>
 

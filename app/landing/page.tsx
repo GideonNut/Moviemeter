@@ -8,28 +8,31 @@ import { client } from "@/app/client"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useTheme } from "next-themes"
 import { motion } from "framer-motion"
+import { useMediaQuery } from "@/hooks/use-media-query"
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false)
   const { theme } = useTheme()
+  const isMobile = useMediaQuery("(max-width: 768px)")
 
   // Avoid hydration mismatch
   useEffect(() => {
     setMounted(true)
   }, [])
 
+  // Simplified animations for better performance
   const container = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
+        staggerChildren: isMobile ? 0.1 : 0.2,
       },
     },
   }
 
   const item = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 10 },
     show: { opacity: 1, y: 0 },
   }
 
@@ -37,14 +40,22 @@ export default function LandingPage() {
     <div className="min-h-screen flex flex-col bg-white dark:bg-black text-black dark:text-white">
       <header className="container mx-auto px-4 py-6 flex justify-between items-center">
         <div className="flex items-center">
-          <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo%20png-r3dxjfHmuTVCaDvJ5i6eDlG2qHoJ5N.png"
-            alt="MovieMeter"
-            width={40}
-            height={40}
-            className="mr-2"
-          />
-          <span className="text-xl font-bold">MovieMeter</span>
+          {mounted && (
+            <Image
+              src={
+                theme === "dark"
+                  ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/new%20logo%203-bvpmjn8Vd3DWpIvC4Hopal4wIzZYaY.png"
+                  : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/new%20logo%203%20black-wWW9kUeGZaf6PoxJENYzU33wt09hTr.png"
+              }
+              alt="MovieMeter"
+              width={180}
+              height={40}
+              className="object-contain"
+            />
+          )}
+          {!mounted && (
+            <div className="w-[180px] h-[40px]" /> // Placeholder to prevent layout shift
+          )}
         </div>
         <div className="flex items-center gap-4">
           <ThemeToggle />
@@ -61,17 +72,19 @@ export default function LandingPage() {
       <main className="flex-1 flex flex-col items-center justify-center text-center px-4">
         <motion.div className="max-w-4xl w-full" variants={container} initial="hidden" animate="show">
           <motion.div variants={item} className="mb-8 flex justify-center">
-            <div className="flex flex-col items-end">
-              <div className="w-16 h-2 bg-black dark:bg-white mb-2"></div>
-              <div className="w-12 h-2 bg-black dark:bg-white mb-2"></div>
-              <div className="w-8 h-2 bg-black dark:bg-white"></div>
-            </div>
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/new%20favicon-iBH197m4BzR8Uw2qerbRRSBIUhjj5h.png"
+              alt="MovieMeter Logo"
+              width={120}
+              height={120}
+              className="mb-6"
+            />
           </motion.div>
 
           <motion.h1 variants={item} className="text-4xl md:text-6xl font-bold mb-6">
-            Experience Movies
-            <br />
-            Like Never Before
+            Do you love movies? <br />
+            Do you trust your movie taste? <br />
+            Do you like to earn?
           </motion.h1>
 
           <motion.p variants={item} className="text-lg text-zinc-600 dark:text-zinc-400 mb-8 max-w-xl mx-auto">

@@ -1,20 +1,28 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { RefreshCw, ChevronRight, ChevronLeft } from "lucide-react"
 import type { MovieData } from "@/lib/ai-agent"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
+import { useInView } from "react-intersection-observer"
+import { RefreshCw, ChevronLeft, ChevronRight } from "lucide-react"
 
 export default function NewMoviesSection() {
   const [movies, setMovies] = useState<MovieData[]>([])
+  const [visibleMovies, setVisibleMovies] = useState<MovieData[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [isHovering, setIsHovering] = useState(false)
 
-  const fetchMovies = async () => {
+  // Use intersection observer to detect when component is in view
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  })
+
+  const fetchMovies = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -22,7 +30,7 @@ export default function NewMoviesSection() {
       // In a real implementation, this would call your API
       // For demo purposes, we'll use mock data
       const mockNewMovies: MovieData[] = [
-        {
+         {
           id: "4",
           title: "Dune: Part Three",
           description:
@@ -31,8 +39,10 @@ export default function NewMoviesSection() {
           genres: ["Sci-Fi", "Adventure", "Drama"],
           isNew: true,
           lastUpdated: new Date().toISOString(),
-          posterUrl: "/images/dune.jpg",
-          backdropUrl: "/images/dune.jpg",
+          posterUrl:
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/dune.jpg-OrhXhtzHwTERlWv2WmCKk6flxZkmya.jpeg",
+          backdropUrl:
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/dune.jpg-OrhXhtzHwTERlWv2WmCKk6flxZkmya.jpeg",
         },
         {
           id: "5",
@@ -69,9 +79,9 @@ export default function NewMoviesSection() {
           isNew: true,
           lastUpdated: new Date().toISOString(),
           posterUrl:
-            "https://m.media-amazon.com/images/M/MV5BYmU2YTYwYmUtZDYyMi00YTRhLWFjYTctZmQyMmQzN2QxYzkyXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg",
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/venom.jpg-rj7NDcBskMVFwvvqxFSuEncIX9Pjbz.jpeg",
           backdropUrl:
-            "https://m.media-amazon.com/images/M/MV5BYmU2YTYwYmUtZDYyMi00YTRhLWFjYTctZmQyMmQzN2QxYzkyXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg",
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/venom.jpg-rj7NDcBskMVFwvvqxFSuEncIX9Pjbz.jpeg",
         },
         {
           id: "8",
@@ -82,9 +92,9 @@ export default function NewMoviesSection() {
           isNew: true,
           lastUpdated: new Date().toISOString(),
           posterUrl:
-            "https://m.media-amazon.com/images/M/MV5BZjE0ZGRhNWItMGZlZC00MTMyLTkyZTktNzgzYmI2ZWQ5NjNhXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg",
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_8814.JPG-faPnQbdc4HEqRxGylIyfkndUOm7dQ6.jpeg",
           backdropUrl:
-            "https://m.media-amazon.com/images/M/MV5BZjE0ZGRhNWItMGZlZC00MTMyLTkyZTktNzgzYmI2ZWQ5NjNhXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg",
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_8814.JPG-faPnQbdc4HEqRxGylIyfkndUOm7dQ6.jpeg",
         },
         {
           id: "9",
@@ -95,9 +105,9 @@ export default function NewMoviesSection() {
           isNew: true,
           lastUpdated: new Date().toISOString(),
           posterUrl:
-            "https://m.media-amazon.com/images/M/MV5BYjBmYTQ1NjItZWU5MS00YjI0LTg2OTYtYmEzN2U4ZGI0NDg2XkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg",
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_8815.JPG-R3fdG1tKhsykL3akXXsmFErVgkGrtw.jpeg",
           backdropUrl:
-            "https://m.media-amazon.com/images/M/MV5BYjBmYTQ1NjItZWU5MS00YjI0LTg2OTYtYmEzN2U4ZGI0NDg2XkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg",
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_8815.JPG-R3fdG1tKhsykL3akXXsmFErVgkGrtw.jpeg",
         },
         {
           id: "10",
@@ -108,9 +118,9 @@ export default function NewMoviesSection() {
           isNew: true,
           lastUpdated: new Date().toISOString(),
           posterUrl:
-            "https://m.media-amazon.com/images/M/MV5BNDUyNTIzNDQtYTZmMi00M2FlLWJhODEtZTJjZjY5OTBkOTY0XkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg",
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_8816.JPG-BpaQGH9kb9HgVSiEVW8HImxkyrewtI.jpeg",
           backdropUrl:
-            "https://m.media-amazon.com/images/M/MV5BNDUyNTIzNDQtYTZmMi00M2FlLWJhODEtZTJjZjY5OTBkOTY0XkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg",
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_8816.JPG-BpaQGH9kb9HgVSiEVW8HImxkyrewtI.jpeg",
         },
         {
           id: "11",
@@ -120,169 +130,130 @@ export default function NewMoviesSection() {
           genres: ["Thriller", "Mystery"],
           isNew: true,
           lastUpdated: new Date().toISOString(),
-          posterUrl: "https://m.media-amazon.com/images/M/MV5BNzU3NDg4NTAyNV5BMl5BanBnXkFtZTcwOTk1NTAyNw@@._V1_.jpg",
-          backdropUrl: "https://m.media-amazon.com/images/M/MV5BNzU3NDg4NTAyNV5BMl5BanBnXkFtZTcwOTk1NTAyNw@@._V1_.jpg",
+          posterUrl:
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_8817.JPG-2gC5kcXflj3HL4e2cqN1PdbjsG8rh7.jpeg",
+          backdropUrl:
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_8817.JPG-2gC5kcXflj3HL4e2cqN1PdbjsG8rh7.jpeg",
         },
       ]
 
       setMovies(mockNewMovies)
+
+      // Initially show only the first 4 movies for better performance
+      setVisibleMovies(mockNewMovies.slice(0, 4))
+
+      // After a short delay, show all movies
+      setTimeout(() => {
+        setVisibleMovies(mockNewMovies)
+      }, 500)
     } catch (err) {
       setError("Failed to fetch new movies")
       console.error(err)
     } finally {
       setLoading(false)
     }
-  }
-
-  useEffect(() => {
-    fetchMovies()
   }, [])
 
-  const scrollLeft = () => {
+  useEffect(() => {
+    if (inView) {
+      fetchMovies()
+    }
+  }, [inView, fetchMovies])
+
+  const scrollLeft = useCallback(() => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollBy({ left: -300, behavior: "smooth" })
     }
-  }
+  }, [])
 
-  const scrollRight = () => {
+  const scrollRight = useCallback(() => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollBy({ left: 300, behavior: "smooth" })
     }
+  }, [])
+
+  // Simplified animations for better performance
+  const containerAnimation = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    transition: { duration: 0.3 },
   }
 
   return (
-    <motion.section
-      className="mb-12"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <motion.section ref={ref} className="mb-12" {...containerAnimation}>
       <div className="flex items-center justify-between mb-4">
-        <motion.h2
-          className="text-2xl font-bold"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          AI-Discovered New Releases
-        </motion.h2>
-        <motion.div
-          className="flex items-center gap-2"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <motion.button
+        <h2 className="text-2xl font-bold">AI-Discovered New Releases</h2>
+        <div className="flex items-center gap-2">
+          <button
             onClick={fetchMovies}
             disabled={loading}
             className="flex items-center text-rose-500 hover:text-rose-400"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
           >
             <RefreshCw size={18} className={`mr-1 ${loading ? "animate-spin" : ""}`} />
             <span className="text-sm">Refresh</span>
-          </motion.button>
-        </motion.div>
+          </button>
+        </div>
       </div>
 
-      {error && (
-        <motion.div
-          className="bg-red-900/20 border border-red-900 text-red-200 p-4 rounded-md mb-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          {error}
-        </motion.div>
-      )}
+      {error && <div className="bg-red-900/20 border border-red-900 text-red-200 p-4 rounded-md mb-4">{error}</div>}
 
       <div
         className="relative group"
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
       >
-        <motion.div
+        <div
           ref={scrollContainerRef}
           className="flex overflow-x-auto pb-4 scrollbar-hide gap-4 scroll-smooth"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <AnimatePresence>
-            {movies.map((movie, index) => (
-              <motion.div
-                key={movie.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-                className="flex-shrink-0 w-[180px]"
-              >
-                <Link href={`/movies/${movie.id}`} className="group">
-                  <div className="bg-zinc-900 rounded-lg overflow-hidden hover:bg-zinc-800 transition-colors h-full border border-zinc-800">
-                    <div className="relative aspect-[2/3] w-full">
-                      <Image
-                        src={movie.posterUrl || "/placeholder.svg"}
-                        alt={movie.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <motion.div
-                        className="absolute top-2 right-2 bg-rose-600 text-white text-xs font-bold px-2 py-1 rounded"
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3, delay: 0.5 + index * 0.05 }}
-                      >
-                        NEW
-                      </motion.div>
-                    </div>
-
-                    <div className="p-2">
-                      <h2 className="font-medium text-sm group-hover:text-rose-500 transition-colors line-clamp-1">
-                        {movie.title}
-                      </h2>
-                      <p className="text-zinc-400 text-xs">{new Date(movie.releaseDate).getFullYear()}</p>
+          {visibleMovies.map((movie) => (
+            <div key={movie.id} className="flex-shrink-0 w-[180px]">
+              <Link href={`/movies/${movie.id}`} className="group">
+                <div className="bg-zinc-900 rounded-lg overflow-hidden hover:bg-zinc-800 transition-colors h-full border border-zinc-800">
+                  <div className="relative aspect-[2/3] w-full">
+                    <Image
+                      src={movie.posterUrl || "/placeholder.svg"}
+                      alt={movie.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute top-2 right-2 bg-rose-600 text-white text-xs font-bold px-2 py-1 rounded">
+                      NEW
                     </div>
                   </div>
-                </Link>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
 
-        {/* Navigation arrows */}
-        <AnimatePresence>
-          {(isHovering || movies.length > 0) && (
-            <>
-              <motion.button
-                onClick={scrollLeft}
-                className="absolute left-0 top-1/2 -translate-y-1/2 bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                aria-label="Scroll left"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: isHovering ? 1 : 0, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <ChevronLeft size={24} />
-              </motion.button>
-              <motion.button
-                onClick={scrollRight}
-                className="absolute right-0 top-1/2 -translate-y-1/2 bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                aria-label="Scroll right"
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: isHovering ? 1 : 0, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
-                transition={{ duration: 0.2 }}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <ChevronRight size={24} />
-              </motion.button>
-            </>
-          )}
-        </AnimatePresence>
+                  <div className="p-2">
+                    <h2 className="font-medium text-sm group-hover:text-rose-500 transition-colors line-clamp-1">
+                      {movie.title}
+                    </h2>
+                    <p className="text-zinc-400 text-xs">{new Date(movie.releaseDate).getFullYear()}</p>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          ))}
+        </div>
+
+        {/* Navigation arrows - only show when needed */}
+        {visibleMovies.length > 3 && (
+          <>
+            <button
+              onClick={scrollLeft}
+              className={`absolute left-0 top-1/2 -translate-y-1/2 bg-black/70 text-white rounded-full p-2 ${isHovering ? "opacity-100" : "opacity-0"} transition-opacity z-10`}
+              aria-label="Scroll left"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <button
+              onClick={scrollRight}
+              className={`absolute right-0 top-1/2 -translate-y-1/2 bg-black/70 text-white rounded-full p-2 ${isHovering ? "opacity-100" : "opacity-0"} transition-opacity z-10`}
+              aria-label="Scroll right"
+            >
+              <ChevronRight size={24} />
+            </button>
+          </>
+        )}
 
         {/* Add a gradient fade effect on the right side to indicate more content */}
         <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-black to-transparent pointer-events-none"></div>

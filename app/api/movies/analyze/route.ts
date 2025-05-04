@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { analyzeMovie, generateDiscussionQuestions } from "@/lib/groq-service"
+import { analyzeMovie, generateDiscussionQuestions } from "@/lib/claude-service"
 import { rateLimitMiddleware } from "@/lib/security/rate-limit"
 
 export async function POST(req: NextRequest) {

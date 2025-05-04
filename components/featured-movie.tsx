@@ -1,202 +1,50 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import { Play, ChevronLeft, ChevronRight } from "lucide-react"
+import { useState } from "react"
+import { Play } from "lucide-react"
 import VideoPlayer from "./video-player"
-import { motion, AnimatePresence } from "framer-motion"
-
-// Sample featured movies data with real images
-const featuredMovies = [
-  {
-    id: "final-destination",
-    title: "Final Destination: Bloodlines",
-    description: "Death is coming for a new group of unsuspecting victims in this terrifying new chapter.",
-    trailerUrl: "https://www.youtube.com/embed/EL4sUiPQDrQ",
-    imageUrl: "https://i.ytimg.com/vi/EL4sUiPQDrQ/maxresdefault.jpg",
-    posterUrl:
-      "https://m.media-amazon.com/images/M/MV5BZDJlYzMyZTctYzBiMi00Y2ZjLTg0MTctMDQ1ZTVhZDQ5ZTI1XkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg",
-    duration: "2:25",
-  },
-  {
-    id: "dune-2",
-    title: "Dune: Part Two",
-    description:
-      "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.",
-    trailerUrl: "https://www.youtube.com/embed/Way9Dexny3w",
-    imageUrl: "/images/dune.jpg",
-    posterUrl: "/images/dune.jpg",
-    duration: "2:35",
-  },
-  {
-    id: "deadpool-wolverine",
-    title: "Deadpool & Wolverine",
-    description:
-      "Wade Wilson's peaceful life is interrupted when former colleagues come calling, forcing him to team up with Wolverine.",
-    trailerUrl: "https://www.youtube.com/embed/4sUQfaQjKd8",
-    imageUrl: "https://i.ytimg.com/vi/4sUQfaQjKd8/maxresdefault.jpg",
-    posterUrl:
-      "https://m.media-amazon.com/images/M/MV5BNzQ5MGQyODAtNTg3OC00Y2VjLTkzODktNmU0MWYyZjZmMmRkXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_.jpg",
-    duration: "2:15",
-  },
-]
 
 export default function FeaturedMovie() {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [direction, setDirection] = useState(0)
-
-  const currentMovie = featuredMovies[currentIndex]
-
-  const nextMovie = () => {
-    setDirection(1)
-    setCurrentIndex((prev) => (prev + 1) % featuredMovies.length)
-  }
-
-  const prevMovie = () => {
-    setDirection(-1)
-    setCurrentIndex((prev) => (prev - 1 + featuredMovies.length) % featuredMovies.length)
-  }
-
-  // Set Final Destination: Bloodlines as the default featured movie on initial load
-  useEffect(() => {
-    setCurrentIndex(0) // Index 0 is Final Destination: Bloodlines
-  }, [])
-
-  const variants = {
-    enter: (direction: number) => {
-      return {
-        x: direction > 0 ? 1000 : -1000,
-        opacity: 0,
-      }
-    },
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1,
-    },
-    exit: (direction: number) => {
-      return {
-        zIndex: 0,
-        x: direction < 0 ? 1000 : -1000,
-        opacity: 0,
-      }
-    },
-  }
+  const [showTrailer, setShowTrailer] = useState(false)
 
   return (
-    <div className="relative rounded-lg overflow-hidden group">
-      {/* Movie Poster/Trailer */}
-      <div className="relative aspect-[16/9] w-full">
-        <AnimatePresence initial={false} custom={direction}>
-          <motion.div
-            key={currentIndex}
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2 },
-            }}
-            className="absolute inset-0"
-          >
-            <Image
-              src={currentMovie.imageUrl || "/placeholder.svg"}
-              alt={currentMovie.title}
-              fill
-              className="object-cover"
-              priority
-            />
-          </motion.div>
-        </AnimatePresence>
+    <div className="relative w-full h-[500px] rounded-xl overflow-hidden">
+      {/* Dark overlay with gradient */}
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent z-10"
+        style={{
+          backgroundImage: "url('https://i.ytimg.com/vi/Di310WS8zLk/maxresdefault.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          filter: "brightness(0.5)",
+        }}
+      ></div>
 
-        {/* Play Button Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <motion.button
-            onClick={() => setIsPlaying(true)}
-            className="bg-black/50 hover:bg-black/70 text-white rounded-full p-4 transition-all"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <Play size={32} fill="white" />
-          </motion.button>
-        </div>
-
-        {/* Navigation Arrows */}
-        <motion.button
-          onClick={prevMovie}
-          className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+      {/* Content overlay */}
+      <div className="absolute inset-0 flex flex-col justify-end p-8 z-20">
+        <div className="bg-rose-600 text-white text-sm font-medium px-3 py-1 rounded-md w-fit mb-4">2:45</div>
+        <h1 className="text-4xl font-bold text-white mb-2">Wednesday: Season 2</h1>
+        <p className="text-gray-200 mb-6 max-w-2xl">
+          Wednesday Addams returns for a new semester at Nevermore Academy with more mysteries, mayhem, and monsters to
+          uncover.
+        </p>
+        <button
+          onClick={() => setShowTrailer(true)}
+          className="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-md w-fit transition-all duration-300"
         >
-          <ChevronLeft size={24} />
-        </motion.button>
-        <motion.button
-          onClick={nextMovie}
-          className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <ChevronRight size={24} />
-        </motion.button>
+          <Play size={20} />
+          Watch the Trailer
+        </button>
       </div>
 
-      {/* Movie Info */}
-      <motion.div
-        className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6"
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-      >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="flex items-center mb-2">
-              <div className="bg-[#ad264a] text-white text-xs font-bold px-2 py-1 rounded mr-2">
-                {currentMovie.duration}
-              </div>
-            </div>
-            <h2 className="text-2xl md:text-3xl font-bold mb-2">{currentMovie.title}</h2>
-            <p className="text-zinc-300 text-sm md:text-base mb-4 max-w-2xl">{currentMovie.description}</p>
-            <div className="flex items-center">
-              <motion.button
-                onClick={() => setIsPlaying(true)}
-                className="flex items-center bg-[#121212] hover:bg-[#1a1a1a] text-white rounded px-4 py-2"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Play size={16} className="mr-2" />
-                Watch the Trailer
-              </motion.button>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </motion.div>
-
-      {/* Video Modal */}
-      <AnimatePresence>
-        {isPlaying && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <VideoPlayer
-              src={currentMovie.trailerUrl}
-              title={`${currentMovie.title} - Trailer`}
-              onClose={() => setIsPlaying(false)}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Video player modal */}
+      {showTrailer && (
+        <VideoPlayer
+          src="https://www.youtube.com/embed/Di310WS8zLk"
+          title="Wednesday Season 2 Trailer"
+          onClose={() => setShowTrailer(false)}
+        />
+      )}
     </div>
   )
 }

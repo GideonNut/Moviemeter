@@ -84,8 +84,10 @@
     "@ai-sdk/openai": "latest",
     "vitest": "latest",
     "axios": "latest",
+    "groq-sdk": "latest",
     "framer-motion": "latest",
-    "groq-sdk": "latest"
+    "@ai-sdk/anthropic": "latest",
+    "react-intersection-observer": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

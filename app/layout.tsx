@@ -12,12 +12,12 @@ export const metadata: Metadata = {
   description: "Vote for your favorite movies on the blockchain",
   icons: {
     icon: {
-      url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo%20png-r3dxjfHmuTVCaDvJ5i6eDlG2qHoJ5N.png",
+      url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/new%20favicon-iBH197m4BzR8Uw2qerbRRSBIUhjj5h.png",
       sizes: "512x512",
       type: "image/png",
     },
     apple: {
-      url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo%20png-r3dxjfHmuTVCaDvJ5i6eDlG2qHoJ5N.png",
+      url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/new%20favicon-iBH197m4BzR8Uw2qerbRRSBIUhjj5h.png",
       sizes: "512x512",
       type: "image/png",
     },

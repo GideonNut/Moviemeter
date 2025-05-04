@@ -155,7 +155,7 @@ export default function FarcasterMiniApp() {
   const handleShareMovie = async () => {
     if (!currentMovie) return
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter13.vercel.app"
     const shareUrl = `${baseUrl}/share?id=${currentMovie.id}`
 
     try {
