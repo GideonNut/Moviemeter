@@ -1,228 +1,148 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Image from "next/image"
-import { sdk } from "@farcaster/frame-sdk"
-import MovieDetail from "./movie-detail"
-import { movies, type Movie } from "@/lib/movie-data"
+import { ThumbsUp, ThumbsDown, Share2, ArrowRight, Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import type { Movie } from "@/lib/state/MovieContext"
 
-export default function FarcasterMiniApp() {
-  const [isReady, setIsReady] = useState(false)
-  const [currentMovie, setCurrentMovie] = useState<Movie | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [userFid, setUserFid] = useState<number | null>(null)
-  const [isAdded, setIsAdded] = useState(false)
-  const [notificationDetails, setNotificationDetails] = useState<any>(null)
-  const [voteSubmitted, setVoteSubmitted] = useState(false)
-  const [voteType, setVoteType] = useState<boolean | null>(null)
+interface FarcasterMiniAppProps {
+  movie?: Movie
+  onVote?: (movieId: number, voteType: boolean) => Promise<void>
+  onNextMovie?: () => void
+  isVoting?: boolean
+  transactionStatus?: "idle" | "pending" | "success" | "error"
+  walletConnected?: boolean
+}
 
-  useEffect(() => {
-    // Initialize the app
-    const initApp = async () => {
-      try {
-        // Get movie ID from location if available
-        let movieId = "0"
+export default function FarcasterMiniApp({
+  movie,
+  onVote,
+  onNextMovie,
+  isVoting = false,
+  transactionStatus = "idle",
+  walletConnected = false,
+}: FarcasterMiniAppProps) {
+  const [isSharing, setIsSharing] = useState(false)
 
-        if (sdk.context.location?.type === "cast_embed") {
-          const urlParams = new URLSearchParams(sdk.context.location.embed)
-          const id = urlParams.get("id")
-          if (id) {
-            movieId = id
-          }
-        } else if (sdk.context.location?.type === "notification") {
-          const urlPath = sdk.context.location.notification.notificationId
-          const idMatch = urlPath.match(/movie-vote-(\d+)/)
-          if (idMatch && idMatch[1]) {
-            movieId = idMatch[1]
-          }
-        }
+  // Default movie data if none provided
+  const defaultMovie = {
+    id: 0,
+    title: "Inception",
+    description: "A thief enters dreams to steal secrets.",
+    voteCountYes: 42,
+    voteCountNo: 7,
+    hasVoted: false,
+  }
 
-        // Set the current movie
-        const movie = movies.find((m) => m.id === movieId) || movies[0]
-        setCurrentMovie(movie)
+  const currentMovie = movie || defaultMovie
 
-        // Get user FID
-        if (sdk.context.user?.fid) {
-          setUserFid(sdk.context.user.fid)
-        }
-
-        // Check if app is added
-        setIsAdded(sdk.context.client.added || false)
-
-        // Get notification details if available
-        if (sdk.context.client.notificationDetails) {
-          setNotificationDetails(sdk.context.client.notificationDetails)
-        }
-
-        // Setup event listeners
-        sdk.on("frameAdded", ({ notificationDetails }) => {
-          setIsAdded(true)
-          if (notificationDetails) {
-            setNotificationDetails(notificationDetails)
-          }
-        })
-
-        sdk.on("frameRemoved", () => {
-          setIsAdded(false)
-          setNotificationDetails(null)
-        })
-
-        sdk.on("notificationsEnabled", ({ notificationDetails }) => {
-          setNotificationDetails(notificationDetails)
-        })
-
-        sdk.on("notificationsDisabled", () => {
-          setNotificationDetails(null)
-        })
-
-        setLoading(false)
-
-        // Tell the client we're ready
-        await sdk.actions.ready()
-        setIsReady(true)
-      } catch (error) {
-        console.error("Error initializing app:", error)
-        setLoading(false)
-      }
-    }
-
-    initApp()
-
-    return () => {
-      // Clean up event listeners
-      sdk.removeAllListeners()
-    }
-  }, [])
-
-  const handleAddApp = async () => {
-    try {
-      const result = await sdk.actions.addFrame()
-      if (result.added) {
-        setIsAdded(true)
-        if (result.notificationDetails) {
-          setNotificationDetails(result.notificationDetails)
-        }
-      }
-    } catch (error) {
-      console.error("Error adding app:", error)
+  const handleVote = async (voteType: boolean) => {
+    if (onVote && currentMovie) {
+      await onVote(currentMovie.id, voteType)
     }
   }
 
-  const handleVote = async (vote: boolean) => {
-    if (!currentMovie) return
-
-    setVoteType(vote)
-    setVoteSubmitted(true)
-
-    try {
-      // Send notification to other users if the app is added
-      if (userFid && notificationDetails) {
-        await fetch("/api/send-notification", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            fid: userFid,
-            movieId: currentMovie.id,
-            movieTitle: currentMovie.title,
-            voteType: vote,
-          }),
-        })
-      }
-
-      // Close the app with a toast message
-      await sdk.actions.close({
-        toast: {
-          message: `You voted ${vote ? "👍" : "👎"} for ${currentMovie.title}`,
-        },
-      })
-    } catch (error) {
-      console.error("Error handling vote:", error)
-    }
-  }
-
-  const handleNextMovie = async () => {
-    if (!currentMovie) return
-
-    const currentIndex = movies.findIndex((m) => m.id === currentMovie.id)
-    const nextIndex = (currentIndex + 1) % movies.length
-    setCurrentMovie(movies[nextIndex])
-    setVoteSubmitted(false)
-    setVoteType(null)
-  }
-
-  const handleShareMovie = async () => {
-    if (!currentMovie) return
-
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter13.vercel.app"
-    const shareUrl = `${baseUrl}/share?id=${currentMovie.id}`
-
-    try {
-      await sdk.actions.openUrl(shareUrl)
-    } catch (error) {
-      console.error("Error opening share URL:", error)
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white p-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-600 mb-4"></div>
-        <p>Loading MovieMeter...</p>
-      </div>
-    )
-  }
-
-  if (!currentMovie) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white p-4">
-        <p>No movie found</p>
-      </div>
-    )
+  const handleShare = () => {
+    setIsSharing(true)
+    // Simulate sharing process
+    setTimeout(() => {
+      setIsSharing(false)
+    }, 1500)
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-zinc-950 text-white p-4">
-      <div className="w-full max-w-md mx-auto">
-        <div className="flex items-center justify-center mb-6">
+    <Card className="w-full max-w-md mx-auto border-2 border-purple-200 shadow-md">
+      <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-bold">MovieMeter</h2>
+          <Badge variant="outline" className="bg-white text-purple-700">
+            Farcaster App
+          </Badge>
+        </div>
+      </CardHeader>
+
+      <CardContent className="p-4">
+        <div className="aspect-[2/3] relative mb-4 rounded-md overflow-hidden">
           <Image
-            src="/moviemeter-logo.png"
-            alt="MovieMeter"
-            width={200}
-            height={60}
-            className="object-contain"
-            priority
+            src={`/placeholder.svg?height=450&width=300&text=${encodeURIComponent(currentMovie.title)}`}
+            alt={currentMovie.title}
+            fill
+            className="object-cover"
           />
         </div>
 
-        <MovieDetail movie={currentMovie} onVote={handleVote} />
+        <h3 className="text-xl font-bold mb-2">{currentMovie.title}</h3>
+        <p className="text-gray-600 mb-4">{currentMovie.description}</p>
 
-        <div className="flex flex-col gap-3 mt-6">
-          {!isAdded && (
-            <button
-              onClick={handleAddApp}
-              className="w-full px-4 py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-medium flex items-center justify-center"
-            >
-              <span className="mr-2">➕</span> Add MovieMeter
-            </button>
-          )}
-
-          <button
-            onClick={handleNextMovie}
-            className="w-full px-4 py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-medium flex items-center justify-center"
-          >
-            <span className="mr-2">➡️</span> Next Movie
-          </button>
-
-          <button
-            onClick={handleShareMovie}
-            className="w-full px-4 py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-medium flex items-center justify-center"
-          >
-            <span className="mr-2">🔗</span> Share This Movie
-          </button>
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center">
+            <ThumbsUp className="h-5 w-5 text-green-500 mr-1" />
+            <span className="font-medium">{currentMovie.voteCountYes}</span>
+          </div>
+          <div className="flex items-center">
+            <ThumbsDown className="h-5 w-5 text-red-500 mr-1" />
+            <span className="font-medium">{currentMovie.voteCountNo}</span>
+          </div>
         </div>
-      </div>
-    </div>
+
+        {transactionStatus === "success" && (
+          <div className="bg-green-50 text-green-700 p-3 rounded-md mb-4">
+            Vote successfully recorded on the blockchain!
+          </div>
+        )}
+
+        {transactionStatus === "error" && (
+          <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4">Transaction failed. Please try again.</div>
+        )}
+      </CardContent>
+
+      <CardFooter className="flex flex-col gap-3 p-4 bg-gray-50">
+        {!walletConnected ? (
+          <div className="w-full p-3 bg-yellow-50 text-yellow-700 rounded-md text-center">
+            Connect your wallet to vote
+          </div>
+        ) : (
+          <div className="flex gap-2 w-full">
+            <Button
+              variant="outline"
+              className="flex-1 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+              onClick={() => handleVote(true)}
+              disabled={isVoting || currentMovie.hasVoted}
+            >
+              <ThumbsUp className="h-4 w-4 mr-2" />
+              {isVoting ? "Voting..." : "Yes"}
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1 bg-red-50 hover:bg-red-100 text-red-700 border-red-200"
+              onClick={() => handleVote(false)}
+              disabled={isVoting || currentMovie.hasVoted}
+            >
+              <ThumbsDown className="h-4 w-4 mr-2" />
+              {isVoting ? "Voting..." : "No"}
+            </Button>
+          </div>
+        )}
+
+        <div className="flex gap-2 w-full">
+          <Button variant="outline" className="flex-1" onClick={handleShare} disabled={isSharing}>
+            <Share2 className="h-4 w-4 mr-2" />
+            {isSharing ? "Sharing..." : "Share This Movie"}
+          </Button>
+          <Button variant="default" className="flex-1 bg-purple-600 hover:bg-purple-700" onClick={onNextMovie}>
+            <ArrowRight className="h-4 w-4 mr-2" />
+            Next Movie
+          </Button>
+        </div>
+
+        <Button variant="outline" className="w-full border-purple-200">
+          <Plus className="h-4 w-4 mr-2" />
+          Add MovieMeter
+        </Button>
+      </CardFooter>
+    </Card>
   )
 }
