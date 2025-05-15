@@ -57,7 +57,9 @@ export default function FarcasterMiniApp({
     <Card className="w-full max-w-md mx-auto border-2 border-purple-200 shadow-md">
       <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">MovieMeter</h2>
+          <div className="relative h-8 w-32">
+            <Image src="/images/new-logo.png" alt="MovieMeter" fill className="object-contain" priority />
+          </div>
           <Badge variant="outline" className="bg-white text-purple-700">
             Farcaster App
           </Badge>
@@ -67,7 +69,7 @@ export default function FarcasterMiniApp({
       <CardContent className="p-4">
         <div className="aspect-[2/3] relative mb-4 rounded-md overflow-hidden">
           <Image
-            src={`/placeholder.svg?height=450&width=300&text=${encodeURIComponent(currentMovie.title)}`}
+            src={`/placeholder-8k514.png?height=450&width=300&text=${encodeURIComponent(currentMovie.title)}`}
             alt={currentMovie.title}
             fill
             className="object-cover"
