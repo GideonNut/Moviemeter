@@ -8,7 +8,7 @@ interface PageProps {
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const id = searchParams.id || "0"
   const movie = movies.find((m) => m.id === id) || movies[0]
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter13.vercel.app"
 
   // Create the frame embed JSON according to the v2 spec
   const frameEmbed = {
@@ -43,7 +43,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 export default function SharePage({ searchParams }: PageProps) {
   const id = searchParams.id || "0"
   const movie = movies.find((m) => m.id === id) || movies[0]
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter13.vercel.app"
 
   // Create the frame embed JSON for client-side rendering
   const frameEmbed = {
@@ -53,9 +53,9 @@ export default function SharePage({ searchParams }: PageProps) {
       title: "Vote on this movie",
       action: {
         type: "launch_frame",
-        url: `${baseUrl}/farcaster?id=${id}`,
+        url: `${baseUrl}/mini/movie/${id}`, // Updated to point to mini app
         name: "MovieMeter",
-        splashImageUrl: `${baseUrl}/mm-logo-new.png`,
+        splashImageUrl: `${baseUrl}/images/moviemeter-logo.png`,
         splashBackgroundColor: "#18181b",
       },
     },
