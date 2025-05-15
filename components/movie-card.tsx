@@ -11,9 +11,10 @@ interface MovieCardProps {
   id: number
   title: string
   description: string
+  posterUrl?: string
 }
 
-export default function MovieCard({ id, title, description }: MovieCardProps) {
+export default function MovieCard({ id, title, description, posterUrl }: MovieCardProps) {
   const [showFrameLink, setShowFrameLink] = useState(false)
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
   const frameUrl = `${baseUrl}/api/frame?id=${id}`
@@ -34,12 +35,21 @@ export default function MovieCard({ id, title, description }: MovieCardProps) {
       className="bg-[#121212] rounded-lg overflow-hidden hover:bg-[#1a1a1a] transition-all duration-300 flex flex-col h-full border border-[#222222]"
     >
       <div className="relative aspect-[2/3] w-full overflow-hidden">
-        <Image
-          src={`/placeholder.svg?height=450&width=300&text=${encodeURIComponent(title)}`}
-          alt={title}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        {posterUrl ? (
+          <Image
+            src={posterUrl || "/placeholder.svg"}
+            alt={title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <Image
+            src={`https://moviemeter13.vercel.app/api/placeholder?text=${encodeURIComponent(title)}&width=300&height=450`}
+            alt={title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-[rgba(18,18,18,0.9)] to-transparent"></div>
       </div>
       <div className="p-4 flex-grow flex flex-col">
