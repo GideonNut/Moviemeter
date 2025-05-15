@@ -1,29 +1,31 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Star, ThumbsUp, Loader2, Sparkles } from "lucide-react"
-import Header from "@/components/header"
-import TelegramRecommendations from "@/components/telegram-recommendations"
-import type { MovieRecommendation } from "@/lib/groq-service"
-import { motion } from "framer-motion"
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Star, ThumbsUp, Loader2, Sparkles } from "lucide-react";
+import Header from "@/components/header";
+import TelegramRecommendations from "@/components/telegram-recommendations";
+import type { MovieRecommendation } from "@/lib/claude-service";
+import { motion } from "framer-motion";
 
 export default function RecommendationsPage() {
-  const [preferences, setPreferences] = useState("")
-  const [recommendations, setRecommendations] = useState<MovieRecommendation[]>([])
-  const [loading, setLoading] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [preferences, setPreferences] = useState("");
+  const [recommendations, setRecommendations] = useState<MovieRecommendation[]>(
+    []
+  );
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const getRecommendations = async () => {
-    if (!preferences.trim()) return
+    if (!preferences.trim()) return;
 
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       const response = await fetch("/api/recommendations/groq", {
         method: "POST",
@@ -34,28 +36,28 @@ export default function RecommendationsPage() {
           preferences,
           count: 3,
         }),
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Failed to get recommendations")
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to get recommendations");
       }
 
-      const data = await response.json()
-      setRecommendations(data.data)
-      setSubmitted(true)
+      const data = await response.json();
+      // setRecommendations(data.data);
+      setSubmitted(true);
     } catch (err) {
-      console.error("Error getting recommendations:", err)
-      setError((err as Error).message || "Failed to get recommendations")
+      console.error("Error getting recommendations:", err);
+      setError((err as Error).message || "Failed to get recommendations");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    getRecommendations()
-  }
+    e.preventDefault();
+    getRecommendations();
+  };
 
   // Example recommendations for first-time visitors
   useEffect(() => {
@@ -69,7 +71,8 @@ export default function RecommendationsPage() {
           genres: ["Action", "Adventure", "Sci-Fi"],
           rating: 8.8,
           reason: "Popular recommendation for first-time visitors",
-          posterUrl: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_.jpg",
+          posterUrl:
+            "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_.jpg",
         },
         {
           title: "Parasite",
@@ -93,9 +96,9 @@ export default function RecommendationsPage() {
           posterUrl:
             "https://m.media-amazon.com/images/M/MV5BYTdiOTIyZTQtNmQ1OS00NjZlLWIyMTgtYzk5Y2M3ZDVmMDk1XkEyXkFqcGdeQXVyMTAzMDg4NzU0._V1_.jpg",
         },
-      ])
+      ]);
     }
-  }, [submitted, recommendations.length])
+  }, [submitted, recommendations.length]);
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -114,9 +117,12 @@ export default function RecommendationsPage() {
             transition={{ duration: 0.5 }}
             className="mb-8 text-center"
           >
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">AI Movie Recommendations</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">
+              AI Movie Recommendations
+            </h1>
             <p className="text-zinc-400 max-w-2xl mx-auto">
-              Our AI analyzes your preferences to recommend movies you'll love. Tell us what you enjoy watching!
+              Our AI analyzes your preferences to recommend movies you'll love.
+              Tell us what you enjoy watching!
             </p>
           </motion.div>
 
@@ -128,7 +134,10 @@ export default function RecommendationsPage() {
           >
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="preferences" className="block text-sm font-medium text-zinc-300 mb-2">
+                <label
+                  htmlFor="preferences"
+                  className="block text-sm font-medium text-zinc-300 mb-2"
+                >
                   What kind of movies do you enjoy?
                 </label>
                 <textarea
@@ -214,23 +223,32 @@ export default function RecommendationsPage() {
                           />
                           {movie.rating && (
                             <div className="absolute top-2 right-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded flex items-center">
-                              <Star size={12} className="text-yellow-400 mr-1" />
+                              <Star
+                                size={12}
+                                className="text-yellow-400 mr-1"
+                              />
                               {movie.rating.toFixed(1)}
                             </div>
                           )}
                         </div>
 
                         <div className="p-4 flex-1">
-                          <h3 className="font-bold text-lg mb-1">{movie.title}</h3>
+                          <h3 className="font-bold text-lg mb-1">
+                            {movie.title}
+                          </h3>
                           <p className="text-zinc-400 text-sm mb-2">
                             {movie.releaseYear} • {movie.genres?.join(", ")}
                           </p>
-                          <p className="text-zinc-300 text-sm line-clamp-3 mb-3">{movie.description}</p>
+                          <p className="text-zinc-300 text-sm line-clamp-3 mb-3">
+                            {movie.description}
+                          </p>
 
                           {movie.reason && (
                             <div className="bg-zinc-800 p-3 rounded-md mt-3 border border-zinc-700">
                               <p className="text-sm text-zinc-300">
-                                <span className="font-semibold text-rose-500">Why we recommend this: </span>
+                                <span className="font-semibold text-rose-500">
+                                  Why we recommend this:{" "}
+                                </span>
                                 {movie.reason}
                               </p>
                             </div>
@@ -277,9 +295,11 @@ export default function RecommendationsPage() {
               How Our Groq-Powered Recommendations Work
             </h3>
             <p className="text-zinc-400 mb-4">
-              Our advanced AI system uses Groq's powerful language models to analyze your preferences, viewing history,
-              and similar users' tastes to suggest movies you'll likely enjoy. We also pull fresh recommendations from
-              our Movies Society Telegram channel to keep you updated with the latest trends!
+              Our advanced AI system uses Groq's powerful language models to
+              analyze your preferences, viewing history, and similar users'
+              tastes to suggest movies you'll likely enjoy. We also pull fresh
+              recommendations from our Movies Society Telegram channel to keep
+              you updated with the latest trends!
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
               <motion.div
@@ -290,7 +310,9 @@ export default function RecommendationsPage() {
               >
                 <div className="text-rose-500 font-bold text-lg mb-2">1</div>
                 <h4 className="font-medium mb-1">Analyze Preferences</h4>
-                <p className="text-zinc-500 text-sm">Groq processes your movie preferences and viewing history</p>
+                <p className="text-zinc-500 text-sm">
+                  Groq processes your movie preferences and viewing history
+                </p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -300,7 +322,9 @@ export default function RecommendationsPage() {
               >
                 <div className="text-rose-500 font-bold text-lg mb-2">2</div>
                 <h4 className="font-medium mb-1">Match Patterns</h4>
-                <p className="text-zinc-500 text-sm">Our AI identifies patterns and similar content</p>
+                <p className="text-zinc-500 text-sm">
+                  Our AI identifies patterns and similar content
+                </p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -310,12 +334,14 @@ export default function RecommendationsPage() {
               >
                 <div className="text-rose-500 font-bold text-lg mb-2">3</div>
                 <h4 className="font-medium mb-1">Personalize Results</h4>
-                <p className="text-zinc-500 text-sm">We deliver tailored recommendations just for you</p>
+                <p className="text-zinc-500 text-sm">
+                  We deliver tailored recommendations just for you
+                </p>
               </motion.div>
             </div>
           </motion.div>
         </div>
       </motion.div>
     </main>
-  )
+  );
 }

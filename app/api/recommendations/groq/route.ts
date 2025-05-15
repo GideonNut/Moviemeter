@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getPersonalizedRecommendations } from "@/lib/groq-service"
+import { getPersonalizedRecommendations } from "@/lib/claude-service" // TODO: Update to Groq service
 import { rateLimitMiddleware } from "@/lib/security/rate-limit"
 
 export async function POST(req: NextRequest) {
