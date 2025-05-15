@@ -7,6 +7,7 @@
 
 import { getContract, defineChain, prepareContractCall } from "thirdweb"
 import { client } from "@/app/client"
+import { safeParseInt } from "./bigint-utils"
 
 // Define Celo Alfajores testnet with proper configuration
 export const alfajores = defineChain({
@@ -44,7 +45,15 @@ export async function getMovieVotes(movieId: string) {
   try {
     const contract = getMovieMeterContract()
     const votes = await contract.read("getVotes", [movieId])
+
+    // Safely convert BigInt values to regular numbers or strings
     return votes
+      ? {
+          yes: safeParseInt(votes.yes),
+          no: safeParseInt(votes.no),
+          voters: votes.voters || [],
+        }
+      : null
   } catch (error) {
     console.error(`Error getting votes for movie ${movieId}:`, error)
     return null
@@ -60,11 +69,14 @@ export async function getMovieVotes(movieId: string) {
 export function prepareVoteTransaction(movieId: string | number, voteType: boolean) {
   const contract = getMovieMeterContract()
 
+  // Convert movieId to a safe value
+  const safeMovieId = typeof movieId === "string" ? Number.parseInt(movieId, 10) : movieId
+
   // Prepare the transaction with proper gas optimization
   return prepareContractCall({
     contract,
     method: "function vote(uint256, bool)",
-    params: [BigInt(movieId), voteType],
+    params: [safeMovieId, voteType],
     // Add gas limit to prevent unexpected costs
     gas: 300000n,
   })
