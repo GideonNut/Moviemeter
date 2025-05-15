@@ -1,22 +1,23 @@
-"use client"
+"use client";
 
-import { useMovies } from "@/lib/state/MovieContext"
-import { useActiveAccount } from "thirdweb/react"
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { useMovies } from "@/lib/state/MovieContext";
+import { useAccount, useConnect } from "wagmi";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface VoteButtonsProps {
-  movieId: number
+  movieId: number;
 }
 
 export default function VoteButtons({ movieId }: VoteButtonsProps) {
-  const { movies, voteForMovie, isVoting } = useMovies()
-  const account = useActiveAccount()
-  const [localIsVoting, setLocalIsVoting] = useState(false)
-  const [voteSuccess, setVoteSuccess] = useState(false)
+  const { movies, voteForMovie, isVoting } = useMovies();
+  const { isConnected, address } = useAccount();
+  const { connect, connectors } = useConnect();
+  const [localIsVoting, setLocalIsVoting] = useState(false);
+  const [voteSuccess, setVoteSuccess] = useState(false);
 
   // Find the current movie in our context
-  const movie = movies.find((m) => m.id === movieId)
+  const movie = movies.find((m) => m.id === movieId);
 
   // If movie data isn't loaded yet, show loading state
   if (!movie) {
@@ -31,7 +32,11 @@ export default function VoteButtons({ movieId }: VoteButtonsProps) {
           <motion.div
             className="flex-1 h-10 bg-[#222222] rounded-full"
             animate={{ opacity: [0.5, 0.8, 0.5] }}
-            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.5, delay: 0.2 }}
+            transition={{
+              repeat: Number.POSITIVE_INFINITY,
+              duration: 1.5,
+              delay: 0.2,
+            }}
           />
         </div>
         <motion.p
@@ -42,47 +47,48 @@ export default function VoteButtons({ movieId }: VoteButtonsProps) {
           Loading vote data...
         </motion.p>
       </div>
-    )
+    );
   }
 
-  const { voteCountYes, voteCountNo, hasVoted } = movie
+  const { voteCountYes, voteCountNo, hasVoted } = movie;
 
   // Handle vote action
   const handleVote = async (voteType: boolean) => {
-    if (!account?.address || hasVoted || isVoting || localIsVoting) return
+    if (!isConnected || hasVoted || isVoting || localIsVoting) return;
 
-    setLocalIsVoting(true)
-    setVoteSuccess(false)
+    setLocalIsVoting(true);
+    setVoteSuccess(false);
 
     try {
-      await voteForMovie(movieId, voteType)
-      setVoteSuccess(true)
+      await voteForMovie(movieId, voteType);
+      setVoteSuccess(true);
 
       // Reset success message after 3 seconds
       setTimeout(() => {
-        setVoteSuccess(false)
-      }, 3000)
+        setVoteSuccess(false);
+      }, 3000);
     } catch (error) {
-      console.error("Error voting:", error)
+      console.error("Error voting:", error);
     } finally {
-      setLocalIsVoting(false)
+      setLocalIsVoting(false);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col items-center gap-3 mt-4">
       <div className="flex gap-3 w-full">
         <motion.button
           onClick={() => handleVote(true)}
-          disabled={isVoting || localIsVoting || hasVoted || !account?.address}
-          whileHover={!hasVoted && account?.address ? { scale: 1.05 } : {}}
-          whileTap={!hasVoted && account?.address ? { scale: 0.95 } : {}}
+          disabled={isVoting || localIsVoting || hasVoted || !isConnected}
+          whileHover={!hasVoted && isConnected ? { scale: 1.05 } : {}}
+          whileTap={!hasVoted && isConnected ? { scale: 0.95 } : {}}
           className={`flex-1 px-4 py-2 rounded-full text-white transition-colors duration-300 ${
             hasVoted ? "bg-[#222222]" : "bg-[#1a662a] hover:bg-[#1d7a32]"
           } disabled:opacity-50 disabled:cursor-not-allowed`}
           aria-label="Vote Yes"
         >
-          {(isVoting || localIsVoting) && voteCountYes === movie.voteCountYes + 1 ? (
+          {(isVoting || localIsVoting) &&
+          voteCountYes === movie.voteCountYes + 1 ? (
             <span className="flex items-center justify-center">
               <svg
                 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
@@ -90,8 +96,21 @@ export default function VoteButtons({ movieId }: VoteButtonsProps) {
                 fill="none"
                 viewBox="0 0 24 24"
               >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></path>
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></path>
                 <path
                   className="opacity-75"
                   fill="currentColor"
@@ -106,15 +125,16 @@ export default function VoteButtons({ movieId }: VoteButtonsProps) {
         </motion.button>
         <motion.button
           onClick={() => handleVote(false)}
-          disabled={isVoting || localIsVoting || hasVoted || !account?.address}
-          whileHover={!hasVoted && account?.address ? { scale: 1.05 } : {}}
-          whileTap={!hasVoted && account?.address ? { scale: 0.95 } : {}}
+          disabled={isVoting || localIsVoting || hasVoted || !isConnected}
+          whileHover={!hasVoted && isConnected ? { scale: 1.05 } : {}}
+          whileTap={!hasVoted && isConnected ? { scale: 0.95 } : {}}
           className={`flex-1 px-4 py-2 rounded-full text-white transition-colors duration-300 ${
             hasVoted ? "bg-[#222222]" : "bg-[#662a2a] hover:bg-[#7a3232]"
           } disabled:opacity-50 disabled:cursor-not-allowed`}
           aria-label="Vote No"
         >
-          {(isVoting || localIsVoting) && voteCountNo === movie.voteCountNo + 1 ? (
+          {(isVoting || localIsVoting) &&
+          voteCountNo === movie.voteCountNo + 1 ? (
             <span className="flex items-center justify-center">
               <svg
                 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
@@ -122,7 +142,14 @@ export default function VoteButtons({ movieId }: VoteButtonsProps) {
                 fill="none"
                 viewBox="0 0 24 24"
               >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
                 <path d="M0 0h24v24H0z" fill="none" />
                 <path
                   className="opacity-75"
@@ -137,8 +164,14 @@ export default function VoteButtons({ movieId }: VoteButtonsProps) {
           )}
         </motion.button>
       </div>
-      {hasVoted && <p className="text-sm text-zinc-400">You've already voted on this movie</p>}
-      {!account?.address && <p className="text-sm text-zinc-400">Connect your wallet to vote</p>}
+      {hasVoted && (
+        <p className="text-sm text-zinc-400">
+          You've already voted on this movie
+        </p>
+      )}
+      {!isConnected && (
+        <p className="text-sm text-zinc-400">Connect your wallet to vote</p>
+      )}
       <AnimatePresence>
         {voteSuccess && (
           <motion.p
@@ -153,5 +186,5 @@ export default function VoteButtons({ movieId }: VoteButtonsProps) {
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }

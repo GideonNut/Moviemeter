@@ -33,7 +33,7 @@ vi.mock("thirdweb", () => ({
   defineChain: vi.fn((config) => config),
   prepareContractCall: vi.fn((config) => ({
     contract: config.contract,
-    method: config.method,
+    functionName: config.method,
     params: config.params,
     gas: config.gas,
   })),

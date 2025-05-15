@@ -5,24 +5,8 @@
  * It provides a clean separation between UI components and blockchain logic.
  */
 
-import { getContract, defineChain, prepareContractCall } from "thirdweb"
-import { client } from "@/app/client"
 import { safeParseInt } from "./bigint-utils"
-
-// Define Celo Alfajores testnet with proper configuration
-export const alfajores = defineChain({
-  id: 44787,
-  name: "Celo Alfajores",
-  rpc: "https://alfajores-forno.celo-testnet.org",
-  nativeCurrency: { name: "Celo", symbol: "CELO", decimals: 18 },
-  // Add explorer URL for better debugging
-  explorers: [
-    {
-      name: "Celo Explorer",
-      url: "https://explorer.celo.org/alfajores",
-    },
-  ],
-})
+import { celoAlfajores } from "wagmi/chains";
 
 // Contract address with proper typing
 export const CONTRACT_ADDRESS: string = "0x3eD5D4A503999C5aEB13CD71Eb1d395043368723"
@@ -31,7 +15,7 @@ export const CONTRACT_ADDRESS: string = "0x3eD5D4A503999C5aEB13CD71Eb1d395043368
 export const getMovieMeterContract = () => {
   return getContract({
     client,
-    chain: alfajores,
+    chain: celoAlfajores,
     address: CONTRACT_ADDRESS,
   })
 }
@@ -49,10 +33,10 @@ export async function getMovieVotes(movieId: string) {
     // Safely convert BigInt values to regular numbers or strings
     return votes
       ? {
-          yes: safeParseInt(votes.yes),
-          no: safeParseInt(votes.no),
-          voters: votes.voters || [],
-        }
+        yes: safeParseInt(votes.yes),
+        no: safeParseInt(votes.no),
+        voters: votes.voters || [],
+      }
       : null
   } catch (error) {
     console.error(`Error getting votes for movie ${movieId}:`, error)
@@ -75,8 +59,8 @@ export function prepareVoteTransaction(movieId: string | number, voteType: boole
   // Prepare the transaction with proper gas optimization
   return prepareContractCall({
     contract,
-    method: "function vote(uint256, bool)",
-    params: [safeMovieId, voteType],
+    functionName: "function vote(uint256, bool)",
+    args: [safeMovieId, voteType],
     // Add gas limit to prevent unexpected costs
     gas: 300000n,
   })

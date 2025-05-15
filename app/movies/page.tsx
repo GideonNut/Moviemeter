@@ -1,12 +1,11 @@
-"use client"
-import { useState } from "react"
-import { ConnectButton, useActiveAccount } from "thirdweb/react"
-import { client } from "@/app/client"
-import Header from "@/components/header"
-import MovieCard from "@/components/movie-card"
-import { MovieProvider, useMovies } from "@/lib/state/MovieContext"
-import { AlertCircle, RefreshCw } from "lucide-react"
-import { motion } from "framer-motion"
+"use client";
+import { useState } from "react";
+import { useAccount, useConnect } from "wagmi";
+import Header from "@/components/header";
+import MovieCard from "@/components/movie-card";
+import { MovieProvider, useMovies } from "@/lib/state/MovieContext";
+import { AlertCircle, RefreshCw } from "lucide-react";
+import { motion } from "framer-motion";
 
 // Wrapper component that provides the MovieContext
 export default function MoviesPage() {
@@ -14,35 +13,35 @@ export default function MoviesPage() {
     <MovieProvider>
       <MoviesPageContent />
     </MovieProvider>
-  )
+  );
 }
 
 // Main content component that uses the MovieContext
 function MoviesPageContent() {
-  const account = useActiveAccount()
-  const address = account?.address
-  const { filteredMovies, searchQuery, setSearchQuery, error } = useMovies()
-  const [isRefreshing, setIsRefreshing] = useState(false)
+  const { isConnected, address } = useAccount();
+  const { connect, connectors } = useConnect();
+  const { filteredMovies, searchQuery, setSearchQuery, error } = useMovies();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Function to refresh vote data
   const refreshVotes = async () => {
-    if (!address) return
+    if (!isConnected) return;
 
-    setIsRefreshing(true)
+    setIsRefreshing(true);
 
     try {
       // Wait for 2 seconds to simulate refreshing
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Force a re-render by changing the key of the MovieProvider
       // This will cause the useEffect in MovieContext to run again
-      window.location.reload()
+      window.location.reload();
     } catch (error) {
-      console.error("Error refreshing votes:", error)
+      console.error("Error refreshing votes:", error);
     } finally {
-      setIsRefreshing(false)
+      setIsRefreshing(false);
     }
-  }
+  };
 
   const container = {
     hidden: { opacity: 0 },
@@ -53,12 +52,12 @@ function MoviesPageContent() {
         delayChildren: 0.3,
       },
     },
-  }
+  };
 
   const item = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-  }
+  };
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -78,23 +77,20 @@ function MoviesPageContent() {
         >
           <h1 className="text-3xl font-bold mb-6 text-white">Vote on Movies</h1>
 
-          {!address && (
+          {!isConnected && (
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5 }}
               className="bg-[#121212] p-6 mb-8 text-center max-w-md w-full border border-[#222222] rounded-lg"
             >
-              <p className="mb-4 text-zinc-300">Connect your wallet to vote on your favorite movies</p>
-              <ConnectButton
-                client={client}
-                appMetadata={{ name: "MovieMeter", url: "https://moviemeter.vercel.app" }}
-                className="bg-[#ad264a] hover:bg-[#c13a5e] text-white py-2 px-6 rounded-full transition-colors duration-300"
-              />
+              <p className="mb-4 text-zinc-300">
+                Connect your wallet to vote on your favorite movies
+              </p>
             </motion.div>
           )}
 
-          {address && (
+          {isConnected && (
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -121,7 +117,10 @@ function MoviesPageContent() {
                   className="bg-[#121212] hover:bg-[#1a1a1a] text-white p-3 rounded-full transition-colors duration-300 border border-[#222222]"
                   aria-label="Refresh votes"
                 >
-                  <RefreshCw size={18} className={isRefreshing ? "animate-spin" : ""} />
+                  <RefreshCw
+                    size={18}
+                    className={isRefreshing ? "animate-spin" : ""}
+                  />
                 </button>
               </div>
             </motion.div>
@@ -141,7 +140,7 @@ function MoviesPageContent() {
           </motion.div>
         )}
 
-        {address && (
+        {isConnected && (
           <motion.div
             variants={container}
             initial="hidden"
@@ -150,7 +149,11 @@ function MoviesPageContent() {
           >
             {filteredMovies.map((movie) => (
               <motion.div key={movie.id} variants={item}>
-                <MovieCard id={movie.id} title={movie.title} description={movie.description} />
+                <MovieCard
+                  id={movie.id}
+                  title={movie.title}
+                  description={movie.description}
+                />
               </motion.div>
             ))}
 
@@ -161,14 +164,16 @@ function MoviesPageContent() {
                 transition={{ duration: 0.5 }}
                 className="col-span-full text-center py-10"
               >
-                <p className="text-zinc-400">No movies found matching "{searchQuery}"</p>
+                <p className="text-zinc-400">
+                  No movies found matching "{searchQuery}"
+                </p>
               </motion.div>
             )}
           </motion.div>
         )}
       </motion.div>
     </main>
-  )
+  );
 }
 
 // Add the missing Search component
@@ -189,5 +194,5 @@ function Search(props: any) {
       <circle cx="11" cy="11" r="8"></circle>
       <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
     </svg>
-  )
+  );
 }

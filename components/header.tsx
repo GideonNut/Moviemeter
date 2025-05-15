@@ -1,26 +1,37 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Search, Menu, ChevronDown, Bell, Sparkles, Film, Gift, Tv, Users, MessageCircle } from "lucide-react"
-import { ConnectButton, useActiveAccount } from "thirdweb/react"
-import { client } from "@/app/client"
-import { motion, AnimatePresence } from "framer-motion"
-import { useTheme } from "next-themes"
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  Search,
+  Menu,
+  ChevronDown,
+  Bell,
+  Sparkles,
+  Film,
+  Gift,
+  Tv,
+  Users,
+  MessageCircle,
+} from "lucide-react";
+import { useAccount, useConnect } from "wagmi";
+import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "next-themes";
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [showSearch, setShowSearch] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  const { theme } = useTheme()
-  const account = useActiveAccount()
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { theme } = useTheme();
+  const { isConnected, address } = useAccount();
+  const { connect, connectors } = useConnect();
 
   // Avoid hydration mismatch
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   const navItemVariants = {
     hidden: { opacity: 0, y: -10 },
@@ -32,7 +43,7 @@ export default function Header() {
         duration: 0.3,
       },
     }),
-  }
+  };
 
   return (
     <motion.header
@@ -318,7 +329,7 @@ export default function Header() {
                       onChange={(e) => setSearchQuery(e.target.value)}
                       autoFocus
                       onBlur={() => {
-                        if (!searchQuery) setShowSearch(false)
+                        if (!searchQuery) setShowSearch(false);
                       }}
                     />
                     <div className="absolute inset-y-0 left-0 flex items-center pl-2">
@@ -340,18 +351,12 @@ export default function Header() {
 
             {/* Watchlist Bell */}
             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-              <Link href="/watchlist" className="text-zinc-300 hover:text-white hidden md:flex items-center">
+              <Link
+                href="/watchlist"
+                className="text-zinc-300 hover:text-white hidden md:flex items-center"
+              >
                 <Bell size={18} />
               </Link>
-            </motion.div>
-
-            {/* Connect Button */}
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <ConnectButton
-                client={client}
-                appMetadata={{ name: "MovieMeter", url: "https://moviemeter.vercel.app" }}
-                className="bg-[#ad264a] hover:bg-[#c13a5e] text-white py-1.5 px-4 rounded-full text-sm font-medium transition-colors duration-300"
-              />
             </motion.div>
 
             {/* Mobile Menu Button */}
@@ -415,7 +420,11 @@ export default function Header() {
                 { href: "/celebrities", label: "Celebs" },
                 { href: "/watchlist", label: "Watchlist" },
                 { href: "/frame-embeds", label: "Browse Frames" },
-                { href: "https://t.me/movies_society", label: "Community Channel", external: true },
+                {
+                  href: "https://t.me/movies_society",
+                  label: "Community Channel",
+                  external: true,
+                },
               ].map((item, index) => (
                 <motion.div
                   key={index}
@@ -434,7 +443,10 @@ export default function Header() {
                       {item.label}
                     </Link>
                   ) : (
-                    <Link href={item.href} className="block py-2 text-zinc-300 hover:text-white">
+                    <Link
+                      href={item.href}
+                      className="block py-2 text-zinc-300 hover:text-white"
+                    >
                       {item.label}
                     </Link>
                   )}
@@ -445,5 +457,5 @@ export default function Header() {
         )}
       </AnimatePresence>
     </motion.header>
-  )
+  );
 }

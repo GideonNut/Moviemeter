@@ -49,7 +49,13 @@ npm install --legacy-peer-deps
 
 ### Environment Variables
 
-Create a `.env.local` file in the root directory and add the following variables:
+Copy `env.sample` to `.env.local` file in the root directory:
+
+```sh
+cp env.sample .env.local
+```
+
+Edit the `.env.local` file to fill the following variables:
 
 ```env
 NEXT_PUBLIC_CELO_RPC=https://alfajores-forno.celo-testnet.org
@@ -60,7 +66,7 @@ NEXT_PUBLIC_THIRDWEB_CLIENT_ID=your-thirdweb-client-id
 ### Run the Development Server
 
 ```sh
-yarn dev  # or npm run dev
+npm run dev
 ```
 
 The app will be available at `http://localhost:3000`
@@ -76,7 +82,7 @@ The app will be available at `http://localhost:3000`
 To deploy the frontend:
 
 ```sh
-yarn build && yarn start  # or npm run build && npm start
+npm run build && npm start
 ```
 
 You can also deploy it on Vercel or Netlify for easy hosting.

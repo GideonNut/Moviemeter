@@ -1,7 +1,7 @@
 "use client"
 
 import { WagmiConfig } from "wagmi"
-import { wagmiConfig } from "@/lib/wagmi-config"
+import { config } from "@/lib/wagmi-config"
 import type { ReactNode } from "react"
 
 interface BlockchainWrapperProps {
@@ -10,7 +10,7 @@ interface BlockchainWrapperProps {
 
 export default function BlockchainWrapper({ children }: BlockchainWrapperProps) {
   try {
-    return <WagmiConfig config={wagmiConfig}>{children}</WagmiConfig>
+    return <WagmiConfig config={config}>{children}</WagmiConfig>
   } catch (error) {
     console.error("Error in BlockchainWrapper:", error)
     return <>{children}</>
