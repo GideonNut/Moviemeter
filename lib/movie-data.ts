@@ -11,6 +11,8 @@ export interface Movie {
   backdropUrl?: string
   trailerUrl?: string
   screenshots?: string[]
+  voteCountYes?: number
+  voteCountNo?: number
 }
 
 // Sample movie data with proper image URLs
@@ -25,15 +27,16 @@ export const movies: Movie[] = [
     cast: ["Brec Bassinger", "Teo Briones", "Keenan Tracey"],
     genres: ["Horror", "Thriller"],
     rating: 7.2,
-    posterUrl:
-      "https://m.media-amazon.com/images/M/MV5BZDJlYzMyZTctYzBiMi00Y2ZjLTg0MTctMDQ1ZTVhZDQ5ZTI1XkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg",
-    backdropUrl: "https://i.ytimg.com/vi/EL4sUiPQDrQ/maxresdefault.jpg",
+    posterUrl: "/images/final-destination-bloodlines.jpeg",
+    backdropUrl: "/images/final-destination-bloodlines.jpeg",
     trailerUrl: "https://www.youtube.com/embed/EL4sUiPQDrQ",
     screenshots: [
       "https://i.ytimg.com/vi/EL4sUiPQDrQ/hq720.jpg",
       "https://i.ytimg.com/vi/EL4sUiPQDrQ/hqdefault.jpg",
       "https://i.ytimg.com/vi/EL4sUiPQDrQ/maxresdefault.jpg",
     ],
+    voteCountYes: 124,
+    voteCountNo: 45,
   },
   {
     id: "1",
@@ -53,6 +56,8 @@ export const movies: Movie[] = [
       "https://m.media-amazon.com/images/M/MV5BMTM4OTQ0NTkxMF5BMl5BanBnXkFtZTcwNjEwMzE0Mw@@._V1_.jpg",
       "https://m.media-amazon.com/images/M/MV5BMTY3MzMzMDgyMF5BMl5BanBnXkFtZTcwODAwMzE0Mw@@._V1_.jpg",
     ],
+    voteCountYes: 342,
+    voteCountNo: 28,
   },
   {
     id: "2",
@@ -72,6 +77,8 @@ export const movies: Movie[] = [
       "https://m.media-amazon.com/images/M/MV5BMTc0MjgyNTUyNF5BMl5BanBnXkFtZTgwNDQ5MTE0MjE@._V1_.jpg",
       "https://m.media-amazon.com/images/M/MV5BMTg4Njk4MzY0Nl5BMl5BanBnXkFtZTgwMzIyODgxMzE@._V1_.jpg",
     ],
+    voteCountYes: 289,
+    voteCountNo: 42,
   },
   {
     id: "3",
@@ -91,6 +98,8 @@ export const movies: Movie[] = [
       "https://m.media-amazon.com/images/M/MV5BMTkyMjQ4ODk1NF5BMl5BanBnXkFtZTcwMDU3MTIzMw@@._V1_.jpg",
       "https://m.media-amazon.com/images/M/MV5BMTMwNzExMTcxOV5BMl5BanBnXkFtZTcwODU3MTIzMw@@._V1_.jpg",
     ],
+    voteCountYes: 412,
+    voteCountNo: 18,
   },
   {
     id: "4",
@@ -102,13 +111,15 @@ export const movies: Movie[] = [
     cast: ["Timothée Chalamet", "Zendaya", "Rebecca Ferguson"],
     genres: ["Action", "Adventure", "Sci-Fi"],
     rating: 8.6,
-    posterUrl: "/images/dune.jpg",
-    backdropUrl: "/images/dune.jpg",
+    posterUrl: "https://moviemeter13.vercel.app/images/dune.jpg",
+    backdropUrl: "https://moviemeter13.vercel.app/images/dune.jpg",
     trailerUrl: "https://www.youtube.com/embed/Way9Dexny3w",
     screenshots: [
       "https://i.ytimg.com/vi/Way9Dexny3w/hq720.jpg",
       "https://i.ytimg.com/vi/Way9Dexny3w/hqdefault.jpg",
       "https://i.ytimg.com/vi/Way9Dexny3w/maxresdefault.jpg",
     ],
+    voteCountYes: 356,
+    voteCountNo: 67,
   },
 ]
