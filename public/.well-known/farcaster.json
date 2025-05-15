@@ -1,0 +1,22 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjEwMDYzMTEsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg4RGFFMzM0MzUzODNjRDM2OEYzNDcyNGJBMTVmN0JBRmI0NDE2Q0M2In0",
+    "payload": "eyJkb21haW4iOiJNb3ZpZU1ldGVyMTMudmVyY2VsLmFwcCJ9",
+    "signature": "MHg1ZjYxMWM1ZTI0NmQ2MGEzYTZlMWM1M2ViNDRlN2JmMDBhYmVjNTAyMDBiZmY3YWNjNWIxNTc5YjlmMDA1YjNjNmQzMTE5OTkxOWYyZWMxN2Y4MjE1OThjMjA5YTcyZWFlMzYxNDBhNWNmY2QzYWJjNmM3NmQxYjgxYWFhZTVlMzFj"
+  },
+  "frame": {
+    "version": "1",
+    "name": "MovieMeter",
+    "iconUrl": "https://moviemeter13.vercel.app/mm-logo.png",
+    "homeUrl": "https://moviemeter13.vercel.app/mini",
+    "imageUrl": "https://moviemeter13.vercel.app/mm-logo.png",
+    "buttonTitle": "Vote on Movies",
+    "splashImageUrl": "https://moviemeter13.vercel.app/mm-logo.png",
+    "splashBackgroundColor": "#18181b",
+    "webhookUrl": "https://moviemeter13.vercel.app/api/farcaster-webhook",
+    "subtitle": "Your Blockchain IMDb",
+    "description": "Vote for your favorite movies on the blockchain and earn rewards.",
+    "primaryCategory": "entertainment",
+    "tags": ["movies", "voting", "blockchain", "celo"]
+  }
+}
