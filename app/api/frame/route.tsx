@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
         <head>
           <title>MovieMeter Frame</title>
           <meta property="fc:frame" content="vNext" />
-          <meta property="fc:frame:image" content="${baseUrl}/api/image?id=${movieId}" />
+          <meta property="fc:frame:image" content="${baseUrl}/images/moviemeter-logo.png" />
           <meta property="fc:frame:button:1" content="👍 Yes" />
           <meta property="fc:frame:button:2" content="👎 No" />
           <meta property="fc:frame:post_url" content="${baseUrl}/api/vote?id=${movieId}" />
