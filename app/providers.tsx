@@ -4,7 +4,6 @@ import type React from "react"
 
 import { ThirdwebProvider } from "thirdweb/react"
 import { client } from "./client"
-import { MovieProvider } from "@/lib/state/MovieContext"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -19,7 +18,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         },
       ]}
     >
-      <MovieProvider>{children}</MovieProvider>
+      {children}
     </ThirdwebProvider>
   )
 }

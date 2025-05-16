@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { trackFrameInteraction } from "@/lib/analytics"
-import { rateLimitMiddleware } from "@/lib/security/rate-limit"
 
 // Define movie data
 const movies = [
@@ -14,12 +13,6 @@ export const runtime = "edge"
 
 export async function POST(req: NextRequest) {
   try {
-    // Apply rate limiting
-    const rateLimitResponse = rateLimitMiddleware(req)
-    if (rateLimitResponse) {
-      return rateLimitResponse
-    }
-
     // Parse the form data
     const formData = await req.formData()
     const buttonIndex = formData.get("buttonIndex")
@@ -27,11 +20,6 @@ export async function POST(req: NextRequest) {
     // Get movie ID from the URL
     const url = new URL(req.url)
     const movieId = url.searchParams.get("id") || "0"
-
-    // Validate movie ID
-    if (!movies.some((m) => m.id === movieId)) {
-      return NextResponse.json({ error: "Invalid movie ID" }, { status: 400 })
-    }
 
     // Determine vote type based on button index
     const voteType = buttonIndex === "1" // 1 = Yes, 2 = No
