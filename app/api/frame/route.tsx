@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     // Track the frame view
     trackFrameView(movieId)
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter13.vercel.app"
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
 
     // Return the HTML with the frame metadata
     return new NextResponse(
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
         <head>
           <title>MovieMeter Frame</title>
           <meta property="fc:frame" content="vNext" />
-          <meta property="fc:frame:image" content="${baseUrl}/images/moviemeter-logo.png" />
+          <meta property="fc:frame:image" content="${baseUrl}/api/image?id=${movieId}" />
           <meta property="fc:frame:button:1" content="👍 Yes" />
           <meta property="fc:frame:button:2" content="👎 No" />
           <meta property="fc:frame:post_url" content="${baseUrl}/api/vote?id=${movieId}" />
@@ -44,3 +44,4 @@ export async function GET(req: NextRequest) {
     return new NextResponse("Error loading frame", { status: 500 })
   }
 }
+

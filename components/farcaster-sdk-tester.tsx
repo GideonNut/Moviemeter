@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { sdk } from "@farcaster/frame-sdk"
-import { ConnectWallet } from "@/components/ConnectWallet"
 
 export default function FarcasterSDKTester() {
   const [sdkStatus, setSdkStatus] = useState<"loading" | "ready" | "error">("loading")
@@ -204,9 +203,8 @@ export default function FarcasterSDKTester() {
             </div>
           </div>
         )}
-
-        <ConnectWallet />
       </div>
     </div>
   )
 }
+

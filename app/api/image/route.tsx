@@ -163,3 +163,4 @@ export async function GET(req: NextRequest) {
     return new Response("Error generating image", { status: 500 })
   }
 }
+

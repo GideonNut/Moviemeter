@@ -181,3 +181,4 @@ export async function getMovieRecommendations(userPreferences: string): Promise<
     return []
   }
 }
+

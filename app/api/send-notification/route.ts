@@ -1,41 +1,26 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { kv } from "@vercel/kv"
+import { sendNotification } from "@/lib/notification-service"
 
 export async function POST(req: NextRequest) {
   try {
-    const { fid, movieId, movieTitle, message } = await req.json()
+    const { fid, movieId, movieTitle, voteType } = await req.json()
 
     if (!fid || !movieId || !movieTitle) {
       return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 })
     }
 
-    // Get notification token for this user
-    const notificationData = await kv.get(`notification:${fid}`)
+    const notificationId = `movie-vote-${movieId}-${Date.now()}`
+    const title = "MovieMeter Vote"
+    const body = `Someone voted ${voteType ? "👍" : "👎"} on ${movieTitle}!`
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
+    const targetUrl = `${baseUrl}/movies/${movieId}`
 
-    if (!notificationData || !notificationData.url || !notificationData.token) {
-      return NextResponse.json({ success: false, error: "No notification token found for user" }, { status: 404 })
-    }
+    const success = await sendNotification(fid, notificationId, title, body, targetUrl)
 
-    // Send notification
-    const response = await fetch(notificationData.url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        tokens: [notificationData.token],
-        title: `MovieMeter: ${movieTitle}`,
-        body: message || `New activity on ${movieTitle}`,
-        notificationId: `movie-${movieId}-${Date.now()}`,
-        targetUrl: `https://moviemeter.vercel.app/mini/movie/${movieId}`,
-      }),
-    })
-
-    const result = await response.json()
-
-    return NextResponse.json({ success: true, result })
+    return NextResponse.json({ success })
   } catch (error) {
     console.error("Error sending notification:", error)
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 })
   }
 }
+

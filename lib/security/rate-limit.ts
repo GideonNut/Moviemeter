@@ -2,7 +2,7 @@
  * Rate Limiting Utility
  *
  * Provides rate limiting functionality to prevent abuse of the voting system.
- * Uses a simple in-memory store for demo purposes. In production,will use Redis or similar.
+ * Uses a simple in-memory store for demo purposes. In production, use Redis or similar.
  */
 
 import { type NextRequest, NextResponse } from "next/server"
@@ -56,3 +56,4 @@ setInterval(() => {
     }
   }
 }, RATE_LIMIT_WINDOW)
+

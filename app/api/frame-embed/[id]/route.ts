@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
           type: "launch_frame",
           url: `${baseUrl}/farcaster?id=${movieId}`,
           name: "MovieMeter",
-          splashImageUrl: `${baseUrl}/images/moviemeter-logo.png`,
+          splashImageUrl: `${baseUrl}/mm-logo-new.png`,
           splashBackgroundColor: "#18181b",
         },
       },
@@ -52,3 +52,4 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return new NextResponse("Error generating frame embed", { status: 500 })
   }
 }
+
