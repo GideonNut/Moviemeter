@@ -5,7 +5,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   try {
     const movieId = params.id || "0"
     const movie = movies.find((m) => m.id === movieId) || movies[0]
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
+    // Use the environment variable without fallback
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
 
     // Create the frame embed JSON according to the v2 spec
     const frameEmbed = {

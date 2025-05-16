@@ -10,7 +10,8 @@ interface FarcasterShareProps {
 
 export default function FarcasterShare({ movie }: FarcasterShareProps) {
   const [copied, setCopied] = useState(false)
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
+  // Use the environment variable without fallback
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
 
   // Generate the share URL
   const shareUrl = `${baseUrl}/share?id=${movie.id}`

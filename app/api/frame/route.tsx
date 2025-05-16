@@ -11,7 +11,8 @@ export async function GET(req: NextRequest) {
     // Track the frame view
     trackFrameView(movieId)
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
+    // Use the environment variable without fallback
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
 
     // Return the HTML with the frame metadata
     return new NextResponse(
