@@ -3,54 +3,58 @@
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 import { useActiveAccount } from "thirdweb/react"
-import { getMovieVotes } from "@/lib/blockchain-service"
+import { getMovieVotes, hasUserVotedForMovie } from "@/lib/blockchain-service"
 
 interface MovieContextType {
-  votes: Record<number, number>
-  loadingVotes: boolean
-  refreshVotes: (movieId: number) => Promise<void>
+  votes: Record<string, any>
+  userVotes: Record<string, boolean>
+  loadVotes: (movieId: string) => Promise<void>
+  refreshVotes: (movieId: string) => Promise<void>
 }
 
 const MovieContext = createContext<MovieContextType>({
   votes: {},
-  loadingVotes: false,
+  userVotes: {},
+  loadVotes: async () => {},
   refreshVotes: async () => {},
 })
 
-export const useMovie = () => useContext(MovieContext)
+export const useMovieContext = () => useContext(MovieContext)
 
 export const MovieProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [votes, setVotes] = useState<Record<number, number>>({})
-  const [loadingVotes, setLoadingVotes] = useState(false)
+  const [votes, setVotes] = useState<Record<string, any>>({})
+  const [userVotes, setUserVotes] = useState<Record<string, boolean>>({})
   const account = useActiveAccount()
   const address = account?.address
 
-  const refreshVotes = async (movieId: number) => {
-    setLoadingVotes(true)
+  const loadVotes = async (movieId: string) => {
     try {
-      const result = await getMovieVotes(movieId)
-      if (result.success) {
-        setVotes((prev) => ({
-          ...prev,
-          [movieId]: result.votes,
-        }))
+      const movieVotes = await getMovieVotes(movieId)
+      if (movieVotes) {
+        setVotes((prev) => ({ ...prev, [movieId]: movieVotes }))
+      }
+
+      if (address) {
+        const hasVoted = await hasUserVotedForMovie(movieId, address)
+        setUserVotes((prev) => ({ ...prev, [movieId]: hasVoted }))
       }
     } catch (error) {
-      console.error("Error refreshing votes:", error)
-    } finally {
-      setLoadingVotes(false)
+      console.error("Error loading votes:", error)
     }
+  }
+
+  const refreshVotes = async (movieId: string) => {
+    await loadVotes(movieId)
   }
 
   // Refresh votes when address changes
   useEffect(() => {
     if (address) {
-      // Refresh votes for movies in the state
-      Object.keys(votes).forEach((id) => {
-        refreshVotes(Number(id))
+      Object.keys(votes).forEach((movieId) => {
+        loadVotes(movieId)
       })
     }
   }, [address])
 
-  return <MovieContext.Provider value={{ votes, loadingVotes, refreshVotes }}>{children}</MovieContext.Provider>
+  return <MovieContext.Provider value={{ votes, userVotes, loadVotes, refreshVotes }}>{children}</MovieContext.Provider>
 }

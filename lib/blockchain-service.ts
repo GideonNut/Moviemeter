@@ -1,88 +1,87 @@
-import { getContract, defineChain } from "thirdweb"
-import { client } from "@/app/client"
+/**
+ * Blockchain Service
+ *
+ * This service handles all interactions with the Celo mainnet through the Thirdweb SDK.
+ * It provides a clean separation between UI components and blockchain logic.
+ */
 
-// Define Celo mainnet
-const celoMainnet = defineChain({
+import { getContract, defineChain, prepareContractCall } from "thirdweb"
+import { client } from "@/lib/client"
+
+// Define Celo mainnet with proper configuration
+export const celoMainnet = defineChain({
   id: 42220,
+  name: "Celo Mainnet",
   rpc: "https://forno.celo.org",
   nativeCurrency: { name: "Celo", symbol: "CELO", decimals: 18 },
-  shortName: "celo",
-  name: "Celo Mainnet",
-  chain: "CELO",
-  testnet: false,
+  // Add explorer URL for better debugging
+  explorers: [
+    {
+      name: "Celo Explorer",
+      url: "https://explorer.celo.org",
+    },
+  ],
 })
 
-// Contract address on Celo mainnet
-const contractAddress = "0x3eD5D4A503999C5aEB13CD71Eb1d395043368723"
+// Contract address with proper typing
+export const CONTRACT_ADDRESS: string = "0x3eD5D4A503999C5aEB13CD71Eb1d395043368723"
 
-// Get contract instance
-export const getMovieContract = () => {
+// Get contract instance with proper configuration
+export const getMovieMeterContract = () => {
   return getContract({
     client,
     chain: celoMainnet,
-    address: contractAddress,
+    address: CONTRACT_ADDRESS,
   })
 }
 
-// Upvote a movie
-export const upvoteMovie = async (movieId: number, walletAddress: string) => {
+/**
+ * Get votes for a specific movie
+ * @param movieId - The ID of the movie to get votes for
+ * @returns Promise with vote data or null if error
+ */
+export async function getMovieVotes(movieId: string) {
   try {
-    const contract = getMovieContract()
-
-    // Call the vote function on the contract
-    const transaction = await contract.call("vote", [BigInt(movieId), true])
-
-    return {
-      success: true,
-      transaction,
-    }
+    const contract = getMovieMeterContract()
+    const votes = await contract.read("getVotes", [movieId])
+    return votes
   } catch (error) {
-    console.error("Error upvoting movie:", error)
-    return {
-      success: false,
-      error: "Failed to upvote movie",
-    }
+    console.error(`Error getting votes for movie ${movieId}:`, error)
+    return null
   }
 }
 
-// Downvote a movie
-export const downvoteMovie = async (movieId: number, walletAddress: string) => {
-  try {
-    const contract = getMovieContract()
+/**
+ * Vote for a movie
+ * @param movieId - The ID of the movie to vote for
+ * @param voteType - True for yes, false for no
+ * @returns Prepared transaction for the vote
+ */
+export function prepareVoteTransaction(movieId: string | number, voteType: boolean) {
+  const contract = getMovieMeterContract()
 
-    // Call the vote function on the contract
-    const transaction = await contract.call("vote", [BigInt(movieId), false])
-
-    return {
-      success: true,
-      transaction,
-    }
-  } catch (error) {
-    console.error("Error downvoting movie:", error)
-    return {
-      success: false,
-      error: "Failed to downvote movie",
-    }
-  }
+  // Prepare the transaction with proper gas optimization
+  return prepareContractCall({
+    contract,
+    method: "function vote(uint256, bool)",
+    params: [BigInt(movieId), voteType],
+    // Add gas limit to prevent unexpected costs
+    gas: 300000n,
+  })
 }
 
-// Get votes for a movie
-export const getMovieVotes = async (movieId: number) => {
+/**
+ * Check if a user has voted for a specific movie
+ * @param movieId - The ID of the movie to check
+ * @param address - The user's wallet address
+ * @returns Promise<boolean> - True if the user has voted, false otherwise
+ */
+export async function hasUserVotedForMovie(movieId: string, address: string): Promise<boolean> {
   try {
-    const contract = getMovieContract()
-
-    // Call the getVotes function on the contract
-    const votes = await contract.call("getVotes", [BigInt(movieId)])
-
-    return {
-      success: true,
-      votes: Number(votes.yes) - Number(votes.no),
-    }
+    const votes = await getMovieVotes(movieId)
+    return votes?.voters.includes(address) || false
   } catch (error) {
-    console.error("Error getting votes for movie:", error)
-    return {
-      success: false,
-      error: "Failed to get votes for movie",
-    }
+    console.error(`Error checking if user ${address} voted for movie ${movieId}:`, error)
+    return false
   }
 }
