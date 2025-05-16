@@ -156,4 +156,3 @@ export default function MoviePage({ params }: { params: { id: string } }) {
     </main>
   )
 }
-

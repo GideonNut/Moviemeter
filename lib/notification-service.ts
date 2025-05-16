@@ -89,4 +89,3 @@ export async function sendNotification(
     return false
   }
 }
-

@@ -44,4 +44,3 @@ export async function GET(req: NextRequest) {
     return new NextResponse("Error loading frame", { status: 500 })
   }
 }
-

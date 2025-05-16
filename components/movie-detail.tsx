@@ -177,4 +177,3 @@ export default function MovieDetail({ movie, onVote }: MovieDetailProps) {
     </div>
   )
 }
-

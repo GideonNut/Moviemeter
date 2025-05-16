@@ -4,6 +4,7 @@ import type React from "react"
 
 import { ThirdwebProvider } from "thirdweb/react"
 import { client } from "./client"
+import { MovieProvider } from "@/lib/state/MovieContext"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -11,15 +12,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
       client={client}
       supportedChains={[
         {
-          id: 44787,
-          name: "Celo Alfajores",
-          rpc: "https://alfajores-forno.celo-testnet.org",
+          id: 42220,
+          name: "Celo Mainnet",
+          rpc: "https://forno.celo.org",
           nativeCurrency: { name: "Celo", symbol: "CELO", decimals: 18 },
         },
       ]}
     >
-      {children}
+      <MovieProvider>{children}</MovieProvider>
     </ThirdwebProvider>
   )
 }
-

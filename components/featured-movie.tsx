@@ -126,4 +126,3 @@ export default function FeaturedMovie() {
     </div>
   )
 }
-
