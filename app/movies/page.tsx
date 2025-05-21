@@ -1,193 +1,158 @@
-"use client"
-import { useState } from "react"
-import { ConnectButton, useActiveAccount } from "thirdweb/react"
-import { client } from "@/app/client"
-import Header from "@/components/header"
-import MovieCard from "@/components/movie-card"
-import { MovieProvider, useMovies } from "@/lib/state/MovieContext"
-import { AlertCircle, RefreshCw } from "lucide-react"
-import { motion } from "framer-motion"
+import Image from "next/image"
+import Link from "next/link"
+import { Star, Clock, Calendar, Heart, Share2, Play } from "lucide-react"
 
-// Wrapper component that provides the MovieContext
-export default function MoviesPage() {
-  return (
-    <MovieProvider>
-      <MoviesPageContent />
-    </MovieProvider>
-  )
+// This would normally come from a database or API
+const getMovieDetails = (id: string) => {
+  return {
+    id,
+    title: "Dune: Part Two",
+    year: "2024",
+    rating: "PG-13",
+    runtime: "166 min",
+    genres: ["Action", "Adventure", "Drama", "Sci-Fi"],
+    releaseDate: "March 1, 2024",
+    imdbRating: 8.8,
+    plot: "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family. As he tries to prevent a terrible future, he must reconcile the love of his life with the fate of the universe.",
+    director: "Denis Villeneuve",
+    stars: [
+      { id: "star1", name: "Timothée Chalamet" },
+      { id: "star2", name: "Zendaya" },
+      { id: "star3", name: "Rebecca Ferguson" },
+      { id: "star4", name: "Javier Bardem" },
+    ],
+    posterUrl: "/placeholder.svg?height=600&width=400",
+    backdropUrl: "/placeholder.svg?height=800&width=1600",
+    trailerUrl: "#",
+  }
 }
 
-// Main content component that uses the MovieContext
-function MoviesPageContent() {
-  const account = useActiveAccount()
-  const address = account?.address
-  const { filteredMovies, searchQuery, setSearchQuery, error } = useMovies()
-  const [isRefreshing, setIsRefreshing] = useState(false)
-
-  // Function to refresh vote data
-  const refreshVotes = async () => {
-    if (!address) return
-
-    setIsRefreshing(true)
-
-    try {
-      // Wait for 2 seconds to simulate refreshing
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Force a re-render by changing the key of the MovieProvider
-      // This will cause the useEffect in MovieContext to run again
-      window.location.reload()
-    } catch (error) {
-      console.error("Error refreshing votes:", error)
-    } finally {
-      setIsRefreshing(false)
-    }
-  }
-
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.3,
-      },
-    },
-  }
-
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-  }
+export default function MoviePage({ params }: { params: { id: string } }) {
+  const movie = getMovieDetails(params.id)
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      <Header />
+    <main className="min-h-screen bg-zinc-950 text-white">
+      {/* Movie Backdrop */}
+      <div className="relative h-[50vh]">
+        <Image src={movie.backdropUrl || "/placeholder.svg"} alt={movie.title} fill className="object-cover" priority />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent" />
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="container mx-auto px-4 py-8"
-      >
-        <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col items-center mb-10"
-        >
-          <h1 className="text-3xl font-bold mb-6 text-white">Vote on Movies</h1>
+      <div className="container mx-auto px-4 -mt-32 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Movie Poster */}
+          <div className="md:col-span-1">
+            <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-xl">
+              <Image src={movie.posterUrl || "/placeholder.svg"} alt={movie.title} fill className="object-cover" />
+            </div>
 
-          {!address && (
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="bg-[#121212] p-6 mb-8 text-center max-w-md w-full border border-[#222222] rounded-lg"
-            >
-              <p className="mb-4 text-zinc-300">Connect your wallet to vote on your favorite movies</p>
-              <ConnectButton
-                client={client}
-                appMetadata={{ name: "MovieMeter", url: "https://moviemeter.vercel.app" }}
-                className="bg-[#ad264a] hover:bg-[#c13a5e] text-white py-2 px-6 rounded-full transition-colors duration-300"
-              />
-            </motion.div>
-          )}
+            <div className="mt-4 flex flex-col space-y-3">
+              <button className="flex items-center justify-center bg-rose-600 hover:bg-rose-700 text-white py-3 px-4 rounded-md font-medium">
+                <Play size={18} className="mr-2" />
+                Watch Trailer
+              </button>
 
-          {address && (
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="w-full max-w-md"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <div className="relative flex-1">
-                  <input
-                    type="text"
-                    placeholder="Search movies..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="bg-[#121212] border border-[#222222] rounded-full py-2 pl-10 text-white w-full focus:outline-none focus:ring-2 focus:ring-[#ad264a] transition-all duration-300"
-                    aria-label="Search movies"
-                  />
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                    <Search size={18} className="text-zinc-400" />
-                  </div>
-                </div>
-                <button
-                  onClick={refreshVotes}
-                  disabled={isRefreshing}
-                  className="bg-[#121212] hover:bg-[#1a1a1a] text-white p-3 rounded-full transition-colors duration-300 border border-[#222222]"
-                  aria-label="Refresh votes"
-                >
-                  <RefreshCw size={18} className={isRefreshing ? "animate-spin" : ""} />
+              <div className="grid grid-cols-2 gap-3">
+                <button className="flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 rounded-md">
+                  <Heart size={18} className="mr-2" />
+                  Add to Watchlist
+                </button>
+                <button className="flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 rounded-md">
+                  <Share2 size={18} className="mr-2" />
+                  Share
                 </button>
               </div>
-            </motion.div>
-          )}
-        </motion.div>
+            </div>
+          </div>
 
-        {/* Display error message if there is one */}
-        {error && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="bg-[#3a1a1a] border border-[#5a2a2a] text-red-200 p-4 rounded-xl mb-6 flex items-start max-w-2xl mx-auto"
-          >
-            <AlertCircle className="mr-2 mt-0.5 flex-shrink-0" size={16} />
-            <p>{error}</p>
-          </motion.div>
-        )}
+          {/* Movie Details */}
+          <div className="md:col-span-2">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">
+              {movie.title} <span className="text-zinc-400">({movie.year})</span>
+            </h1>
 
-        {address && (
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-center"
-          >
-            {filteredMovies.map((movie) => (
-              <motion.div key={movie.id} variants={item}>
-                <MovieCard id={movie.id} title={movie.title} description={movie.description} />
-              </motion.div>
+            <div className="flex flex-wrap items-center text-sm text-zinc-400 mb-4">
+              <span className="mr-3">{movie.rating}</span>
+              <span className="flex items-center mr-3">
+                <Clock size={14} className="mr-1" /> {movie.runtime}
+              </span>
+              <span className="flex items-center mr-3">
+                <Calendar size={14} className="mr-1" /> {movie.releaseDate}
+              </span>
+              <div className="flex items-center">
+                {movie.genres.map((genre, index) => (
+                  <Link key={genre} href={`/genre/${genre.toLowerCase()}`} className="hover:text-rose-500">
+                    {genre}
+                    {index < movie.genres.length - 1 ? ", " : ""}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center mb-6">
+              <div className="flex items-center bg-zinc-800 rounded-lg px-3 py-2 mr-4">
+                <Star size={20} className="text-yellow-400 mr-1" />
+                <span className="font-bold">{movie.imdbRating}</span>
+                <span className="text-zinc-400 text-sm ml-1">/10</span>
+              </div>
+              <button className="bg-zinc-800 hover:bg-zinc-700 rounded-lg px-3 py-2 text-sm">Rate This</button>
+            </div>
+
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">Overview</h2>
+              <p className="text-zinc-300">{movie.plot}</p>
+            </div>
+
+            <div className="border-t border-zinc-800 pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h3 className="text-zinc-400 mb-1">Director</h3>
+                  <Link
+                    href={`/name/${movie.director.toLowerCase().replace(" ", "-")}`}
+                    className="hover:text-rose-500"
+                  >
+                    {movie.director}
+                  </Link>
+                </div>
+
+                <div>
+                  <h3 className="text-zinc-400 mb-1">Stars</h3>
+                  <div>
+                    {movie.stars.map((star, index) => (
+                      <span key={star.id}>
+                        <Link href={`/name/${star.id}`} className="hover:text-rose-500">
+                          {star.name}
+                        </Link>
+                        {index < movie.stars.length - 1 ? ", " : ""}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Similar Movies Section */}
+        <section className="mt-12 mb-8">
+          <h2 className="text-2xl font-bold mb-4">More Like This</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Link href={`/movies/similar-${i}`} key={i} className="group">
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden">
+                  <Image
+                    src={`/placeholder.svg?height=300&width=200`}
+                    alt={`Similar movie ${i}`}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <h3 className="mt-2 text-sm font-medium group-hover:text-rose-500">Similar Movie {i}</h3>
+              </Link>
             ))}
-
-            {filteredMovies.length === 0 && searchQuery && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="col-span-full text-center py-10"
-              >
-                <p className="text-zinc-400">No movies found matching "{searchQuery}"</p>
-              </motion.div>
-            )}
-          </motion.div>
-        )}
-      </motion.div>
+          </div>
+        </section>
+      </div>
     </main>
-  )
-}
-
-// Add the missing Search component
-function Search(props: any) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={props.size || 24}
-      height={props.size || 24}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={props.className}
-    >
-      <circle cx="11" cy="11" r="8"></circle>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-    </svg>
   )
 }

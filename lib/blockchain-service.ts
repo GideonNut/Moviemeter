@@ -5,34 +5,61 @@
  * It provides a clean separation between UI components and blockchain logic.
  */
 
-import { getContract, defineChain, prepareContractCall } from "thirdweb"
+import { getContract, defineChain, prepareContractCall, readContract } from "thirdweb"
 import { client } from "@/app/client"
 import { safeParseInt } from "./bigint-utils"
 
-// Define Celo Alfajores testnet with proper configuration
-export const alfajores = defineChain({
-  id: 44787,
-  name: "Celo Alfajores",
-  rpc: "https://alfajores-forno.celo-testnet.org",
+// Define Celo mainnet with proper configuration
+export const celo = defineChain({
+  id: 42220,
+  name: "Celo",
+  rpc: "https://forno.celo.org",
   nativeCurrency: { name: "Celo", symbol: "CELO", decimals: 18 },
   // Add explorer URL for better debugging
   explorers: [
     {
       name: "Celo Explorer",
-      url: "https://explorer.celo.org/alfajores",
+      url: "https://explorer.celo.org",
+      standard: "EIP3091"
     },
   ],
 })
 
 // Contract address with proper typing
-export const CONTRACT_ADDRESS: string = "0x3eD5D4A503999C5aEB13CD71Eb1d395043368723"
+export const CONTRACT_ADDRESS: string = "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828"
+
+// Contract ABI
+export const CONTRACT_ABI = [
+  {
+    inputs: [
+      { name: "movieId", type: "uint256" },
+      { name: "vote", type: "bool" }
+    ],
+    name: "vote",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    inputs: [{ name: "movieId", type: "uint256" }],
+    name: "getVotes",
+    outputs: [
+      { name: "yes", type: "uint256" },
+      { name: "no", type: "uint256" },
+      { name: "voters", type: "address[]" }
+    ],
+    stateMutability: "view",
+    type: "function"
+  }
+] as const
 
 // Get contract instance with proper configuration
 export const getMovieMeterContract = () => {
   return getContract({
     client,
-    chain: alfajores,
+    chain: celo,
     address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI
   })
 }
 
@@ -44,14 +71,18 @@ export const getMovieMeterContract = () => {
 export async function getMovieVotes(movieId: string) {
   try {
     const contract = getMovieMeterContract()
-    const votes = await contract.read("getVotes", [movieId])
-
-    // Safely convert BigInt values to regular numbers or strings
+    const votes = await readContract({
+      contract,
+      method: "getVotes",
+      params: [BigInt(movieId)],
+    })
+    
+    // The votes are returned as a tuple [yes, no, voters]
     return votes
       ? {
-          yes: safeParseInt(votes.yes),
-          no: safeParseInt(votes.no),
-          voters: votes.voters || [],
+          yes: safeParseInt(votes[0]),
+          no: safeParseInt(votes[1]),
+          voters: votes[2] || [],
         }
       : null
   } catch (error) {
@@ -70,15 +101,14 @@ export function prepareVoteTransaction(movieId: string | number, voteType: boole
   const contract = getMovieMeterContract()
 
   // Convert movieId to a safe value
-  const safeMovieId = typeof movieId === "string" ? Number.parseInt(movieId, 10) : movieId
+  const safeMovieId = typeof movieId === "string" ? BigInt(movieId) : BigInt(movieId)
 
   // Prepare the transaction with proper gas optimization
   return prepareContractCall({
     contract,
-    method: "function vote(uint256, bool)",
+    method: "vote",
     params: [safeMovieId, voteType],
-    // Add gas limit to prevent unexpected costs
-    gas: 300000n,
+    gas: BigInt(300000),
   })
 }
 
