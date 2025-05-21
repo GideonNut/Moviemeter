@@ -23,8 +23,8 @@ export const celoMainnet = defineChain({
   ],
 })
 
-// Contract address with proper typing
-export const CONTRACT_ADDRESS: string = "0x63166d8911a745fac70763b91163d6930ffcf3cd"
+// Contract address on Celo mainnet
+export const CONTRACT_ADDRESS: string = "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828"
 
 // Get contract instance with proper configuration
 export const getMovieMeterContract = () => {
