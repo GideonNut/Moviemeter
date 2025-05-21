@@ -137,15 +137,18 @@ export default function NewMoviesSection() {
         },
       ]
 
+      // Load movies in smaller chunks to prevent UI blocking
+      const chunkSize = 4
       setMovies(mockNewMovies)
-
-      // Initially show only the first 4 movies for better performance
-      setVisibleMovies(mockNewMovies.slice(0, 4))
-
-      // After a short delay, show all movies
-      setTimeout(() => {
-        setVisibleMovies(mockNewMovies)
-      }, 500)
+      
+      // Initially show only the first chunk
+      setVisibleMovies(mockNewMovies.slice(0, chunkSize))
+      
+      // Load the rest of the movies in chunks
+      for (let i = chunkSize; i < mockNewMovies.length; i += chunkSize) {
+        await new Promise(resolve => setTimeout(resolve, 100))
+        setVisibleMovies(prev => [...prev, ...mockNewMovies.slice(i, i + chunkSize)])
+      }
     } catch (err) {
       setError("Failed to fetch new movies")
       console.error(err)
