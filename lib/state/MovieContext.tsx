@@ -8,9 +8,11 @@
  */
 
 import type React from "react"
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, type ReactNode, useMemo } from "react"
 import { useActiveAccount, useSendTransaction } from "thirdweb/react"
-import { getMovieMeterContract, prepareVoteTransaction } from "@/lib/blockchain-service"
+import { getMovieMeterContract, getMovieVotes } from "@/lib/blockchain-service"
+import { CONTRACT_ABI } from "@/lib/blockchain-service"
+import { prepareContractCall } from "thirdweb"
 
 // Define movie data interface
 export interface Movie {
@@ -71,6 +73,7 @@ export const MovieProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [searchQuery, setSearchQuery] = useState("")
   const [isVoting, setIsVoting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   const account = useActiveAccount()
   const address = account?.address
@@ -80,47 +83,72 @@ export const MovieProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   // Load movie data with vote counts
   useEffect(() => {
+    let isMounted = true
     const loadMovieData = async () => {
-      if (!address) return
-
       try {
-        // Map initial movies to include vote data
-        const moviesWithVotes = await Promise.all(
-          initialMovies.map(async (movie) => {
-            try {
-              const voteData = await contract.read("getVotes", [movie.id])
-              return {
-                ...movie,
-                voteCountYes: voteData ? Number(voteData.yes) : 0,
-                voteCountNo: voteData ? Number(voteData.no) : 0,
-                hasVoted: voteData ? voteData.voters.includes(address) : false,
+        setIsLoading(true)
+        // Load movies in batches to prevent UI blocking
+        const batchSize = 5
+        const moviesWithVotes: Movie[] = []
+        
+        for (let i = 0; i < initialMovies.length; i += batchSize) {
+          const batch = initialMovies.slice(i, i + batchSize)
+          const batchResults = await Promise.all(
+            batch.map(async (movie) => {
+              try {
+                // Use getMovieVotes helper
+                const voteData = await getMovieVotes(movie.id.toString())
+                return {
+                  ...movie,
+                  voteCountYes: voteData ? Number(voteData.yes) : 0,
+                  voteCountNo: voteData ? Number(voteData.no) : 0,
+                  hasVoted: address ? (voteData ? voteData.voters.includes(address) : false) : false,
+                }
+              } catch (err) {
+                console.error(`Error loading votes for movie ${movie.id}:`, err)
+                return {
+                  ...movie,
+                  voteCountYes: 0,
+                  voteCountNo: 0,
+                  hasVoted: false,
+                }
               }
-            } catch (err) {
-              console.error(`Error loading votes for movie ${movie.id}:`, err)
-              return {
-                ...movie,
-                voteCountYes: 0,
-                voteCountNo: 0,
-                hasVoted: false,
-              }
-            }
-          }),
-        )
-
-        setMovies(moviesWithVotes)
+            })
+          )
+          
+          if (isMounted) {
+            moviesWithVotes.push(...batchResults)
+            setMovies([...moviesWithVotes])
+          }
+          
+          // Add a small delay between batches to prevent UI blocking
+          await new Promise(resolve => setTimeout(resolve, 100))
+        }
       } catch (err) {
         console.error("Error loading movie data:", err)
-        setError("Failed to load movie data. Please try again later.")
+        if (isMounted) {
+          setError("Failed to load movie data. Please try again later.")
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
     }
 
-    if (address) {
-      loadMovieData()
+    loadMovieData()
+    
+    return () => {
+      isMounted = false
     }
-  }, [address, contract])
+  }, [address])
 
   // Filter movies based on search query
-  const filteredMovies = movies.filter((movie) => movie.title.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredMovies = useMemo(() => {
+    return movies.filter((movie) => 
+      movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  }, [movies, searchQuery])
 
   // Update the voteForMovie function to properly handle transaction status and refresh data
   const voteForMovie = async (movieId: number, voteType: boolean) => {
@@ -148,34 +176,38 @@ export const MovieProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }),
       )
 
-      // Prepare and send transaction
-      const transaction = prepareVoteTransaction(movieId, voteType)
+      // Prepare and send transaction inline to match expected types
+      const transaction = prepareContractCall({
+        contract,
+        method: "vote",
+        params: [BigInt(movieId), voteType],
+        gas: BigInt(300000),
+      })
 
-      sendTransaction(transaction, {
-        onSuccess: async (result) => {
-          console.log(`Successfully voted ${voteType ? "yes" : "no"} for movie ${movieId}`, result)
-
-          // Wait for transaction to be mined
+      const { waitForTransactionReceipt } = usePublicClient()
+      const { hash } = await sendTransaction(transaction)
+      const receipt = await waitForTransactionReceipt({ hash })
+      
+      console.log(`Successfully voted ${voteType ? "yes" : "no"} for movie ${movieId}`, receipt)
           try {
             // Refresh the vote data from the blockchain after a short delay
             // to allow the transaction to be processed
             setTimeout(async () => {
               try {
-                const voteData = await contract.read("getVotes", [movieId])
+                const voteData = await getMovieVotes(movieId.toString())
 
                 // Update the movie with the latest vote data from the blockchain
-                setMovies((prevMovies) =>
-                  prevMovies.map((movie) => {
-                    if (movie.id === movieId) {
-                      return {
-                        ...movie,
-                        voteCountYes: voteData ? Number(voteData.yes) : movie.voteCountYes,
-                        voteCountNo: voteData ? Number(voteData.no) : movie.voteCountNo,
-                        hasVoted: voteData ? voteData.voters.includes(address) : movie.hasVoted,
-                      }
+                setMovies((prevMovies) => prevMovies.map((movie) => {
+                  if (movie.id === movieId) {
+                    return {
+                      ...movie,
+                      voteCountYes: voteData ? Number(voteData.yes) : movie.voteCountYes,
+                      voteCountNo: voteData ? Number(voteData.no) : movie.voteCountNo,
+                      hasVoted: voteData ? voteData.voters.includes(address) : movie.hasVoted,
                     }
-                    return movie
-                  }),
+                  }
+                  return movie
+                })
                 )
               } catch (refreshError) {
                 console.error("Error refreshing vote data:", refreshError)
@@ -188,18 +220,17 @@ export const MovieProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         onError: (error) => {
           console.error("Voting failed:", error)
           // Revert optimistic update
-          setMovies((prevMovies) =>
-            prevMovies.map((movie) => {
-              if (movie.id === movieId) {
-                return {
-                  ...movie,
-                  voteCountYes: voteType ? movie.voteCountYes - 1 : movie.voteCountYes,
-                  voteCountNo: voteType ? movie.voteCountNo : movie.voteCountNo - 1,
-                  hasVoted: false,
-                }
+          setMovies((prevMovies) => prevMovies.map((movie) => {
+            if (movie.id === movieId) {
+              return {
+                ...movie,
+                voteCountYes: voteType ? movie.voteCountYes - 1 : movie.voteCountYes,
+                voteCountNo: voteType ? movie.voteCountNo : movie.voteCountNo - 1,
+                hasVoted: false,
               }
-              return movie
-            }),
+            }
+            return movie
+          })
           )
           setError("Failed to submit vote. Please try again.")
         },
