@@ -1,0 +1,40 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjU0NDgsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg2MWQwMEFENzYwNjhGOEQ0NzQwYzM1OEM4QzAzYUFFYjUxMGI1OTBEIn0",
+    "payload": "eyJkb21haW4iOiJtb3ZpZW1ldGVyMTIudmVyY2VsLmFwcCJ9",
+    "signature": "MHg3NmRkOWVlMjE4OGEyMjliNzExZjUzOTkxYTc1NmEzMGZjNTA3NmE5OTU5OWJmOWFmYjYyMzAyZWQxMWQ2MWFmNTExYzlhYWVjNjQ3OWMzODcyMTI5MzA2YmJhYjdhMTE0MmRhMjA4MmNjNTM5MTJiY2MyMDRhMWFjZTY2NjE5OTFj"
+  },
+  "frame": {
+    "version": "1",
+    "name": "MovieMeter",
+    "homeUrl": "https://moviemeter12.vercel.app/farcaster",
+    "iconUrl": "https://moviemeter12.vercel.app/mm-logo-new.png",
+    "imageUrl": "https://moviemeter12.vercel.app/api/image?id=0",
+    "buttonTitle": "Vote on Movies",
+    "splashImageUrl": "https://moviemeter12.vercel.app/mm-logo-new.png",
+    "splashBackgroundColor": "#18181b",
+    "webhookUrl": "https://moviemeter12.vercel.app/api/webhook"
+  },
+  "frameEmbed": {
+    "version": "next",
+    "imageUrl": "https://moviemeter12.vercel.app/api/image?id=0",
+    "button": {
+      "title": "Vote on Movies",
+      "action": {
+        "type": "launch_frame",
+        "url": "https://moviemeter12.vercel.app/farcaster",
+        "name": "MovieMeter",
+        "splashImageUrl": "https://moviemeter12.vercel.app/mm-logo-new.png",
+        "splashBackgroundColor": "#18181b"
+      }
+    }
+  },
+  "triggers": [
+    {
+      "type": "cast",
+      "id": "movie-vote",
+      "url": "https://moviemeter12.vercel.app/farcaster",
+      "name": "Vote on Movie"
+    }
+  ]
+}
