@@ -1,5 +1,5 @@
 // Simple in-memory analytics for demo purposes
-// In production, i will use a database or analytics service
+// In production, use a database or analytics service
 
 interface FrameView {
   timestamp: number

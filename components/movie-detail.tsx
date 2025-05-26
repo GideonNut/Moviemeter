@@ -6,7 +6,6 @@ import { ChevronLeft, ChevronRight, Play } from "lucide-react"
 import type { Movie } from "@/lib/movie-data"
 import VideoPlayer from "./video-player"
 import FarcasterShare from "./farcaster-share"
-import ShareToTelegram from "./share-to-telegram"
 
 interface MovieDetailProps {
   movie: Movie
@@ -16,7 +15,6 @@ interface MovieDetailProps {
 export default function MovieDetail({ movie, onVote }: MovieDetailProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [showTrailer, setShowTrailer] = useState(false)
-  const [userVote, setUserVote] = useState<"yes" | "no" | null>(null)
 
   const screenshots = movie.screenshots || []
 
@@ -26,11 +24,6 @@ export default function MovieDetail({ movie, onVote }: MovieDetailProps) {
 
   const prevImage = () => {
     setCurrentImageIndex((prev) => (prev - 1 + screenshots.length) % screenshots.length)
-  }
-
-  const handleVote = (vote: boolean) => {
-    setUserVote(vote ? "yes" : "no")
-    onVote(vote)
   }
 
   return (
@@ -109,22 +102,9 @@ export default function MovieDetail({ movie, onVote }: MovieDetailProps) {
           </button>
         )}
 
-        {/* Share Options */}
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Farcaster Share Component */}
-          <div>
-            <FarcasterShare movie={movie} />
-          </div>
-
-          {/* Telegram Share Component */}
-          <div>
-            <ShareToTelegram
-              movieTitle={movie.title}
-              movieDescription={movie.description}
-              movieImageUrl={movie.posterUrl}
-              userVote={userVote}
-            />
-          </div>
+        {/* Farcaster Share Component */}
+        <div className="mt-4">
+          <FarcasterShare movie={movie} />
         </div>
 
         {/* Screenshots Gallery */}
@@ -176,13 +156,13 @@ export default function MovieDetail({ movie, onVote }: MovieDetailProps) {
         {/* Voting Buttons */}
         <div className="mt-6 grid grid-cols-2 gap-3">
           <button
-            onClick={() => handleVote(true)}
+            onClick={() => onVote(true)}
             className="py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-medium"
           >
             👍 Like
           </button>
           <button
-            onClick={() => handleVote(false)}
+            onClick={() => onVote(false)}
             className="py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium"
           >
             👎 Dislike

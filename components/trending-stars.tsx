@@ -74,19 +74,21 @@ export default function TrendingStars() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {trendingStars.slice(currentIndex, currentIndex + starsPerPage).map((star) => (
           <Link href={`/name/${star.id}`} key={star.id} className="group">
-            <div className="bg-zinc-900 rounded-lg p-4 hover:bg-zinc-800 transition-colors text-center">
-              <div className="relative w-48 h-48 mx-auto">
+            <div className="bg-zinc-900 rounded-lg overflow-hidden hover:bg-zinc-800 transition-colors">
+              {/* Basic image container with absolutely no styling that could cause overlays */}
+              <div className="w-full h-72 relative">
                 <Image
                   src={star.imageUrl || "/placeholder.svg"}
                   alt={star.name}
                   fill
-                  className="object-cover rounded-full"
+                  className="object-cover"
                   sizes="(max-width: 768px) 100vw, 33vw"
                   unoptimized // Disable Next.js image optimization to ensure no processing
                 />
               </div>
 
-              <div className="mt-4">
+              {/* Information below the image */}
+              <div className="p-4">
                 <h3 className="font-medium text-lg group-hover:text-rose-500 transition-colors">{star.name}</h3>
                 <p className="text-zinc-400 text-sm mt-1">{star.knownFor}</p>
               </div>

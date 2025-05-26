@@ -75,8 +75,12 @@ export default function Home() {
 function Header() {
   return (
     <header className="flex flex-col items-center mb-20 md:mb-20">
-      <div className="relative w-[600px] h-[300px] mb-8">
-        <Image src="/images/new-logo.png" alt="MovieMeter Logo" fill className="object-contain" priority />
+      <div className="relative w-[600px] h-[480px] mb-8">
+        <Image src="/mm-logo-new.png" alt="MovieMeter Logo" fill className="object-contain" priority />
+      </div>
+
+      <div className="relative w-full max-w-md mb-6">
+        <Image src="/moviemeter-logo.png" alt="MovieMeter" width={400} height={120} className="mx-auto" priority />
       </div>
 
       <p className="text-zinc-300 text-base">
@@ -141,18 +145,8 @@ function MovieCard({ id, title, description, address }: MovieCardProps) {
     setTimeout(() => setShowFrameLink(false), 3000)
   }
 
-  const currentMovie = { id: id, title: title, description: description }
-
   return (
     <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full text-center">
-      <div className="aspect-[2/3] relative mb-4 rounded-md overflow-hidden bg-black">
-        <Image
-          src={`/placeholder-8k514.png?height=450&width=300&text=${encodeURIComponent(currentMovie.title)}`}
-          alt={currentMovie.title}
-          fill
-          className="object-cover"
-        />
-      </div>
       <h2 className="text-lg font-semibold mb-2">{title}</h2>
       <p className="text-sm text-zinc-400 mb-4">{description}</p>
       <VoteButtons

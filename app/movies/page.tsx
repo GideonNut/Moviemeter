@@ -1,158 +1,278 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Star, Clock, Calendar, Heart, Share2, Play } from "lucide-react"
+import { ConnectButton, useActiveAccount, useReadContract, useSendTransaction, useContractEvents } from "thirdweb/react"
+import { getContract, defineChain, prepareContractCall } from "thirdweb"
+import { client } from "@/app/client"
+import Header from "@/components/header"
+import { Share2 } from "lucide-react"
 
-// This would normally come from a database or API
-const getMovieDetails = (id: string) => {
-  return {
-    id,
-    title: "Dune: Part Two",
-    year: "2024",
-    rating: "PG-13",
-    runtime: "166 min",
-    genres: ["Action", "Adventure", "Drama", "Sci-Fi"],
-    releaseDate: "March 1, 2024",
-    imdbRating: 8.8,
-    plot: "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family. As he tries to prevent a terrible future, he must reconcile the love of his life with the fate of the universe.",
-    director: "Denis Villeneuve",
-    stars: [
-      { id: "star1", name: "Timothée Chalamet" },
-      { id: "star2", name: "Zendaya" },
-      { id: "star3", name: "Rebecca Ferguson" },
-      { id: "star4", name: "Javier Bardem" },
-    ],
-    posterUrl: "/placeholder.svg?height=600&width=400",
-    backdropUrl: "/placeholder.svg?height=800&width=1600",
-    trailerUrl: "#",
-  }
+const alfajores = defineChain({
+  id: 44787,
+  rpc: "https://alfajores-forno.celo-testnet.org",
+  nativeCurrency: { name: "Celo", symbol: "CELO", decimals: 18 },
+})
+
+const contractAddress: string = "0x3eD5D4A503999C5aEB13CD71Eb1d395043368723"
+const contract = getContract({ client, chain: alfajores, address: contractAddress })
+
+interface Movie {
+  id: number
+  title: string
+  description: string
 }
 
-export default function MoviePage({ params }: { params: { id: string } }) {
-  const movie = getMovieDetails(params.id)
+interface MovieCardsProps {
+  address: string
+  searchQuery: string
+}
+
+interface MovieCardProps {
+  id: number
+  title: string
+  description: string
+  address: string
+}
+
+interface VoteButtonsProps {
+  id: number
+  hasVoted: boolean
+  setHasVoted: (value: boolean) => void
+  voteCountYes: number
+  voteCountNo: number
+  setVoteCountYes: (value: (prev: number) => number) => void
+  setVoteCountNo: (value: (prev: number) => number) => void
+}
+
+export default function MoviesPage() {
+  const account = useActiveAccount()
+  const address: string | undefined = account?.address
+  const [searchQuery, setSearchQuery] = useState<string>("")
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
-      {/* Movie Backdrop */}
-      <div className="relative h-[50vh]">
-        <Image src={movie.backdropUrl || "/placeholder.svg"} alt={movie.title} fill className="object-cover" priority />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent" />
-      </div>
+      <Header />
 
-      <div className="container mx-auto px-4 -mt-32 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Movie Poster */}
-          <div className="md:col-span-1">
-            <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-xl">
-              <Image src={movie.posterUrl || "/placeholder.svg"} alt={movie.title} fill className="object-cover" />
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col items-center mb-10">
+          <h1 className="text-3xl font-bold mb-6">Vote on Movies</h1>
+
+          {!address && (
+            <div className="bg-zinc-900 p-6 rounded-lg mb-8 text-center">
+              <p className="mb-4">Connect your wallet to vote on your favorite movies</p>
+              <ConnectButton
+                client={client}
+                appMetadata={{ name: "MovieMeter", url: "https://moviemeter.vercel.app" }}
+                className="bg-rose-600 hover:bg-rose-700 text-white py-2 px-4 rounded"
+              />
             </div>
+          )}
 
-            <div className="mt-4 flex flex-col space-y-3">
-              <button className="flex items-center justify-center bg-rose-600 hover:bg-rose-700 text-white py-3 px-4 rounded-md font-medium">
-                <Play size={18} className="mr-2" />
-                Watch Trailer
-              </button>
-
-              <div className="grid grid-cols-2 gap-3">
-                <button className="flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 rounded-md">
-                  <Heart size={18} className="mr-2" />
-                  Add to Watchlist
-                </button>
-                <button className="flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 rounded-md">
-                  <Share2 size={18} className="mr-2" />
-                  Share
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Movie Details */}
-          <div className="md:col-span-2">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">
-              {movie.title} <span className="text-zinc-400">({movie.year})</span>
-            </h1>
-
-            <div className="flex flex-wrap items-center text-sm text-zinc-400 mb-4">
-              <span className="mr-3">{movie.rating}</span>
-              <span className="flex items-center mr-3">
-                <Clock size={14} className="mr-1" /> {movie.runtime}
-              </span>
-              <span className="flex items-center mr-3">
-                <Calendar size={14} className="mr-1" /> {movie.releaseDate}
-              </span>
-              <div className="flex items-center">
-                {movie.genres.map((genre, index) => (
-                  <Link key={genre} href={`/genre/${genre.toLowerCase()}`} className="hover:text-rose-500">
-                    {genre}
-                    {index < movie.genres.length - 1 ? ", " : ""}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center mb-6">
-              <div className="flex items-center bg-zinc-800 rounded-lg px-3 py-2 mr-4">
-                <Star size={20} className="text-yellow-400 mr-1" />
-                <span className="font-bold">{movie.imdbRating}</span>
-                <span className="text-zinc-400 text-sm ml-1">/10</span>
-              </div>
-              <button className="bg-zinc-800 hover:bg-zinc-700 rounded-lg px-3 py-2 text-sm">Rate This</button>
-            </div>
-
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">Overview</h2>
-              <p className="text-zinc-300">{movie.plot}</p>
-            </div>
-
-            <div className="border-t border-zinc-800 pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="text-zinc-400 mb-1">Director</h3>
-                  <Link
-                    href={`/name/${movie.director.toLowerCase().replace(" ", "-")}`}
-                    className="hover:text-rose-500"
-                  >
-                    {movie.director}
-                  </Link>
-                </div>
-
-                <div>
-                  <h3 className="text-zinc-400 mb-1">Stars</h3>
-                  <div>
-                    {movie.stars.map((star, index) => (
-                      <span key={star.id}>
-                        <Link href={`/name/${star.id}`} className="hover:text-rose-500">
-                          {star.name}
-                        </Link>
-                        {index < movie.stars.length - 1 ? ", " : ""}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          {address && (
+            <input
+              type="text"
+              placeholder="Search movies..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="mt-6 p-3 border border-zinc-800 rounded-lg bg-zinc-900 text-white w-full max-w-md focus:outline-none hover:bg-zinc-800"
+            />
+          )}
         </div>
 
-        {/* Similar Movies Section */}
-        <section className="mt-12 mb-8">
-          <h2 className="text-2xl font-bold mb-4">More Like This</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Link href={`/movies/similar-${i}`} key={i} className="group">
-                <div className="relative aspect-[2/3] rounded-lg overflow-hidden">
-                  <Image
-                    src={`/placeholder.svg?height=300&width=200`}
-                    alt={`Similar movie ${i}`}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <h3 className="mt-2 text-sm font-medium group-hover:text-rose-500">Similar Movie {i}</h3>
-              </Link>
-            ))}
-          </div>
-        </section>
+        {address && <MovieCards address={address} searchQuery={searchQuery} />}
       </div>
     </main>
+  )
+}
+
+function MovieCards({ address, searchQuery }: MovieCardsProps) {
+  const movies: Movie[] = [
+    { id: 0, title: "Inception", description: "A thief enters dreams to steal secrets." },
+    { id: 1, title: "Interstellar", description: "A space epic exploring love and time." },
+    { id: 2, title: "The Dark Knight", description: "Batman faces off against the Joker." },
+    { id: 3, title: "Avengers: Endgame", description: "The Avengers assemble for one last fight." },
+    {
+      id: 4,
+      title: "Dune: Part Two",
+      description: "Paul Atreides unites with Chani and the Fremen while seeking revenge.",
+    },
+    {
+      id: 5,
+      title: "Oppenheimer",
+      description:
+        "The story of American scientist J. Robert Oppenheimer and his role in the creation of the atomic bomb.",
+    },
+    {
+      id: 6,
+      title: "Barbie",
+      description: "Barbie suffers a crisis that leads her to question her world and her existence.",
+    },
+    {
+      id: 7,
+      title: "The Matrix",
+      description:
+        "A computer hacker learns about the true nature of reality and his role in the war against its controllers.",
+    },
+    {
+      id: 8,
+      title: "Pulp Fiction",
+      description:
+        "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine.",
+    },
+  ]
+
+  const filteredMovies = movies.filter((movie) => movie.title.toLowerCase().includes(searchQuery.toLowerCase()))
+
+  return (
+    <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-center">
+      {filteredMovies.map((movie) => (
+        <MovieCard key={movie.id} {...movie} address={address} />
+      ))}
+    </div>
+  )
+}
+
+function MovieCard({ id, title, description, address }: MovieCardProps) {
+  const [hasVoted, setHasVoted] = useState<boolean>(false)
+  const [voteCountYes, setVoteCountYes] = useState<number>(0)
+  const [voteCountNo, setVoteCountNo] = useState<number>(0)
+  const [showFrameLink, setShowFrameLink] = useState(false)
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
+  const frameUrl = `${baseUrl}/api/frame?id=${id}`
+
+  const { data: votes, refetch } = useReadContract({
+    contract,
+    method: "getVotes",
+    params: [id],
+  })
+
+  useEffect(() => {
+    if (votes) {
+      setVoteCountYes(votes.yes)
+      setVoteCountNo(votes.no)
+      if (votes.voters.includes(address)) {
+        setHasVoted(true)
+      }
+    }
+  }, [votes, address])
+
+  useContractEvents({
+    contract,
+    events: ["Voted"],
+    onEvents: () => refetch(),
+  })
+
+  const copyFrameLink = () => {
+    navigator.clipboard.writeText(frameUrl)
+    setShowFrameLink(true)
+    setTimeout(() => setShowFrameLink(false), 3000)
+  }
+
+  return (
+    <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full">
+      <div className="relative aspect-[2/3] mb-4 overflow-hidden rounded-md">
+        <Image
+          src={`/placeholder.svg?height=450&width=300&text=${encodeURIComponent(title)}`}
+          alt={title}
+          fill
+          className="object-cover"
+        />
+      </div>
+      <h2 className="text-lg font-semibold mb-2">{title}</h2>
+      <p className="text-sm text-zinc-400 mb-4">{description}</p>
+      <VoteButtons
+        id={id}
+        hasVoted={hasVoted}
+        setHasVoted={setHasVoted}
+        voteCountYes={voteCountYes}
+        voteCountNo={voteCountNo}
+        setVoteCountYes={setVoteCountYes}
+        setVoteCountNo={setVoteCountNo}
+      />
+
+      {/* Farcaster Frame Link */}
+      <div className="mt-4 pt-4 border-t border-zinc-800">
+        <div className="flex justify-between items-center">
+          <Link href={frameUrl} target="_blank" className="text-rose-500 hover:text-rose-400 text-sm">
+            View Farcaster Frame
+          </Link>
+          <button
+            onClick={copyFrameLink}
+            className="text-zinc-400 hover:text-white p-2 rounded-full hover:bg-zinc-800"
+            title="Copy Frame Link"
+          >
+            <Share2 size={16} />
+          </button>
+        </div>
+        {showFrameLink && <div className="mt-2 text-xs text-green-500">Frame link copied to clipboard!</div>}
+      </div>
+    </div>
+  )
+}
+
+function VoteButtons({
+  id,
+  hasVoted,
+  setHasVoted,
+  voteCountYes,
+  voteCountNo,
+  setVoteCountYes,
+  setVoteCountNo,
+}: VoteButtonsProps) {
+  const { mutate: sendTransaction, isPending } = useSendTransaction()
+
+  const handleVote = async (voteType: boolean) => {
+    if (hasVoted) return
+    try {
+      setHasVoted(true)
+      if (voteType) setVoteCountYes((prev) => prev + 1)
+      else setVoteCountNo((prev) => prev + 1)
+
+      const transaction = prepareContractCall({
+        contract,
+        method: "function vote(uint256, bool)",
+        params: [BigInt(id), voteType], // Convert 'id' to bigint
+      })
+
+      sendTransaction(transaction, {
+        onSuccess: () => console.log("Voted successfully"),
+        onError: () => {
+          setHasVoted(false)
+          if (voteType) setVoteCountYes((prev) => prev - 1)
+          else setVoteCountNo((prev) => prev - 1)
+        },
+      })
+    } catch (error) {
+      console.error("Voting failed:", error)
+      setHasVoted(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-3 mt-4">
+      <div className="flex gap-3 w-full">
+        <button
+          onClick={() => handleVote(true)}
+          disabled={isPending || hasVoted}
+          className={`flex-1 px-4 py-2 rounded-lg text-white ${
+            hasVoted ? "bg-zinc-700" : "bg-green-600 hover:bg-green-700"
+          }`}
+        >
+          👍 Yes ({voteCountYes})
+        </button>
+        <button
+          onClick={() => handleVote(false)}
+          disabled={isPending || hasVoted}
+          className={`flex-1 px-4 py-2 rounded-lg text-white ${
+            hasVoted ? "bg-zinc-700" : "bg-red-600 hover:bg-red-700"
+          }`}
+        >
+          👎 No ({voteCountNo})
+        </button>
+      </div>
+      {hasVoted && <p className="text-sm text-zinc-400">You've already voted on this movie</p>}
+    </div>
   )
 }

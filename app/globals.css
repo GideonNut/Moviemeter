@@ -3,33 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
-  --accent-color: 173, 38, 74;
-  --card-bg: 245, 245, 245;
-  --card-hover: 235, 235, 235;
-  --button-bg: 173, 38, 74;
-  --button-hover: 193, 58, 94;
-  --search-bg: 245, 245, 245;
-  --border-color: 220, 220, 220;
-}
-
-.dark {
   --foreground-rgb: 255, 255, 255;
-  --background-rgb: 0, 0, 0;
-  --accent-color: 173, 38, 74;
-  --card-bg: 18, 18, 18;
-  --card-hover: 28, 28, 28;
-  --button-bg: 173, 38, 74;
-  --button-hover: 193, 58, 94;
-  --search-bg: 18, 18, 18;
-  --border-color: 34, 34, 34;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
-  min-height: 100vh;
+  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
 }
 
 @layer utilities {
@@ -46,20 +27,20 @@ body {
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 346 64% 41%;
+    --primary: 0 0% 9%;
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
-    --accent: 346 64% 41%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-    --ring: 346 64% 41%;
-    --chart-1: 173 58% 39%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
@@ -81,19 +62,19 @@ body {
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 346 64% 41%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 346 64% 41%;
+    --accent: 0 0% 14.9%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
-    --ring: 346 64% 41%;
+    --ring: 0 0% 83.1%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -110,28 +91,11 @@ body {
   }
 }
 
-@layer components {
-  .sleek-card {
-    @apply bg-[rgb(var(--card-bg))] rounded-lg overflow-hidden transition-all duration-300 hover:bg-[rgb(var(--card-hover))] hover:shadow-lg border border-[rgb(var(--border-color))];
+@layer base {
+  * {
+    @apply border-border;
   }
-
-  .sleek-button {
-    @apply bg-[rgb(var(--button-bg))] hover:bg-[rgb(var(--button-hover))] text-white rounded-full py-2 px-6 transition-all duration-300;
-  }
-
-  .sleek-input {
-    @apply bg-[rgb(var(--search-bg))] border border-[rgb(var(--border-color))] rounded-full py-2 px-4 text-[rgb(var(--foreground-rgb))] w-full focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent-color))] transition-all duration-300;
-  }
-}
-
-/* Add this to the end of the file to hide scrollbars */
-@layer utilities {
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  body {
+    @apply bg-background text-foreground;
   }
 }

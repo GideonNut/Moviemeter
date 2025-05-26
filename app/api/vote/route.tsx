@@ -1,92 +1,32 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { trackFrameInteraction } from "@/lib/analytics"
-import { rateLimitMiddleware } from "@/lib/security/rate-limit"
+import { prepareVoteTransaction } from "@/lib/blockchain-service"
+import { rateLimit } from "@/lib/security/rate-limit"
 
-// Define movie data
-const movies = [
-  { id: "0", title: "Inception", description: "A thief enters dreams to steal secrets." },
-  { id: "1", title: "Interstellar", description: "A space epic exploring love and time." },
-  { id: "2", title: "The Dark Knight", description: "Batman faces off against the Joker." },
-  { id: "3", title: "Avengers: Endgame", description: "The Avengers assemble for one last fight." },
-]
-
-export const runtime = "edge"
-
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     // Apply rate limiting
-    const rateLimitResponse = rateLimitMiddleware(req)
-    if (rateLimitResponse) {
-      return rateLimitResponse
+    const rateLimitResult = await rateLimit.check(request)
+    if (!rateLimitResult.success) {
+      return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 })
     }
 
-    // Parse the form data
-    const formData = await req.formData()
-    const buttonIndex = formData.get("buttonIndex")
+    // Parse request body
+    const { movieId, voteType, address } = await request.json()
 
-    // Get movie ID from the URL
-    const url = new URL(req.url)
-    const movieId = url.searchParams.get("id") || "0"
-
-    // Validate movie ID
-    if (!movies.some((m) => m.id === movieId)) {
-      return NextResponse.json({ error: "Invalid movie ID" }, { status: 400 })
+    if (!movieId || voteType === undefined || !address) {
+      return NextResponse.json({ error: "Missing required parameters" }, { status: 400 })
     }
 
-    // Determine vote type based on button index
-    const voteType = buttonIndex === "1" // 1 = Yes, 2 = No
+    // Prepare the transaction
+    const transaction = prepareVoteTransaction(movieId, voteType)
 
-    // Track the interaction
-    trackFrameInteraction(movieId, voteType ? "vote_yes" : "vote_no")
-
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
-
-    // Return HTML with the thank you frame
-    return new NextResponse(
-      `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>MovieMeter Frame</title>
-          <meta property="fc:frame" content="vNext" />
-          <meta property="fc:frame:image" content="${baseUrl}/api/thank-you?id=${movieId}&vote=${voteType ? "yes" : "no"}" />
-          <meta property="fc:frame:button:1" content="Vote on another movie" />
-          <meta property="fc:frame:post_url" content="${baseUrl}/api/next-movie" />
-        </head>
-        <body>
-          <h1>Thank you for voting!</h1>
-        </body>
-      </html>
-    `,
-      {
-        headers: {
-          "Content-Type": "text/html",
-        },
-      },
-    )
+    // Return the transaction data
+    return NextResponse.json({
+      success: true,
+      transaction,
+    })
   } catch (error) {
     console.error("Error processing vote:", error)
-    return new NextResponse(
-      `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>MovieMeter Frame Error</title>
-          <meta property="fc:frame" content="vNext" />
-          <meta property="fc:frame:image" content="${process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"}/api/error" />
-          <meta property="fc:frame:button:1" content="Try Again" />
-          <meta property="fc:frame:post_url" content="${process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"}/api/frame" />
-        </head>
-        <body>
-          <h1>Error processing vote</h1>
-        </body>
-      </html>
-    `,
-      {
-        headers: {
-          "Content-Type": "text/html",
-        },
-      },
-    )
+    return NextResponse.json({ error: "Failed to process vote" }, { status: 500 })
   }
 }
