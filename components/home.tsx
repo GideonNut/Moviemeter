@@ -6,16 +6,11 @@ import Link from "next/link"
 import { ConnectButton, useActiveAccount, useReadContract, useSendTransaction, useContractEvents } from "thirdweb/react"
 import { getContract, defineChain, prepareContractCall } from "thirdweb"
 import { client } from "../app/client"
+import { celoMainnet } from "@/lib/blockchain-service"
 import { Share2 } from "lucide-react"
 
-const alfajores = defineChain({
-  id: 44787,
-  rpc: "https://alfajores-forno.celo-testnet.org",
-  nativeCurrency: { name: "Celo", symbol: "CELO", decimals: 18 },
-})
-
-const contractAddress: string = "0x3eD5D4A503999C5aEB13CD71Eb1d395043368723"
-const contract = getContract({ client, chain: alfajores, address: contractAddress })
+const contractAddress: string = "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828"
+const contract = getContract({ client, chain: celoMainnet, address: contractAddress })
 
 interface Movie {
   id: number
@@ -55,7 +50,11 @@ export default function Home() {
       <div className="py-20">
         <Header />
         <div className="flex flex-col items-center mb-10">
-          <ConnectButton client={client} appMetadata={{ name: "Movie Voting DApp", url: "https://example.com" }} />
+          <ConnectButton 
+            client={client} 
+            appMetadata={{ name: "Movie Voting DApp", url: "https://example.com" }} 
+            chain={celoMainnet}
+          />
           {address && (
             <input
               type="text"

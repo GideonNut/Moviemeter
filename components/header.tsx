@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Search, Menu, ChevronDown, Bell, Sparkles, Film, Gift, Tv, Users } from "lucide-react"
 import { ConnectButton, useActiveAccount } from "thirdweb/react"
 import { client } from "@/app/client"
+import { celoMainnet } from "@/lib/blockchain-service"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -167,7 +168,7 @@ export default function Header() {
             <ConnectButton
               client={client}
               appMetadata={{ name: "MovieMeter", url: "https://moviemeter.vercel.app" }}
-              className="bg-rose-600 hover:bg-rose-700 text-white py-1.5 px-4 rounded text-sm font-medium md:py-1.5 md:px-4 md:text-sm py-1 px-2 text-xs"
+              chain={celoMainnet}
             />
 
             {/* Mobile Menu Button */}
