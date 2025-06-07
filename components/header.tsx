@@ -20,7 +20,7 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <Image src="/moviemeter-logo.png" alt="MovieMeter" width={140} height={40} className="object-contain" />
+            <Image src="/moviemeter.png" alt="MovieMeter" width={168} height={48} className="object-contain" />
           </Link>
 
           {/* Desktop Navigation */}
