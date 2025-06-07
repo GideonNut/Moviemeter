@@ -11,17 +11,17 @@ export const metadata: Metadata = {
   description: "Vote for your favorite movies on the blockchain",
   icons: {
     icon: {
-      url: "/mm-logo-new.png",
+      url: "/mm-logo.png",
       sizes: "512x512",
       type: "image/png",
     },
     apple: {
-      url: "/mm-logo-new.png",
+      url: "/mm-logo.png",
       sizes: "512x512",
       type: "image/png",
     },
   },
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
