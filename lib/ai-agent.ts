@@ -1,4 +1,4 @@
-import { generateText } from "ai"
+import { OpenAIStream, StreamingTextResponse } from 'ai'
 import { openai } from "@ai-sdk/openai"
 
 // Types for movie data
@@ -67,15 +67,19 @@ export async function getMovieById(id: string): Promise<MovieData | null> {
 export async function fetchNewMovies(): Promise<MovieData[]> {
   try {
     // Use AI to generate information about new movies
-    // In a real implementation, this would call an external API like TMDB
-    const { text } = await generateText({
-      model: openai("gpt-4o"),
-      prompt:
-        "Generate information about 3 new movies that were released recently. Include title, description, release date, and genres. Format as JSON array.",
+    const response = await openai.createChatCompletion({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "user",
+          content: "Generate information about 3 new movies that were released recently. Include title, description, release date, and genres. Format as JSON array."
+        }
+      ],
       temperature: 0.7,
     })
 
     // Parse the generated text as JSON
+    const text = response.choices[0]?.message?.content || "[]"
     const newMoviesData = JSON.parse(text) as Partial<MovieData>[]
 
     // Process and add the new movies to our database
@@ -121,13 +125,19 @@ export async function updateMovieInformation(movieId: string): Promise<MovieData
     if (!movie) return null
 
     // Use AI to generate updated information about the movie
-    const { text } = await generateText({
-      model: openai("gpt-4o"),
-      prompt: `Update the information for the movie "${movie.title}". Generate a more detailed description, updated rating, and any new information. Format as JSON.`,
+    const response = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "user",
+          content: `Update the information for the movie "${movie.title}". Generate a more detailed description, updated rating, and any new information. Format as JSON.`
+        }
+      ],
       temperature: 0.7,
     })
 
     // Parse the generated text as JSON
+    const text = response.choices[0]?.message?.content || "{}"
     const updatedData = JSON.parse(text) as Partial<MovieData>
 
     // Update the movie in our database
@@ -152,13 +162,19 @@ export async function updateMovieInformation(movieId: string): Promise<MovieData
 export async function getMovieRecommendations(userPreferences: string): Promise<MovieData[]> {
   try {
     // Use AI to generate movie recommendations based on user preferences
-    const { text } = await generateText({
-      model: openai("gpt-4o"),
-      prompt: `Based on the user preferences: "${userPreferences}", recommend 3 movies from this list: ${JSON.stringify(movieDatabase.map((m) => m.title))}. Explain why each movie is recommended. Format as JSON array with title and reason fields.`,
+    const response = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "user",
+          content: `Based on the user preferences: "${userPreferences}", recommend 3 movies from this list: ${JSON.stringify(movieDatabase.map((m) => m.title))}. Explain why each movie is recommended. Format as JSON array with title and reason fields.`
+        }
+      ],
       temperature: 0.7,
     })
 
     // Parse the generated text as JSON
+    const text = response.choices[0]?.message?.content || "[]"
     const recommendations = JSON.parse(text) as { title: string; reason: string }[]
 
     // Find the recommended movies in our database
