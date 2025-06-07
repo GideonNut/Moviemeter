@@ -35,6 +35,10 @@ export const getMovieMeterContract = () => {
   })
 }
 
+// Add Divvi configuration
+const DIVVI_CONSUMER = '0xc49b8e093600f684b69ed6ba1e36b7dfad42f982' // Replace with your Divvi identifier
+const DIVVI_PROVIDERS: string[] = [] // Add your provider addresses here
+
 /**
  * Get votes for a specific movie
  * @param movieId - The ID of the movie to get votes for
@@ -52,7 +56,7 @@ export async function getMovieVotes(movieId: string) {
 }
 
 /**
- * Vote for a movie
+ * Vote for a movie with Divvi referral tracking
  * @param movieId - The ID of the movie to vote for
  * @param voteType - True for yes, false for no
  * @returns Prepared transaction for the vote
@@ -60,14 +64,30 @@ export async function getMovieVotes(movieId: string) {
 export function prepareVoteTransaction(movieId: string | number, voteType: boolean) {
   const contract = getMovieMeterContract()
 
-  // Prepare the transaction with proper gas optimization
-  return prepareContractCall({
+  // Get the base transaction data
+  const baseTransaction = prepareContractCall({
     contract,
     method: "function vote(uint256, bool)",
     params: [BigInt(movieId), voteType],
-    // Add gas limit to prevent unexpected costs
     gas: 300000n,
   })
+
+  // Add Divvi referral data if available
+  if (typeof window !== 'undefined' && window.ethereum) {
+    const { getDataSuffix } = require('@divvi/referral-sdk')
+    const dataSuffix = getDataSuffix({
+      consumer: DIVVI_CONSUMER,
+      providers: DIVVI_PROVIDERS,
+    })
+    
+    // Append the data suffix to the transaction data
+    return {
+      ...baseTransaction,
+      data: baseTransaction.data + dataSuffix,
+    }
+  }
+
+  return baseTransaction
 }
 
 /**
