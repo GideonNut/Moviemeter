@@ -13,9 +13,12 @@ import FeaturedToday from "@/components/featured-today"
 import TrendingStars from "@/components/trending-stars"
 import NewMoviesSection from "@/components/new-movies-section"
 import Header from "@/components/header"
+import { useTheme } from "next-themes"
+import { Sun, Moon } from "lucide-react"
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false)
+  const { theme, setTheme } = useTheme()
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -39,12 +42,12 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-black text-black dark:text-white">
+    <div className="min-h-screen flex flex-col">
       <header className="container mx-auto px-4 py-6 flex justify-between items-center">
         <div className="flex items-center">
           {mounted && (
             <Image
-              src="/moviemeter-logo.png"
+              src={theme === "dark" ? "/moviemeter-dark.png" : "/logo.png"}
               alt="MovieMeter"
               width={180}
               height={40}
@@ -63,19 +66,34 @@ export default function LandingPage() {
               chain={celoMainnet}
             />
           )}
+          <button
+            className="p-2 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label="Toggle theme"
+          >
+            {mounted && (
+              theme === "dark" ? (
+                <Sun size={20} className="text-white" />
+              ) : (
+                <Moon size={20} className="text-black" />
+              )
+            )}
+          </button>
         </div>
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center text-center px-4">
         <motion.div className="max-w-4xl w-full" variants={container} initial="hidden" animate="show">
           <motion.div variants={item} className="mb-8 flex justify-center">
-            <Image
-              src="/mm-logo-new.png"
-              alt="MovieMeter Logo"
-              width={120}
-              height={120}
-              className="mb-6"
-            />
+            {mounted && (
+              <Image
+                src={theme === "dark" ? "/logo-dark.png" : "/mm-logo.png"}
+                alt="MovieMeter Logo"
+                width={120}
+                height={120}
+                className="mb-6"
+              />
+            )}
           </motion.div>
 
           <motion.h1 variants={item} className="text-4xl md:text-6xl font-bold mb-6">
