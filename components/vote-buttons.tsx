@@ -5,6 +5,7 @@ import { useActiveAccount } from "thirdweb/react"
 import { prepareVoteTransaction } from "@/lib/blockchain-service"
 import { Button } from "@/components/ui/button"
 import { ThumbsUp, ThumbsDown } from "lucide-react"
+import { getDataSuffix, submitReferral } from '@divvi/referral-sdk'
 
 interface VoteButtonsProps {
   movieId: string
@@ -32,6 +33,20 @@ export function VoteButtons({ movieId, onVoteSuccess }: VoteButtonsProps) {
 
       // Execute the transaction
       const result = await preparedTransaction.send()
+
+      // Submit referral to Divvi after transaction confirmation
+      if (result.transactionHash) {
+        try {
+          await submitReferral({
+            txHash: result.transactionHash,
+            chainId: 42220, // Celo mainnet chain ID
+          })
+          console.log("Referral submitted successfully")
+        } catch (referralError) {
+          console.error("Failed to submit referral:", referralError)
+          // Don't throw error here as the main transaction was successful
+        }
+      }
 
       console.log("Vote transaction:", result)
 
