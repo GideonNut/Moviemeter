@@ -1,5 +1,9 @@
 import { OpenAIStream, StreamingTextResponse } from 'ai'
-import { openai } from "@ai-sdk/openai"
+import OpenAI from 'openai'
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+})
 
 // Types for movie data
 export interface MovieData {
@@ -67,7 +71,7 @@ export async function getMovieById(id: string): Promise<MovieData | null> {
 export async function fetchNewMovies(): Promise<MovieData[]> {
   try {
     // Use AI to generate information about new movies
-    const response = await openai.createChatCompletion({
+    const response = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [
         {
