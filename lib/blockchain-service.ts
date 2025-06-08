@@ -74,16 +74,22 @@ export function prepareVoteTransaction(movieId: string | number, voteType: boole
 
   // Add Divvi referral data if available
   if (typeof window !== 'undefined' && window.ethereum) {
-    const { getDataSuffix } = require('@divvi/referral-sdk')
-    const dataSuffix = getDataSuffix({
-      consumer: DIVVI_CONSUMER,
-      providers: DIVVI_PROVIDERS,
-    })
-    
-    // Append the data suffix to the transaction data
-    return {
-      ...baseTransaction,
-      data: baseTransaction.data + dataSuffix,
+    try {
+      // Dynamically import the Divvi SDK
+      const { getDataSuffix } = require('@divvi/referral-sdk')
+      const dataSuffix = getDataSuffix({
+        consumer: DIVVI_CONSUMER,
+        providers: DIVVI_PROVIDERS,
+      })
+      
+      // Append the data suffix to the transaction data
+      return {
+        ...baseTransaction,
+        data: baseTransaction.data + dataSuffix,
+      }
+    } catch (error) {
+      console.warn('Divvi referral SDK not available, proceeding with base transaction')
+      return baseTransaction
     }
   }
 
