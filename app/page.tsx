@@ -14,7 +14,68 @@ import TrendingStars from "@/components/trending-stars"
 import NewMoviesSection from "@/components/new-movies-section"
 import Header from "@/components/header"
 import { useTheme } from "next-themes"
-import { Sun, Moon } from "lucide-react"
+import { Sun, Moon, Trophy, Star, Users } from "lucide-react"
+import { AnimatedBackground } from '@/components/motion-primitives/animated-background'
+
+function AnimatedCardBackgroundHover() {
+  const ITEMS = [
+    {
+      id: 1,
+      title: 'Rate movies',
+      description: 'Vote on your favorite films and shape the future of recommendations.',
+    },
+    {
+      id: 2,
+      title: 'Earn Rewards',
+      description: 'Get rewarded in $G for your engagements.',
+    },
+    {
+      id: 3,
+      title: 'Community',
+      description: 'Join a vibrant community of movie enthusiasts and critics.',
+    },
+  ];
+
+  return (
+    <div className='w-full p-10'>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
+        {ITEMS.map((item, index) => (
+          <AnimatedBackground
+            key={index}
+            transition={{
+              type: 'spring',
+              bounce: 0.2,
+              duration: 0.6,
+            }}
+            enableHover
+          >
+            <div className="rounded-lg bg-zinc-100 dark:bg-zinc-800 p-12 h-full">
+              <div className='flex select-none items-center gap-6'>
+                {index === 0 && (
+                  <Star className="w-10 h-10 text-white flex-shrink-0" />
+                )}
+                {index === 1 && (
+                  <Trophy className="w-10 h-10 text-white flex-shrink-0" />
+                )}
+                {index === 2 && (
+                  <Users className="w-10 h-10 text-white flex-shrink-0" />
+                )}
+                <div className="flex flex-col space-y-2">
+                  <h3 className='text-2xl font-medium text-zinc-800 dark:text-zinc-50'>
+                    {item.title}
+                  </h3>
+                  <p className='text-xl text-zinc-600 dark:text-zinc-400'>
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </AnimatedBackground>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false)
@@ -122,6 +183,8 @@ export default function LandingPage() {
           </motion.div>
         </motion.div>
       </main>
+
+      <AnimatedCardBackgroundHover />
 
       <footer className="container mx-auto px-4 py-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
         <p>© {new Date().getFullYear()} MovieMeter. All rights reserved.</p>
