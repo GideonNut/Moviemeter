@@ -6,7 +6,10 @@ import { Storage } from '@apillon/sdk'
 export async function POST(request: NextRequest) {
   try {
     // Apply rate limiting
-    const rateLimitResult = await rateLimit.check(request)
+    // Extract IP address from request headers for rate limiting
+    const forwardedFor = request.headers.get('x-forwarded-for');
+    const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : undefined;
+    const rateLimitResult = await rateLimit({ ip });
     if (!rateLimitResult.success) {
       return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 })
     }
