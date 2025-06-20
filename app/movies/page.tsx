@@ -9,7 +9,6 @@ import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
 import Header from "@/components/header"
 import { Share2 } from "lucide-react"
-import { Storage } from '@apillon/sdk'
 
 const contractAddress: string = "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828"
 const contract = getContract({ client, chain: celoMainnet, address: contractAddress })
@@ -40,31 +39,6 @@ interface VoteButtonsProps {
   voteCountNo: number
   setVoteCountYes: (value: (prev: number) => number) => void
   setVoteCountNo: (value: (prev: number) => number) => void
-}
-
-async function uploadVoteToApillon({ movieId, address, voteType }: { movieId: number, address: string, voteType: boolean }) {
-  const storage = new Storage({
-    key: process.env.APILLON_API_KEY!,
-    secret: process.env.APILLON_API_SECRET!,
-  });
-  const bucket = storage.bucket('4a7aeee3-f525-4404-a230-fb43cec4e253');
-  const voteData = {
-    movieId,
-    address,
-    voteType,
-    timestamp: new Date().toISOString(),
-  };
-  try {
-    await bucket.uploadFiles([
-      {
-        fileName: `votes/${address}_${movieId}_${Date.now()}.json`,
-        contentType: 'application/json',
-        content: Buffer.from(JSON.stringify(voteData)),
-      },
-    ]);
-  } catch (err) {
-    console.error('Failed to upload vote to Apillon:', err);
-  }
 }
 
 export default function MoviesPage() {
@@ -261,10 +235,6 @@ function VoteButtons({
       sendTransaction(transaction, {
         onSuccess: async () => {
           console.log("Voted successfully")
-          // Upload vote to Apillon
-          if (account?.address) {
-            await uploadVoteToApillon({ movieId: id, address: account.address, voteType });
-          }
         },
         onError: () => {
           setHasVoted(false)
