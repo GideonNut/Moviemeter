@@ -1,43 +1,51 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { ChevronRight } from "lucide-react"
 
-// Sample featured content with real images
+// Sample featured content with gradients instead of real images
 const featuredContent = [
   {
     id: "sxsw",
     title: "2025 SXSW Film & TV Festival Cheat Sheet",
     description: "See our picks",
-    imageUrls: [
-      "https://m.media-amazon.com/images/M/MV5BYTdiOTIyZTQtNmQ1OS00NjZlLWIyMTgtYzk5Y2M3ZDVmMDk1XkEyXkFqcGdeQXVyMTAzMDg4NzU0._V1_.jpg",
-      "https://m.media-amazon.com/images/M/MV5BNDJmMzQyMzAtMzMxMy00NTI3LTgzOGMtZDU3Yzu0MmM3MWM3XkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_.jpg",
-      "https://m.media-amazon.com/images/M/MV5BZTFkNmE5MjUtZDE1Yi00ZmQyLTk2YWUtN2EwODA1Y2FlMGFlXkEyXkFqcGdeQXVyMTM1MTE1NDMx._V1_.jpg",
-    ],
+    gradient: "bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500",
     type: "list",
   },
   {
     id: "trending-stars",
     title: "Trending: Stars to Watch",
     description: "See the gallery",
-    imageUrls: [
-      "https://m.media-amazon.com/images/M/MV5BNzg1MTUyNDYxOF5BMl5BanBnXkFtZTgwNTQ4MTE2MjE@._V1_.jpg",
-      "https://m.media-amazon.com/images/M/MV5BMjExOTY3NzExM15BMl5BanBnXkFtZTgwOTM5ODczOTE@._V1_.jpg",
-      "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ3OTQ3NDE@._V1_.jpg",
-    ],
+    gradient: "bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600",
     type: "photos",
   },
   {
     id: "upcoming-releases",
     title: "Most Anticipated Spring Releases",
     description: "View the list",
-    imageUrls: [
-      "https://m.media-amazon.com/images/M/MV5BMTU0MjAwMDkxNV5BMl5BanBnXkFtZTgwMTA4ODIxNjM@._V1_.jpg",
-      "https://m.media-amazon.com/images/M/MV5BNzVkOWM5YTEtMDdkNi00YjMzLWEzNWEtODEwN2IyZTc4Yjg2XkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg",
-      "https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGdeQXVyNzAwMjU2MTY@._V1_.jpg",
-    ],
+    gradient: "bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-400",
+    type: "list",
+  },
+  {
+    id: "award-winners",
+    title: "Oscar Winners 2024",
+    description: "Celebrate excellence",
+    gradient: "bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500",
+    type: "list",
+  },
+  {
+    id: "indie-gems",
+    title: "Hidden Indie Gems",
+    description: "Discover more",
+    gradient: "bg-gradient-to-br from-lime-400 via-green-400 to-emerald-500",
+    type: "list",
+  },
+  {
+    id: "classic-cinema",
+    title: "Classic Cinema Collection",
+    description: "Timeless masterpieces",
+    gradient: "bg-gradient-to-br from-amber-400 via-orange-500 to-red-600",
     type: "list",
   },
 ]
@@ -66,13 +74,18 @@ export default function FeaturedToday() {
         {featuredContent.slice(currentIndex, currentIndex + 3).map((item) => (
           <Link href={`/featured/${item.id}`} key={item.id} className="group">
             <div className="bg-zinc-900 rounded-lg overflow-hidden hover:bg-zinc-800 transition-colors">
-              <div className="relative h-48 overflow-hidden">
-                <Image src={item.imageUrls[0] || "/placeholder.svg"} alt={item.title} fill className="object-cover" />
+              <div className={`relative h-48 overflow-hidden ${item.gradient} flex items-center justify-center`}>
+                <div className="absolute inset-0 bg-black/20"></div>
+                <div className="relative z-10 text-white text-center p-6">
+                  <h3 className="text-xl font-bold mb-2 leading-tight">{item.title}</h3>
+                  <p className="text-sm opacity-90">{item.description}</p>
+                </div>
               </div>
 
               <div className="p-4">
-                <h3 className="font-medium text-lg group-hover:text-rose-500 transition-colors">{item.title}</h3>
-                <p className="text-zinc-400 text-sm mt-1">{item.description}</p>
+                <div className="text-center">
+                  <div className="text-rose-500 text-sm font-medium">View Details</div>
+                </div>
               </div>
             </div>
           </Link>
