@@ -153,5 +153,3 @@ MIT
 - [Next.js](https://nextjs.org/)
 
 ---
-
-Let me know if you want to add sections for deployment, contributing, or anything else!
