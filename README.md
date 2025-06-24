@@ -4,6 +4,13 @@ A decentralized movie discovery platform where users can vote on movies, earn re
 
 ---
 
+## Useful links
+CELO MAINNET: https://celoscan.io/address/0x6d83eF793A7e82BFa20B57a60907F85c06fB8828
+KARMAGAP: https://gap.karmahq.xyz/project/moviemeter 
+
+
+---
+
 ## Features
 
 - **Movie Voting:** Vote on your favorite films and shape the future of recommendations.
