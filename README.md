@@ -1,4 +1,4 @@
-# MovieMeter
+# Moviemeter
 
 A decentralized movie discovery platform where users can vote on movies, earn rewards, and join a vibrant community. Votes are stored on-chain and also saved to Apillon’s decentralized storage.
 
