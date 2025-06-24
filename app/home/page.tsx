@@ -32,21 +32,6 @@ export default function HomePage() {
 
         {/* Trending Stars Section */}
         <TrendingStars />
-
-        {/* Farcaster Frame Promo */}
-        <div className="bg-zinc-900 p-6 rounded-lg mb-8 max-w-2xl mx-auto mt-12">
-          <h2 className="text-2xl font-bold mb-4">Farcaster Frames</h2>
-          <p className="mb-4">
-            MovieMeter is now available as Farcaster Frames! Vote on your favorite movies directly within Farcaster.
-            Each movie has its own dedicated Frame with yes/no voting buttons.
-          </p>
-          <Link
-            href="/movies"
-            className="inline-block bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Browse Movies & Frames
-          </Link>
-        </div>
       </div>
     </main>
   )
