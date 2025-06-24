@@ -1,6 +1,14 @@
-# MovieMeter
+# Moviemeter
 
 A decentralized movie discovery platform where users can vote on movies, earn rewards, and join a vibrant community. Votes are stored on-chain and also saved to Apillon’s decentralized storage.
+
+---
+
+## Useful links
+CELO MAINNET: https://celoscan.io/address/0x6d83eF793A7e82BFa20B57a60907F85c06fB8828
+
+KARMAGAP: https://gap.karmahq.xyz/project/moviemeter 
+
 
 ---
 
@@ -145,5 +153,3 @@ MIT
 - [Next.js](https://nextjs.org/)
 
 ---
-
-Let me know if you want to add sections for deployment, contributing, or anything else!
