@@ -169,6 +169,10 @@ export default function Header() {
               client={client}
               appMetadata={{ name: "MovieMeter", url: "https://moviemeter.vercel.app" }}
               chain={celoMainnet}
+              accountAbstraction={{
+                chain: celoMainnet,
+                sponsorGas: true,
+              }}
             />
 
             {/* Mobile Menu Button */}

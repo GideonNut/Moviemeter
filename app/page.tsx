@@ -125,6 +125,10 @@ export default function LandingPage() {
               client={client}
               appMetadata={{ name: "MovieMeter", url: "https://moviemeter.vercel.app" }}
               chain={celoMainnet}
+              accountAbstraction={{
+                chain: celoMainnet,
+                sponsorGas: true,
+              }}
             />
           )}
           <button

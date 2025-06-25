@@ -61,6 +61,10 @@ export default function MoviesPage() {
                 client={client}
                 appMetadata={{ name: "MovieMeter", url: "https://moviemeter.vercel.app" }}
                 chain={celoMainnet}
+                accountAbstraction={{
+                  chain: celoMainnet,
+                  sponsorGas: true,
+                }}
               />
             </div>
           )}

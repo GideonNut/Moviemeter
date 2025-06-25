@@ -51,9 +51,13 @@ export default function Home() {
         <Header />
         <div className="flex flex-col items-center mb-10">
           <ConnectButton 
-            client={client} 
-            appMetadata={{ name: "Movie Voting DApp", url: "https://example.com" }} 
+            client={client}
+            appMetadata={{ name: "Movie Voting DApp", url: "https://example.com" }}
             chain={celoMainnet}
+            accountAbstraction={{
+              chain: celoMainnet,
+              sponsorGas: true,
+            }}
           />
           {address && (
             <input
