@@ -3,13 +3,13 @@
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 import { useActiveAccount } from "thirdweb/react"
-import { getMovieVotes, hasUserVotedForMovie } from "@/lib/blockchain-service"
 
 interface MovieContextType {
   votes: Record<string, any>
   userVotes: Record<string, boolean>
   loadVotes: (movieId: string) => Promise<void>
   refreshVotes: (movieId: string) => Promise<void>
+  submitVote: (movieId: string, voteType: boolean) => Promise<void>
 }
 
 const MovieContext = createContext<MovieContextType>({
@@ -17,6 +17,7 @@ const MovieContext = createContext<MovieContextType>({
   userVotes: {},
   loadVotes: async () => {},
   refreshVotes: async () => {},
+  submitVote: async () => {},
 })
 
 export const useMovieContext = () => useContext(MovieContext)
@@ -29,22 +30,37 @@ export const MovieProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const loadVotes = async (movieId: string) => {
     try {
-      const movieVotes = await getMovieVotes(movieId)
+      const res = await fetch(`/api/votes/${movieId}`)
+      const movieVotes = await res.json()
       if (movieVotes) {
         setVotes((prev) => ({ ...prev, [movieId]: movieVotes }))
       }
-
       if (address) {
-        const hasVoted = await hasUserVotedForMovie(movieId, address)
-        setUserVotes((prev) => ({ ...prev, [movieId]: hasVoted }))
+        setUserVotes((prev) => ({ ...prev, [movieId]: movieVotes.voters.includes(address) }))
       }
     } catch (error) {
-      console.error("Error loading votes:", error)
+      console.error("Error loading votes from Apillon API:", error)
     }
   }
 
   const refreshVotes = async (movieId: string) => {
     await loadVotes(movieId)
+  }
+
+  // Submit a vote and refresh Apillon votes
+  const submitVote = async (movieId: string, voteType: boolean) => {
+    if (!address) return
+    try {
+      await fetch("/api/vote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ movieId, voteType, address }),
+      })
+      // After voting, refresh Apillon votes
+      await refreshVotes(movieId)
+    } catch (error) {
+      console.error("Error submitting vote to Apillon:", error)
+    }
   }
 
   // Refresh votes when address changes
@@ -56,5 +72,9 @@ export const MovieProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [address])
 
-  return <MovieContext.Provider value={{ votes, userVotes, loadVotes, refreshVotes }}>{children}</MovieContext.Provider>
+  return (
+    <MovieContext.Provider value={{ votes, userVotes, loadVotes, refreshVotes, submitVote }}>
+      {children}
+    </MovieContext.Provider>
+  )
 }
