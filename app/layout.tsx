@@ -7,21 +7,40 @@ import { Providers } from "./providers"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "MovieMeter - Your Blockchain IMDb",
-  description: "Vote for your favorite movies on the blockchain",
-  icons: {
-    icon: {
-      url: "/mm-logo.png",
-      sizes: "512x512",
-      type: "image/png",
-    },
-    apple: {
-      url: "/mm-logo.png",
-      sizes: "512x512",
-      type: "image/png",
-    },
+  title: "MovieMeter - Vote on Movies, Earn Rewards",
+  description: "Vote on your favorite films, earn rewards, and join the decentralized movie community.",
+  keywords: ["movies", "voting", "rewards", "blockchain", "celo", "web3"],
+  authors: [{ name: "MovieMeter Team" }],
+  creator: "MovieMeter",
+  publisher: "MovieMeter",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
   },
-  generator: 'v0.dev'
+  metadataBase: new URL("https://moviemeter.vercel.app"),
+  openGraph: {
+    title: "MovieMeter - Vote on Movies, Earn Rewards",
+    description: "Vote on your favorite films, earn rewards, and join the decentralized movie community.",
+    url: "https://moviemeter.vercel.app",
+    siteName: "MovieMeter",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "MovieMeter - Vote on Movies, Earn Rewards",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MovieMeter - Vote on Movies, Earn Rewards",
+    description: "Vote on your favorite films, earn rewards, and join the decentralized movie community.",
+    images: ["/og-image.png"],
+  },
 }
 
 export default function RootLayout({
@@ -30,8 +49,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-zinc-950 text-white`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
         <Providers>{children}</Providers>
       </body>
     </html>
