@@ -45,7 +45,7 @@ export const movies: Movie[] = [
     cast: ["Leonardo DiCaprio", "Joseph Gordon-Levitt", "Ellen Page"],
     genres: ["Action", "Adventure", "Sci-Fi"],
     rating: 8.8,
-    posterUrl: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_.jpg",
+    posterUrl: "https://i.postimg.cc/m2W147Ts/inceptrion.jpg",
     backdropUrl: "https://wallpaperaccess.com/full/1264514.jpg",
     trailerUrl: "https://www.youtube.com/embed/YoHD9XEInc0",
     screenshots: [
