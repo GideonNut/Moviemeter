@@ -17,6 +17,7 @@ interface Movie {
   id: number
   title: string
   description: string
+  posterUrl?: string
 }
 
 interface MovieCardsProps {
@@ -29,6 +30,7 @@ interface MovieCardProps {
   title: string
   description: string
   address: string
+  posterUrl?: string
 }
 
 interface VoteButtonsProps {
@@ -88,37 +90,42 @@ export default function MoviesPage() {
 
 function MovieCards({ address, searchQuery }: MovieCardsProps) {
   const movies: Movie[] = [
-    { id: 0, title: "Inception", description: "A thief enters dreams to steal secrets." },
-    { id: 1, title: "Interstellar", description: "A space epic exploring love and time." },
-    { id: 2, title: "The Dark Knight", description: "Batman faces off against the Joker." },
-    { id: 3, title: "Avengers: Endgame", description: "The Avengers assemble for one last fight." },
+    { id: 0, title: "Inception", description: "A thief enters dreams to steal secrets.", posterUrl: "https://i.postimg.cc/m2W147Ts/inceptrion.jpg" },
+    { id: 1, title: "Interstellar", description: "A space epic exploring love and time.", posterUrl: "https://i.postimg.cc/FKWkJhSD/interstellar.jpg" },
+    { id: 2, title: "The Dark Knight", description: "Batman faces off against the Joker.", posterUrl: "https://i.postimg.cc/Cx8cN67G/dark-knight.jpg" },
+    { id: 3, title: "Avengers: Endgame", description: "The Avengers assemble for one last fight.", posterUrl: "https://i.postimg.cc/K8d8X4nX/avengers.jpg" },
     {
       id: 4,
       title: "Dune: Part Two",
       description: "Paul Atreides unites with Chani and the Fremen while seeking revenge.",
+      posterUrl: "https://i.postimg.cc/cH4xwzYh/dune.jpg"
     },
     {
       id: 5,
       title: "Oppenheimer",
       description:
         "The story of American scientist J. Robert Oppenheimer and his role in the creation of the atomic bomb.",
+      posterUrl: "https://i.postimg.cc/sDp2F5Vp/oppenheimer.jpg"
     },
     {
       id: 6,
       title: "Barbie",
       description: "Barbie suffers a crisis that leads her to question her world and her existence.",
+      posterUrl: "https://i.postimg.cc/L5kFWBz5/barbie.jpg"
     },
     {
       id: 7,
       title: "The Matrix",
       description:
         "A computer hacker learns about the true nature of reality and his role in the war against its controllers.",
+      posterUrl: "https://i.postimg.cc/bJXMjSYt/matrix.jpg"
     },
     {
       id: 8,
       title: "Pulp Fiction",
       description:
         "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine.",
+      posterUrl: "https://i.postimg.cc/0jKbK3R3/pulp-fiction.jpg"
     },
   ]
 
@@ -133,7 +140,7 @@ function MovieCards({ address, searchQuery }: MovieCardsProps) {
   )
 }
 
-function MovieCard({ id, title, description, address }: MovieCardProps) {
+function MovieCard({ id, title, description, address, posterUrl }: MovieCardProps) {
   const [hasVoted, setHasVoted] = useState<boolean>(false)
   const [voteCountYes, setVoteCountYes] = useState<number>(0)
   const [voteCountNo, setVoteCountNo] = useState<number>(0)
@@ -173,7 +180,7 @@ function MovieCard({ id, title, description, address }: MovieCardProps) {
     <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full">
       <div className="relative aspect-[2/3] mb-4 overflow-hidden rounded-md">
         <Image
-          src={`/placeholder.svg?height=450&width=300&text=${encodeURIComponent(title)}`}
+          src={posterUrl || `/placeholder.svg?height=450&width=300&text=${encodeURIComponent(title)}`}
           alt={title}
           fill
           className="object-cover"
