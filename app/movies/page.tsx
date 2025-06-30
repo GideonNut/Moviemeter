@@ -265,20 +265,16 @@ function VoteButtons({
         <button
           onClick={() => handleVote(true)}
           disabled={isPending || hasVoted}
-          className={`flex-1 px-4 py-2 rounded-lg text-white ${
-            hasVoted ? "bg-zinc-700" : "bg-green-600 hover:bg-green-700"
-          }`}
+          className={`flex-1 px-4 py-2 rounded-lg text-white bg-black border-2 border-zinc-700 hover:border-white transition-colors duration-150 ${hasVoted ? "opacity-60" : ""}`}
         >
-          👍 Yes ({voteCountYes})
+          Yes ({voteCountYes})
         </button>
         <button
           onClick={() => handleVote(false)}
           disabled={isPending || hasVoted}
-          className={`flex-1 px-4 py-2 rounded-lg text-white ${
-            hasVoted ? "bg-zinc-700" : "bg-red-600 hover:bg-red-700"
-          }`}
+          className={`flex-1 px-4 py-2 rounded-lg text-white bg-black border-2 border-zinc-700 hover:border-white transition-colors duration-150 ${hasVoted ? "opacity-60" : ""}`}
         >
-          👎 No ({voteCountNo})
+          No ({voteCountNo})
         </button>
       </div>
       {hasVoted && <p className="text-sm text-zinc-400">You've already voted on this movie</p>}
