@@ -8,6 +8,7 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    domains: ['i.postimg.cc'],
   },
   poweredByHeader: false,
   reactStrictMode: true,
