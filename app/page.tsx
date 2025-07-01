@@ -16,6 +16,7 @@ import Header from "@/components/header"
 import { useTheme } from "next-themes"
 import { Sun, Moon, Trophy, Star, Users } from "lucide-react"
 import { AnimatedBackground } from '@/components/motion-primitives/animated-background'
+import { account } from '../lib/appwrite'
 
 function AnimatedCardBackgroundHover() {
   const ITEMS = [
@@ -80,6 +81,7 @@ function AnimatedCardBackgroundHover() {
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
+  const [result, setResult] = useState<string | null>(null)
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -100,6 +102,19 @@ export default function LandingPage() {
   const item = {
     hidden: { opacity: 0, y: 10 },
     show: { opacity: 1, y: 0 },
+  }
+
+  const handlePing = async () => {
+    try {
+      await account.get()
+      setResult('Connected to Appwrite! (User session exists)')
+    } catch (error: any) {
+      if (error.code === 401) {
+        setResult('Connected to Appwrite! (No user session, but connection works)')
+      } else {
+        setResult('Connection failed: ' + error.message)
+      }
+    }
   }
 
   return (
@@ -193,6 +208,11 @@ export default function LandingPage() {
       <footer className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
         <p>© {new Date().getFullYear()} MovieMeter. All rights reserved.</p>
       </footer>
+
+      <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+        <button onClick={handlePing}>Send a ping</button>
+        {result && <p>{result}</p>}
+      </div>
     </div>
   )
 }
