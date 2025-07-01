@@ -44,6 +44,7 @@
     "@radix-ui/react-tooltip": "1.1.6",
     "@selfxyz/core": "^0.0.25",
     "ai": "^2.0.0",
+    "appwrite": "^18.1.1",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
