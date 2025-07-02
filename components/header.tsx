@@ -63,6 +63,12 @@ export default function Header() {
                   <Link href="/rewards/history" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
                     Reward History
                   </Link>
+                  <Link href="/rewards/good-voters" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                    Good Voters
+                  </Link>
+                  <Link href="/rewards/streak" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                    Streak Rewards
+                  </Link>
                 </div>
               </div>
             </div>
