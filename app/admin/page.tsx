@@ -53,10 +53,77 @@ export default function AdminDashboard() {
     }
   }
 
+  // Movie adding form state
+  const [movieTitle, setMovieTitle] = useState("")
+  const [movieDescription, setMovieDescription] = useState("")
+  const [moviePosterUrl, setMoviePosterUrl] = useState("")
+  const [addMovieResult, setAddMovieResult] = useState<string | null>(null)
+
+  const handleAddMovie = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAddMovieResult(null)
+    try {
+      const res = await fetch("/api/movies", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: movieTitle,
+          description: movieDescription,
+          posterUrl: moviePosterUrl,
+        }),
+      })
+      if (res.ok) {
+        setAddMovieResult("Movie added!")
+        setMovieTitle("")
+        setMovieDescription("")
+        setMoviePosterUrl("")
+      } else {
+        setAddMovieResult("Failed to add movie.")
+      }
+    } catch {
+      setAddMovieResult("Failed to add movie.")
+    }
+  }
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">AI Agent Admin Dashboard</h1>
+        {/* Add Movie Form */}
+        {/* Add Movie Form - only show once at the top */}
+        <div className="bg-zinc-900 p-6 rounded-lg mb-8">
+          <h2 className="text-xl font-semibold mb-4">Add Movie</h2>
+          <form onSubmit={handleAddMovie} className="flex flex-col gap-4">
+            <input
+              type="text"
+              placeholder="Title"
+              value={movieTitle}
+              onChange={e => setMovieTitle(e.target.value)}
+              className="p-2 rounded bg-zinc-800 text-white border border-zinc-700"
+              required
+            />
+            <textarea
+              placeholder="Description"
+              value={movieDescription}
+              onChange={e => setMovieDescription(e.target.value)}
+              className="p-2 rounded bg-zinc-800 text-white border border-zinc-700"
+              required
+            />
+            <input
+              type="text"
+              placeholder="Poster URL"
+              value={moviePosterUrl}
+              onChange={e => setMoviePosterUrl(e.target.value)}
+              className="p-2 rounded bg-zinc-800 text-white border border-zinc-700"
+            />
+            <button
+              type="submit"
+              className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
+            >
+              Add Movie
+            </button>
+            {addMovieResult && <div className="text-sm mt-2">{addMovieResult}</div>}
+          </form>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="bg-zinc-900 p-6 rounded-lg">
@@ -117,7 +184,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="bg-zinc-900 p-6 rounded-lg">
+        {/* Removed duplicate Add Movie Form */}
           <h2 className="text-xl font-semibold mb-4">Scheduled Tasks</h2>
           <table className="w-full text-left">
             <thead>
