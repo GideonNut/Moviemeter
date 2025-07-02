@@ -9,6 +9,8 @@ import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
 import Header from "@/components/header"
 import { Share2 } from "lucide-react"
+import { updateUserStreak, getStreakStats } from "@/lib/streak-service"
+import StreakDisplay from "@/components/streak-display"
 
 const contractAddress: string = "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828"
 const contract = getContract({ client, chain: celoMainnet, address: contractAddress })
@@ -47,6 +49,15 @@ export default function MoviesPage() {
   const account = useActiveAccount()
   const address: string | undefined = account?.address
   const [searchQuery, setSearchQuery] = useState<string>("")
+  const [streakStats, setStreakStats] = useState<any>(null)
+
+  // Load streak stats for the main page
+  useEffect(() => {
+    if (address) {
+      const stats = getStreakStats(address)
+      setStreakStats(stats)
+    }
+  }, [address])
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
@@ -67,6 +78,16 @@ export default function MoviesPage() {
                   chain: celoMainnet,
                   sponsorGas: true,
                 }}
+              />
+            </div>
+          )}
+
+          {address && streakStats && (
+            <div className="w-full max-w-2xl mb-8">
+              <StreakDisplay 
+                streak={streakStats}
+                nextMilestone={streakStats.nextMilestone}
+                daysToNextMilestone={streakStats.daysToNextMilestone}
               />
             </div>
           )}
@@ -145,6 +166,7 @@ function MovieCard({ id, title, description, address, posterUrl }: MovieCardProp
   const [voteCountYes, setVoteCountYes] = useState<number>(0)
   const [voteCountNo, setVoteCountNo] = useState<number>(0)
   const [showFrameLink, setShowFrameLink] = useState(false)
+  const [streakStats, setStreakStats] = useState<any>(null)
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
   const frameUrl = `${baseUrl}/api/frame?id=${id}`
 
@@ -169,6 +191,14 @@ function MovieCard({ id, title, description, address, posterUrl }: MovieCardProp
       }
     }
   }, [votes, address])
+
+  // Load streak stats
+  useEffect(() => {
+    if (address) {
+      const stats = getStreakStats(address)
+      setStreakStats(stats)
+    }
+  }, [address])
 
   const votedEvent = contract.abi?.find((e: any) => e.type === "event" && e.name === "Voted")
   useContractEvents({
@@ -202,6 +232,15 @@ function MovieCard({ id, title, description, address, posterUrl }: MovieCardProp
         voteCountNo={voteCountNo}
         setVoteCountYes={setVoteCountYes}
         setVoteCountNo={setVoteCountNo}
+        address={address}
+        onVoteSuccess={() => {
+          // Update streak when vote is successful
+          if (address) {
+            const updatedStreak = updateUserStreak(address)
+            const stats = getStreakStats(address)
+            setStreakStats(stats)
+          }
+        }}
       />
     </div>
   )
@@ -215,7 +254,9 @@ function VoteButtons({
   voteCountNo,
   setVoteCountYes,
   setVoteCountNo,
-}: VoteButtonsProps) {
+  address,
+  onVoteSuccess,
+}: VoteButtonsProps & { address: string; onVoteSuccess: () => void }) {
   const { mutate: sendTransaction, isPending } = useSendTransaction()
   const account = useActiveAccount();
 
@@ -235,6 +276,7 @@ function VoteButtons({
       sendTransaction(transaction, {
         onSuccess: async () => {
           console.log("Voted successfully")
+          onVoteSuccess() // Update streak on successful vote
         },
         onError: () => {
           setHasVoted(false)
