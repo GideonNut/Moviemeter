@@ -12,6 +12,89 @@ import { Share2 } from "lucide-react"
 import { updateUserStreak, getStreakStats } from "@/lib/streak-service"
 import StreakDisplay from "@/components/streak-display"
 
+// Add VoteButtons component back
+function VoteButtons({
+  movieId,
+  dbMovieId,
+  hasVoted,
+  setHasVoted,
+  voteCountYes,
+  voteCountNo,
+  setVoteCountYes,
+  setVoteCountNo,
+  address,
+  onVoteSuccess,
+}: any) {
+  const [isPending, setIsPending] = useState(false)
+  const { mutate: sendTransaction } = useSendTransaction()
+  const contractAddress: string = "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828"
+  const contract = getContract({ client, chain: celoMainnet, address: contractAddress })
+
+  const handleVote = async (voteType: boolean) => {
+    if (hasVoted) return
+    setIsPending(true)
+    try {
+      setHasVoted(true)
+      if (voteType) setVoteCountYes((prev: number) => prev + 1)
+      else setVoteCountNo((prev: number) => prev + 1)
+
+      // Send transaction to contract (use numeric movieId)
+      const transaction = prepareContractCall({
+        contract,
+        method: "function vote(uint256, bool)",
+        params: [BigInt(movieId), voteType],
+      })
+
+      await new Promise((resolve, reject) => {
+        sendTransaction(transaction, {
+          onSuccess: resolve,
+          onError: (err: any) => {
+            console.error("Transaction error:", err)
+            reject(err)
+          },
+        })
+      })
+
+      // Save vote to MongoDB (use dbMovieId)
+      await fetch("/api/votes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ movieId: dbMovieId, address, voteType }),
+      })
+
+      onVoteSuccess()
+    } catch (error) {
+      console.error("Voting failed:", error)
+      setHasVoted(false)
+      if (voteType) setVoteCountYes((prev: number) => prev - 1)
+      else setVoteCountNo((prev: number) => prev - 1)
+    }
+    setIsPending(false)
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-3 mt-4">
+      <div className="flex gap-3 w-full">
+        <button
+          onClick={() => handleVote(true)}
+          disabled={isPending || hasVoted}
+          className={`flex-1 px-4 py-2 rounded-lg text-white bg-black border-2 border-zinc-700 hover:border-white transition-colors duration-150 ${hasVoted ? "opacity-60" : ""}`}
+        >
+          Yes ({voteCountYes})
+        </button>
+        <button
+          onClick={() => handleVote(false)}
+          disabled={isPending || hasVoted}
+          className={`flex-1 px-4 py-2 rounded-lg text-white bg-black border-2 border-zinc-700 hover:border-white transition-colors duration-150 ${hasVoted ? "opacity-60" : ""}`}
+        >
+          No ({voteCountNo})
+        </button>
+      </div>
+      {hasVoted && <p className="text-sm text-zinc-400">You've already voted on this movie</p>}
+    </div>
+  )
+}
+
 const contractAddress: string = "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828"
 const contract = getContract({ client, chain: celoMainnet, address: contractAddress })
 
@@ -110,87 +193,74 @@ export default function MoviesPage() {
 }
 
 function MovieCards({ address, searchQuery }: MovieCardsProps) {
-  const movies: Movie[] = [
-    { id: 0, title: "Inception", description: "A thief enters dreams to steal secrets.", posterUrl: "https://i.postimg.cc/m2W147Ts/inceptrion.jpg" },
-    { id: 1, title: "Interstellar", description: "A space epic exploring love and time.", posterUrl: "https://i.postimg.cc/FKWkJhSD/interstellar.jpg" },
-    { id: 2, title: "The Dark Knight", description: "Batman faces off against the Joker.", posterUrl: "https://i.postimg.cc/Cx8cN67G/dark-knight.jpg" },
-    { id: 3, title: "Avengers: Endgame", description: "The Avengers assemble for one last fight.", posterUrl: "https://i.postimg.cc/K8d8X4nX/avengers.jpg" },
-    {
-      id: 4,
-      title: "Dune: Part Two",
-      description: "Paul Atreides unites with Chani and the Fremen while seeking revenge.",
-      posterUrl: "https://i.postimg.cc/cH4xwzYh/dune.jpg"
-    },
-    {
-      id: 5,
-      title: "Oppenheimer",
-      description:
-        "The story of American scientist J. Robert Oppenheimer and his role in the creation of the atomic bomb.",
-      posterUrl: "https://i.postimg.cc/sDp2F5Vp/oppenheimer.jpg"
-    },
-    {
-      id: 6,
-      title: "Barbie",
-      description: "Barbie suffers a crisis that leads her to question her world and her existence.",
-      posterUrl: "https://i.postimg.cc/L5kFWBz5/barbie.jpg"
-    },
-    {
-      id: 7,
-      title: "The Matrix",
-      description:
-        "A computer hacker learns about the true nature of reality and his role in the war against its controllers.",
-      posterUrl: "https://i.postimg.cc/bJXMjSYt/matrix.jpg"
-    },
-    {
-      id: 8,
-      title: "Pulp Fiction",
-      description:
-        "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine.",
-      posterUrl: "https://i.postimg.cc/0jKbK3R3/pulp-fiction.jpg"
-    },
-  ]
+  const [movies, setMovies] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const filteredMovies = movies.filter((movie) => movie.title.toLowerCase().includes(searchQuery.toLowerCase()))
+  useEffect(() => {
+    async function fetchMovies() {
+      setLoading(true)
+      const res = await fetch("/api/movies")
+      const data = await res.json()
+      setMovies(data)
+      setLoading(false)
+    }
+    fetchMovies()
+  }, [])
+
+  // Deduplicate movies by title
+  const uniqueMovies: any[] = []
+  const seenTitles = new Set<string>()
+  for (const movie of movies) {
+    if (movie.title && !seenTitles.has(movie.title)) {
+      uniqueMovies.push(movie)
+      seenTitles.add(movie.title)
+    }
+  }
+
+  // Only include movies with a year in the title (e.g., '(2025)')
+  const moviesWithYear = uniqueMovies.filter((movie) => /\(\d{4}\)/.test(movie.title))
+
+  const filteredMovies = moviesWithYear.filter((movie) => movie.title.toLowerCase().includes(searchQuery.toLowerCase()))
+
+  if (loading) return <div>Loading movies...</div>
 
   return (
     <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-center">
       {filteredMovies.map((movie) => (
-        <MovieCard key={movie.id} {...movie} address={address} />
+        <MovieCard key={movie._id || movie.id} {...movie} address={address} />
       ))}
     </div>
   )
 }
 
-function MovieCard({ id, title, description, address, posterUrl }: MovieCardProps) {
+function MovieCard({ _id, id, title, description, address, posterUrl }: any) {
+  const contractMovieId = typeof id === 'number' || !isNaN(Number(id)) ? Number(id) : 0;
+  const dbMovieId = _id || id;
   const [hasVoted, setHasVoted] = useState<boolean>(false)
   const [voteCountYes, setVoteCountYes] = useState<number>(0)
   const [voteCountNo, setVoteCountNo] = useState<number>(0)
   const [showFrameLink, setShowFrameLink] = useState(false)
   const [streakStats, setStreakStats] = useState<any>(null)
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
-  const frameUrl = `${baseUrl}/api/frame?id=${id}`
+  const frameUrl = `${baseUrl}/api/frame?id=${dbMovieId}`
 
-  const { data: rawVotes, refetch } = useReadContract({
-    contract,
-    method: "getVotes",
-    params: [id],
-  })
-
-  // Map the rawVotes array to an object for easier access
-  type VotesResult = { yes: number; no: number; voters: string[] }
-  const votes: VotesResult | null = rawVotes && Array.isArray(rawVotes) && rawVotes.length === 3
-    ? { yes: Number(rawVotes[0]), no: Number(rawVotes[1]), voters: rawVotes[2] as string[] }
-    : null
-
+  // Fetch votes from MongoDB
   useEffect(() => {
-    if (votes) {
-      setVoteCountYes(votes.yes)
-      setVoteCountNo(votes.no)
-      if (votes.voters.includes(address)) {
-        setHasVoted(true)
-      }
+    async function fetchVotes() {
+      const res = await fetch(`/api/votes?movieId=${dbMovieId}`)
+      const votes = await res.json()
+      let yes = 0, no = 0, voted = false
+      votes.forEach((vote: any) => {
+        if (vote.voteType) yes++
+        else no++
+        if (vote.address === address) voted = true
+      })
+      setVoteCountYes(yes)
+      setVoteCountNo(no)
+      setHasVoted(voted)
     }
-  }, [votes, address])
+    if (address) fetchVotes()
+  }, [dbMovieId, address])
 
   // Load streak stats
   useEffect(() => {
@@ -199,12 +269,6 @@ function MovieCard({ id, title, description, address, posterUrl }: MovieCardProp
       setStreakStats(stats)
     }
   }, [address])
-
-  const votedEvent = contract.abi?.find((e: any) => e.type === "event" && e.name === "Voted")
-  useContractEvents({
-    contract,
-    events: votedEvent ? [votedEvent] : [],
-  })
 
   const copyFrameLink = () => {
     navigator.clipboard.writeText(frameUrl)
@@ -225,7 +289,8 @@ function MovieCard({ id, title, description, address, posterUrl }: MovieCardProp
       <h2 className="text-lg font-semibold mb-2">{title}</h2>
       <p className="text-sm text-zinc-400 mb-4">{description}</p>
       <VoteButtons
-        id={id}
+        movieId={contractMovieId}
+        dbMovieId={dbMovieId}
         hasVoted={hasVoted}
         setHasVoted={setHasVoted}
         voteCountYes={voteCountYes}
@@ -234,7 +299,6 @@ function MovieCard({ id, title, description, address, posterUrl }: MovieCardProp
         setVoteCountNo={setVoteCountNo}
         address={address}
         onVoteSuccess={() => {
-          // Update streak when vote is successful
           if (address) {
             const updatedStreak = updateUserStreak(address)
             const stats = getStreakStats(address)
@@ -242,73 +306,6 @@ function MovieCard({ id, title, description, address, posterUrl }: MovieCardProp
           }
         }}
       />
-    </div>
-  )
-}
-
-function VoteButtons({
-  id,
-  hasVoted,
-  setHasVoted,
-  voteCountYes,
-  voteCountNo,
-  setVoteCountYes,
-  setVoteCountNo,
-  address,
-  onVoteSuccess,
-}: VoteButtonsProps & { address: string; onVoteSuccess: () => void }) {
-  const { mutate: sendTransaction, isPending } = useSendTransaction()
-  const account = useActiveAccount();
-
-  const handleVote = async (voteType: boolean) => {
-    if (hasVoted) return
-    try {
-      setHasVoted(true)
-      if (voteType) setVoteCountYes((prev) => prev + 1)
-      else setVoteCountNo((prev) => prev + 1)
-
-      const transaction = prepareContractCall({
-        contract,
-        method: "function vote(uint256, bool)",
-        params: [BigInt(id), voteType], // Convert 'id' to bigint
-      })
-
-      sendTransaction(transaction, {
-        onSuccess: async () => {
-          console.log("Voted successfully")
-          onVoteSuccess() // Update streak on successful vote
-        },
-        onError: () => {
-          setHasVoted(false)
-          if (voteType) setVoteCountYes((prev) => prev - 1)
-          else setVoteCountNo((prev) => prev - 1)
-        },
-      })
-    } catch (error) {
-      console.error("Voting failed:", error)
-      setHasVoted(false)
-    }
-  }
-
-  return (
-    <div className="flex flex-col items-center gap-3 mt-4">
-      <div className="flex gap-3 w-full">
-        <button
-          onClick={() => handleVote(true)}
-          disabled={isPending || hasVoted}
-          className={`flex-1 px-4 py-2 rounded-lg text-white bg-black border-2 border-zinc-700 hover:border-white transition-colors duration-150 ${hasVoted ? "opacity-60" : ""}`}
-        >
-          Yes ({voteCountYes})
-        </button>
-        <button
-          onClick={() => handleVote(false)}
-          disabled={isPending || hasVoted}
-          className={`flex-1 px-4 py-2 rounded-lg text-white bg-black border-2 border-zinc-700 hover:border-white transition-colors duration-150 ${hasVoted ? "opacity-60" : ""}`}
-        >
-          No ({voteCountNo})
-        </button>
-      </div>
-      {hasVoted && <p className="text-sm text-zinc-400">You've already voted on this movie</p>}
     </div>
   )
 }
