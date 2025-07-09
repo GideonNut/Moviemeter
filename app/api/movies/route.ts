@@ -4,7 +4,7 @@ import Movie from "../../../models/Movie"
 
 export async function GET() {
   await connectToDatabase()
-  const movies = await Movie.find()
+  const movies = await Movie.find().sort({ createdAt: -1 })
   return NextResponse.json(movies)
 }
 
