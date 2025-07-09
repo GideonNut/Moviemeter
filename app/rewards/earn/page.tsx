@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Star, ThumbsUp, MessageSquare, Share2, Film } from "lucide-react"
+import { Star, ThumbsUp, MessageSquare, Share2, Film, ArrowLeft } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 interface EarningMethod {
   id: string
@@ -14,6 +15,7 @@ interface EarningMethod {
 
 export default function EarnRewardsPage() {
   const [earnedPoints, setEarnedPoints] = useState(0)
+  const router = useRouter()
 
   const earningMethods: EarningMethod[] = [
     {
@@ -56,6 +58,12 @@ export default function EarnRewardsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
+        <button
+          onClick={() => router.push("/rewards")}
+          className="flex items-center text-zinc-400 hover:text-white mb-6"
+        >
+          <ArrowLeft className="mr-2" /> Back
+        </button>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
