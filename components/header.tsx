@@ -7,6 +7,7 @@ import { Search, Menu, ChevronDown, Bell, Sparkles, Film, Gift, Tv, Users } from
 import { ConnectButton, useActiveAccount } from "thirdweb/react"
 import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
+import { supportedTokens } from "@/lib/token-config"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -179,6 +180,7 @@ export default function Header() {
                 chain: celoMainnet,
                 sponsorGas: true,
               }}
+              supportedTokens={supportedTokens}
             />
 
             {/* Mobile Menu Button */}
