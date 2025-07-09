@@ -6,6 +6,7 @@ import { Coins, DollarSign, Gift, ArrowRight, Shield, CheckCircle2, ArrowLeft } 
 import { ConnectButton, useActiveAccount } from "thirdweb/react"
 import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
+import { supportedTokens } from "@/lib/token-config"
 import { SelfAppBuilder, getUniversalLink } from "@selfxyz/core"
 import { SelfQRcodeWrapper } from '@selfxyz/qrcode'
 import { v4 as uuidv4 } from 'uuid'
@@ -267,7 +268,11 @@ export default function RedeemPage() {
               <p className="text-zinc-400 mb-4">
                 Connect your wallet to redeem points for tokens
               </p>
-              <ConnectButton client={client} chain={celoMainnet} />
+              <ConnectButton 
+                client={client} 
+                chain={celoMainnet}
+                                supportedTokens={supportedTokens}
+              />
             </div>
           )}
 
