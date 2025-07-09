@@ -7,6 +7,7 @@ import { ConnectButton, useActiveAccount, useReadContract, useSendTransaction, u
 import { getContract, defineChain, prepareContractCall } from "thirdweb"
 import { client } from "../app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
+import { supportedTokens } from "@/lib/token-config"
 import { Share2 } from "lucide-react"
 
 const contractAddress: string = "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828"
@@ -58,6 +59,7 @@ export default function Home() {
               chain: celoMainnet,
               sponsorGas: true,
             }}
+            supportedTokens={supportedTokens}
           />
           {address && (
             <input
