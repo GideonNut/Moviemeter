@@ -199,6 +199,7 @@ function MovieCards({ address, searchQuery }: MovieCardsProps) {
   useEffect(() => {
     async function fetchMovies() {
       setLoading(true)
+      // Movies are now returned sorted by newest first (createdAt descending) from the API
       const res = await fetch("/api/movies")
       const data = await res.json()
       setMovies(data)
@@ -224,9 +225,12 @@ function MovieCards({ address, searchQuery }: MovieCardsProps) {
 
   if (loading) return <div>Loading movies...</div>
 
+  // Reverse the order so newest movies appear at the top
+  const displayMovies = filteredMovies.slice().reverse()
+
   return (
     <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-center">
-      {filteredMovies.map((movie) => (
+      {displayMovies.map((movie) => (
         <MovieCard key={movie._id || movie.id} {...movie} address={address} />
       ))}
     </div>
