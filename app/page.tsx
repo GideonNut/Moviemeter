@@ -6,6 +6,7 @@ import Image from "next/image"
 import { ConnectButton } from "thirdweb/react"
 import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
+import { supportedTokens } from "@/lib/token-config"
 import { motion } from "framer-motion"
 import FeaturedMovie from "@/components/featured-movie"
 import UpNextSection from "@/components/up-next-section"
@@ -144,6 +145,7 @@ export default function LandingPage() {
                 chain: celoMainnet,
                 sponsorGas: true,
               }}
+              supportedTokens={supportedTokens}
             />
           )}
           <button
