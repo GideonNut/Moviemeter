@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Coins, DollarSign, Gift, ArrowRight, Shield, CheckCircle2 } from "lucide-react"
+import { Coins, DollarSign, Gift, ArrowRight, Shield, CheckCircle2, ArrowLeft } from "lucide-react"
 import { ConnectButton, useActiveAccount } from "thirdweb/react"
 import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
 import { SelfAppBuilder, getUniversalLink } from "@selfxyz/core"
+import { SelfQRcodeWrapper } from '@selfxyz/qrcode'
+import { v4 as uuidv4 } from 'uuid'
+import { useRouter } from "next/navigation"
 
 interface TokenOption {
   id: string
@@ -18,13 +21,26 @@ interface TokenOption {
   description: string
 }
 
+// Utility to check if a string is a valid Ethereum address (0x-prefixed, 40 hex chars)
+function isValidEthAddress(address: string | undefined): boolean {
+  return !!address && /^0x[a-fA-F0-9]{40}$/.test(address)
+}
+// Utility to check if a string is a valid UUID (v4)
+function isValidUUID(uuid: string | undefined): boolean {
+  return !!uuid && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uuid)
+}
+
 export default function RedeemPage() {
   const [selectedToken, setSelectedToken] = useState<string | null>(null)
   const [points, setPoints] = useState(1000) // Mock points balance
   const [isVerified, setIsVerified] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
   const [verificationError, setVerificationError] = useState<string | null>(null)
+  const [proof, setProof] = useState<any>(null)
+  const [publicSignals, setPublicSignals] = useState<any>(null)
   const account = useActiveAccount()
+  const [showSelfQR, setShowSelfQR] = useState(false)
+  const router = useRouter()
 
   // Initialize Self.xyz app only when we have an account
   const selfApp = account?.address ? new SelfAppBuilder({
@@ -36,12 +52,82 @@ export default function RedeemPage() {
     userId: account.address,
   }).build() : null
 
+  // Always use a UUID for the QR code userId
+  const qrUserId = uuidv4()
+  const userIdType: 'uuid' = 'uuid'
+  let qrSelfApp: any = null
+  try {
+    qrSelfApp = new SelfAppBuilder({
+      appName: 'MovieMeter',
+      scope: 'moviemeter.app',
+      endpoint: 'https://moviemeter.app/api/verify',
+      logoBase64: 'https://moviemeter.app/logo.png',
+      userId: qrUserId,
+      userIdType,
+      disclosures: {
+        name: true,
+        nationality: true,
+        date_of_birth: true,
+        minimumAge: 18,
+        ofac: true,
+      },
+    }).build()
+  } catch (e) {
+    qrSelfApp = null
+  }
+
   // Check verification status on mount and when account changes
   useEffect(() => {
     if (account?.address) {
       checkVerificationStatus()
     }
   }, [account?.address])
+
+  // Listen for proof/publicSignals from Self.xyz (via window message)
+  useEffect(() => {
+    function handleMessage(event: MessageEvent) {
+      // Optionally check event.origin for security
+      if (event.data && event.data.proof && event.data.publicSignals) {
+        setProof(event.data.proof)
+        setPublicSignals(event.data.publicSignals)
+      }
+    }
+    window.addEventListener("message", handleMessage)
+    return () => window.removeEventListener("message", handleMessage)
+  }, [])
+
+  // Submit proof to backend when received
+  useEffect(() => {
+    const submitProof = async () => {
+      if (!proof || !publicSignals || !account?.address) return
+      setIsVerifying(true)
+      setVerificationError(null)
+      try {
+        const res = await fetch("/api/verify/status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            proof,
+            publicSignals,
+            address: account.address,
+          }),
+        })
+        const data = await res.json()
+        if (data.isVerified) {
+          setIsVerified(true)
+        } else {
+          setVerificationError("Verification failed.")
+        }
+      } catch (err) {
+        setVerificationError("Verification failed.")
+      }
+      setIsVerifying(false)
+    }
+    if (proof && publicSignals && account?.address) {
+      submitProof()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [proof, publicSignals, account?.address])
 
   const checkVerificationStatus = async () => {
     try {
@@ -147,6 +233,12 @@ export default function RedeemPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
+        <button
+          onClick={() => router.push("/rewards")}
+          className="flex items-center text-zinc-400 hover:text-white mb-6"
+        >
+          <ArrowLeft className="mr-2" /> Back
+        </button>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -179,34 +271,45 @@ export default function RedeemPage() {
             </div>
           )}
 
-          {/* Self.xyz Verification */}
+          {/* Self.xyz Verification Button and QR code option */}
           {account && !isVerified && (
-            <div className="bg-zinc-900 rounded-lg p-6 mb-8">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-zinc-800 rounded-lg">
-                  <Shield className="w-6 h-6 text-blue-400" />
+            <>
+              {!showSelfQR && (
+                <div className="flex justify-center mb-8">
+                  <button
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md text-lg font-semibold shadow"
+                    onClick={() => setShowSelfQR(true)}
+                  >
+                    Verify with Self
+                  </button>
                 </div>
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold mb-2">Self.xyz Verification Required</h2>
-                  <p className="text-zinc-400 mb-4">
-                    To prevent abuse and ensure fair distribution, please verify your identity with Self.xyz
-                  </p>
-                  {verificationError && (
-                    <div className="bg-red-900/20 border border-red-900 text-red-200 p-4 rounded-md mb-4">
-                      {verificationError}
-                    </div>
-                  )}
+              )}
+              {showSelfQR && !qrSelfApp && (
+                <div className="bg-red-900/20 border border-red-900 text-red-200 p-4 rounded-md mb-8 text-center">
+                  Unable to generate QR code for Self.xyz verification. Please check your wallet connection or try refreshing the page.
+                </div>
+              )}
+              {showSelfQR && qrSelfApp && (
+                <div className="bg-zinc-900 rounded-lg p-6 mb-8">
                   <div className="flex flex-col items-center gap-4">
-                    <button
-                      onClick={handleVerify}
-                      disabled={isVerifying}
-                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50"
-                    >
-                      {isVerifying ? "Verifying..." : "Verify with Self.xyz"}
-                      {isVerifying && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
-                    </button>
+                    <h2 className="text-xl font-semibold mb-2">Verify with Self.xyz (QR Code)</h2>
+                    <p className="text-zinc-400 mb-4 text-center">
+                      Scan this QR code with the Self.xyz app to verify your identity
+                    </p>
+                    <SelfQRcodeWrapper
+                      selfApp={qrSelfApp}
+                      onSuccess={() => {
+                        checkVerificationStatus()
+                      }}
+                      onError={(data) => {
+                        console.error('Self.xyz QR error', data)
+                        setVerificationError(data?.reason || 'QR verification failed.')
+                      }}
+                      size={300}
+                      darkMode={true}
+                    />
                     <p className="text-sm text-zinc-400 text-center">
-                      Don't have the Self.xyz app?{" "}
+                      Don't have the Self.xyz app?{' '}
                       <a
                         href="https://self.xyz"
                         target="_blank"
@@ -218,8 +321,8 @@ export default function RedeemPage() {
                     </p>
                   </div>
                 </div>
-              </div>
-            </div>
+              )}
+            </>
           )}
 
           {/* Verification Success */}
