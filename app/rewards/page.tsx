@@ -4,8 +4,9 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { useInView } from "framer-motion"
-import { RefreshCw, ChevronLeft, ChevronRight } from "lucide-react"
+import { useInView } from "react-intersection-observer"
+import { RefreshCw, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 interface Reward {
   id: string
@@ -25,10 +26,13 @@ export default function RewardsPage() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [isHovering, setIsHovering] = useState(false)
 
+  // Fix: useInView from 'react-intersection-observer' returns { ref, inView }
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
   })
+
+  const router = useRouter()
 
   const fetchRewards = useCallback(async () => {
     try {
@@ -115,6 +119,12 @@ export default function RewardsPage() {
 
   return (
     <motion.section ref={ref} className="mb-12" {...containerAnimation}>
+      <button
+        onClick={() => router.push("/")}
+        className="flex items-center text-zinc-400 hover:text-white mb-6"
+      >
+        <ArrowLeft className="mr-2" /> Back
+      </button>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold">Available Rewards</h2>
         <div className="flex items-center gap-2">
