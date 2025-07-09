@@ -7,6 +7,7 @@ import { ConnectButton, useActiveAccount, useReadContract, useSendTransaction, u
 import { getContract, defineChain, prepareContractCall } from "thirdweb"
 import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
+import { supportedTokens } from "@/lib/token-config"
 import Header from "@/components/header"
 import { Share2 } from "lucide-react"
 import { updateUserStreak, getStreakStats } from "@/lib/streak-service"
@@ -161,6 +162,7 @@ export default function MoviesPage() {
                   chain: celoMainnet,
                   sponsorGas: true,
                 }}
+                supportedTokens={supportedTokens}
               />
             </div>
           )}
