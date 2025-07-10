@@ -4,7 +4,7 @@ import { celoMainnet } from "./blockchain-service"
 export const supportedTokens = {
   [celoMainnet.id]: [
     {
-      address: "0x67c10c397dd0ba9a6c3c783eb07abc25e31f34a5",
+      address: "0x62b8b11039fcfe5ab0c56e502b1c372a3d2a9c7a",
       name: "GoodDollar",
       symbol: "G$",
       icon: "https://raw.githubusercontent.com/GoodDollar/GoodContracts/master/contracts/artifacts/GoodDollar.png",
@@ -20,7 +20,7 @@ export const supportedTokens = {
 
 // GoodDollar token configuration
 export const goodDollarToken = {
-  address: "0x67c10c397dd0ba9a6c3c783eb07abc25e31f34a5",
+  address: "0x62b8b11039fcfe5ab0c56e502b1c372a3d2a9c7a",
   name: "GoodDollar",
   symbol: "G$",
   icon: "https://raw.githubusercontent.com/GoodDollar/GoodContracts/master/contracts/artifacts/GoodDollar.png",
