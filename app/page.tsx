@@ -8,17 +8,13 @@ import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
 import { supportedTokens } from "@/lib/token-config"
 import { motion } from "framer-motion"
-import FeaturedMovie from "@/components/featured-movie"
-import UpNextSection from "@/components/up-next-section"
-import FeaturedToday from "@/components/featured-today"
-import TrendingStars from "@/components/trending-stars"
-import NewMoviesSection from "@/components/new-movies-section"
 import Header from "@/components/header"
 import PartnersSection from "@/components/partners-section"
+import EarningProcess from "@/components/earning-process"
+import FAQSection from "@/components/faq-section"
 import { useTheme } from "next-themes"
 import { Sun, Moon, Trophy, Star, Users } from "lucide-react"
 import { AnimatedBackground } from '@/components/motion-primitives/animated-background'
-
 import { account } from '../lib/appwrite'
 
 function AnimatedCardBackgroundHover() {
@@ -220,6 +216,8 @@ export default function LandingPage() {
       <div className="relative z-10">
         <PartnersSection />
         <AnimatedCardBackgroundHover />
+         <EarningProcess />
+        <FAQSection />
         
         <footer className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
           <p>© {new Date().getFullYear()} MovieMeter. All rights reserved.</p>
