@@ -14,9 +14,11 @@ import FeaturedToday from "@/components/featured-today"
 import TrendingStars from "@/components/trending-stars"
 import NewMoviesSection from "@/components/new-movies-section"
 import Header from "@/components/header"
+import PartnersSection from "@/components/partners-section"
 import { useTheme } from "next-themes"
 import { Sun, Moon, Trophy, Star, Users } from "lucide-react"
 import { AnimatedBackground } from '@/components/motion-primitives/animated-background'
+
 import { account } from '../lib/appwrite'
 
 function AnimatedCardBackgroundHover() {
@@ -51,22 +53,28 @@ function AnimatedCardBackgroundHover() {
             }}
             enableHover
           >
-            <div className="rounded-lg bg-zinc-100 dark:bg-zinc-800 p-12 h-full">
-              <div className='flex select-none items-center gap-6'>
+            <div className="rounded-lg bg-zinc-100 border-[1px] border-[#ffffff1f] dark:bg-[#0d0d0d] p-12 h-full">
+              <div className='flex flex-col select-none items-center gap-6'>
                 {index === 0 && (
-                  <Star className="w-10 h-10 text-zinc-800 dark:text-white flex-shrink-0" />
+                  <div className="bg-white rounded-lg w-14 h-14 flex items-center justify-center ">
+                  <Star className="w-10 h-10 text-zinc-800 dark:text-zinc-800 flex-shrink-0" />
+                  </div>
                 )}
                 {index === 1 && (
-                  <Trophy className="w-10 h-10 text-zinc-800 dark:text-white flex-shrink-0" />
+                  <div className="bg-white rounded-lg w-14 h-14 flex items-center justify-center ">
+                  <Trophy className="w-10 h-10 text-zinc-800 dark:text-zinc-800 flex-shrink-0" />
+                  </div>
                 )}
                 {index === 2 && (
-                  <Users className="w-10 h-10 text-zinc-800 dark:text-white flex-shrink-0" />
+                  <div className="bg-white rounded-lg w-14 h-14  flex items-center justify-center ">
+                  <Users className="w-10 h-10 text-zinc-800 dark:text-zinc-800 flex-shrink-0" />
+                  </div>
                 )}
                 <div className="flex flex-col space-y-2">
-                  <h3 className='text-2xl font-medium text-zinc-800 dark:text-zinc-50'>
+                  <h3 className='text-2xl text-center font-medium text-zinc-800 dark:text-zinc-50'>
                     {item.title}
                   </h3>
-                  <p className='text-xl text-zinc-600 dark:text-zinc-400'>
+                  <p className='text-xl text-zinc-600 text-center dark:text-zinc-400'>
                     {item.description}
                   </p>
                 </div>
@@ -119,8 +127,11 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <header className="container mx-auto px-4 py-6 flex justify-between items-center">
+    <div className="min-h-screen flex flex-col bg-background text-foreground relative">
+     
+      
+      
+      <header className="container mx-auto px-4 py-6 flex justify-between items-center relative z-10">
         <div className="flex items-center">
           {mounted && (
             <Image
@@ -164,7 +175,7 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col items-center justify-center text-center px-4">
+      <main className="flex-1 flex flex-col items-center justify-center text-center px-4 relative z-10">
         <motion.div className="max-w-4xl w-full" variants={container} initial="hidden" animate="show">
           <motion.div variants={item} className="mb-8 flex justify-center">
             {mounted && (
@@ -205,15 +216,19 @@ export default function LandingPage() {
         </motion.div>
       </main>
 
-      <AnimatedCardBackgroundHover />
+      {/* All other sections */}
+      <div className="relative z-10">
+        <PartnersSection />
+        <AnimatedCardBackgroundHover />
+        
+        <footer className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+          <p>© {new Date().getFullYear()} MovieMeter. All rights reserved.</p>
+        </footer>
 
-      <footer className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-        <p>© {new Date().getFullYear()} MovieMeter. All rights reserved.</p>
-      </footer>
-
-      <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-        <button onClick={handlePing}>Send a ping</button>
-        {result && <p>{result}</p>}
+        <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+          <button onClick={handlePing}>Send a ping</button>
+          {result && <p>{result}</p>}
+        </div>
       </div>
     </div>
   )
