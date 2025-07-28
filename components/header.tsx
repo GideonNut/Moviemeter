@@ -4,16 +4,41 @@ import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Search, Menu, ChevronDown, Bell, Sparkles, Film, Gift, Tv, Users } from "lucide-react"
-import { ConnectButton, useActiveAccount } from "thirdweb/react"
-import { client } from "@/app/client"
-import { celoMainnet } from "@/lib/blockchain-service"
-import { supportedTokens } from "@/lib/token-config"
+import { createThirdwebClient } from "thirdweb";
+import { ConnectButton } from "thirdweb/react";
+import { darkTheme } from "thirdweb/react";
+import { inAppWallet, createWallet } from "thirdweb/wallets";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [showSearch, setShowSearch] = useState(false)
-  const account = useActiveAccount()
+  
+  const client = createThirdwebClient({
+    clientId: "....",
+  });
+  
+  const wallets = [
+    inAppWallet({
+      auth: {
+        options: [
+          "google",
+          "telegram",
+          "farcaster",
+          "email",
+          "x",
+          "passkey",
+          "phone",
+          "apple",
+        ],
+      },
+    }),
+    createWallet("io.metamask"),
+    createWallet("com.coinbase.wallet"),
+    createWallet("me.rainbow"),
+    createWallet("io.rabby"),
+    createWallet("io.zerion.wallet"),
+  ];
 
   return (
     <header className="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
@@ -170,17 +195,18 @@ export default function Header() {
             <Link href="/watchlist" className="text-zinc-300 hover:text-white hidden md:flex items-center">
               <Bell size={18} />
             </Link>
-
             {/* Connect Button */}
             <ConnectButton
               client={client}
-              appMetadata={{ name: "MovieMeter", url: "https://moviemeter.vercel.app" }}
-              chain={celoMainnet}
-              accountAbstraction={{
-                chain: celoMainnet,
-                sponsorGas: true,
-              }}
-              supportedTokens={supportedTokens}
+              connectModal={{ showThirdwebBranding: false, size: "compact" }}
+              theme={darkTheme({
+                colors: {
+                  accentText: "hsl(0, 0%, 100%)",
+                  skeletonBg: "hsl(233, 12%, 15%)",
+                  connectedButtonBg: "hsl(228, 12%, 8%)",
+                },
+              })}
+              wallets={wallets}
             />
 
             {/* Mobile Menu Button */}
