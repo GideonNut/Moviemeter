@@ -15,7 +15,7 @@ export default function Header() {
   const [showSearch, setShowSearch] = useState(false)
   
   const client = createThirdwebClient({
-    clientId: "....",
+    clientId: "e56828eab87b58000cb9a78170fac45b",
   });
   
   const wallets = [
