@@ -46,9 +46,9 @@ export default function RedeemPage() {
   // Initialize Self.xyz app only when we have an account
   const selfApp = account?.address ? new SelfAppBuilder({
     appName: "MovieMeter",
-    scope: "moviemeter.app",
-    endpoint: "https://moviemeter.app/api/verify",
-    logoBase64: "https://moviemeter.app/logo.png", // Replace with your actual logo URL
+    scope: "moviemeter.io",
+    endpoint: "https://moviemeter.io/api/verify/status",
+    logoBase64: "https://moviemeter.io/logo.png", // Replace with your actual logo URL
     userIdType: "hex",
     userId: account.address,
   }).build() : null
@@ -60,9 +60,9 @@ export default function RedeemPage() {
   try {
     qrSelfApp = new SelfAppBuilder({
       appName: 'MovieMeter',
-      scope: 'moviemeter.app',
-      endpoint: 'https://moviemeter.app/api/verify',
-      logoBase64: 'https://moviemeter.app/logo.png',
+      scope: 'moviemeter.io',
+      endpoint: 'https://moviemeter.io/api/verify/status',
+      logoBase64: 'https://moviemeter.io/logo.png',
       userId: qrUserId,
       userIdType,
       disclosures: {
