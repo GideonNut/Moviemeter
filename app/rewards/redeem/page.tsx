@@ -215,7 +215,7 @@ export default function RedeemPage() {
       id: "cusd",
       name: "Celo Dollar",
       symbol: "cUSD",
-      icon: <DollarSign className="w-6 h-6 text-green-400" />,
+      icon: <DollarSign className="w-6 h-6 text-white" />,
       pointsRequired: 1000,
       tokenAmount: 1,
       description: "Stablecoin on the Celo network",
@@ -224,7 +224,7 @@ export default function RedeemPage() {
       id: "gooddollar",
       name: "GoodDollar",
       symbol: "G$",
-      icon: <Coins className="w-6 h-6 text-yellow-400" />,
+      icon: <Coins className="w-6 h-6 text-white" />,
       pointsRequired: 1000,
       tokenAmount: 100,
       description: "Universal basic income token",
@@ -232,11 +232,11 @@ export default function RedeemPage() {
   ]
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 bg-black min-h-screen">
       <div className="max-w-4xl mx-auto">
         <button
           onClick={() => router.push("/rewards")}
-          className="flex items-center text-zinc-400 hover:text-white mb-6"
+          className="flex items-center text-gray-300 hover:text-white mb-6"
         >
           <ArrowLeft className="mr-2" /> Back
         </button>
@@ -245,33 +245,33 @@ export default function RedeemPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl font-bold mb-2">Redeem Points</h1>
-          <p className="text-zinc-400 mb-8">
+          <h1 className="text-3xl font-bold mb-2 text-white">Redeem Points</h1>
+          <p className="text-gray-400 mb-8">
             Convert your earned points into cUSD or GoodDollar tokens
           </p>
 
           {/* Points Balance */}
-          <div className="bg-zinc-900 rounded-lg p-6 mb-8">
+          <div className="bg-[#18181b] rounded-lg p-6 mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold mb-2">Your Points Balance</h2>
-                <p className="text-3xl font-bold text-rose-500">{points}</p>
+                <h2 className="text-xl font-semibold mb-2 text-white">Your Points Balance</h2>
+                <p className="text-3xl font-bold text-white">{points}</p>
               </div>
-              <Gift className="w-8 h-8 text-rose-500" />
+              <Gift className="w-8 h-8 text-white" />
             </div>
           </div>
 
           {/* Wallet Connection */}
           {!account && (
-            <div className="bg-zinc-900 rounded-lg p-6 mb-8">
-              <h2 className="text-xl font-semibold mb-4">Connect Wallet</h2>
-              <p className="text-zinc-400 mb-4">
+            <div className="bg-[#18181b] rounded-lg p-6 mb-8">
+              <h2 className="text-xl font-semibold mb-4 text-white">Connect Wallet</h2>
+              <p className="text-gray-400 mb-4">
                 Connect your wallet to redeem points for tokens
               </p>
               <ConnectButton 
                 client={client} 
                 chain={celoMainnet}
-                                supportedTokens={supportedTokens}
+                supportedTokens={supportedTokens}
               />
             </div>
           )}
@@ -282,10 +282,10 @@ export default function RedeemPage() {
               {!showSelfQR && (
                 <div className="flex justify-center mb-8">
                   <button
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md text-lg font-semibold shadow"
+                    className="bg-gradient-to-r from-white/20 to-white/10 border-2 border-white text-white px-8 py-4 rounded-lg text-xl font-bold shadow-lg hover:from-white/30 hover:to-white/20 transition-all duration-200 flex items-center gap-2"
                     onClick={() => setShowSelfQR(true)}
                   >
-                    Verify with Self
+                    <Shield className="w-6 h-6 text-white" /> Verify with Self
                   </button>
                 </div>
               )}
@@ -295,10 +295,10 @@ export default function RedeemPage() {
                 </div>
               )}
               {showSelfQR && qrSelfApp && (
-                <div className="bg-zinc-900 rounded-lg p-6 mb-8">
+                <div className="bg-[#18181b] rounded-lg p-6 mb-8">
                   <div className="flex flex-col items-center gap-4">
-                    <h2 className="text-xl font-semibold mb-2">Verify with Self.xyz (QR Code)</h2>
-                    <p className="text-zinc-400 mb-4 text-center">
+                    <h2 className="text-xl font-semibold mb-2 text-white">Verify with Self.xyz (QR Code)</h2>
+                    <p className="text-gray-400 mb-4 text-center">
                       Scan this QR code with the Self.xyz app to verify your identity
                     </p>
                     <SelfQRcodeWrapper
@@ -313,13 +313,13 @@ export default function RedeemPage() {
                       size={300}
                       darkMode={true}
                     />
-                    <p className="text-sm text-zinc-400 text-center">
+                    <p className="text-sm text-gray-400 text-center">
                       Don't have the Self.xyz app?{' '}
                       <a
                         href="https://self.xyz"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-400 hover:text-blue-300"
+                        className="text-white underline hover:text-gray-300"
                       >
                         Download it here
                       </a>
@@ -332,8 +332,8 @@ export default function RedeemPage() {
 
           {/* Verification Success */}
           {isVerified && (
-            <div className="bg-green-900/20 border border-green-900 rounded-lg p-4 mb-8">
-              <div className="flex items-center gap-2 text-green-400">
+            <div className="bg-white/10 border border-white rounded-lg p-4 mb-8">
+              <div className="flex items-center gap-2 text-white">
                 <CheckCircle2 className="w-5 h-5" />
                 <span>Successfully verified with Self.xyz</span>
               </div>
@@ -348,21 +348,21 @@ export default function RedeemPage() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
-                className={`bg-zinc-900 rounded-lg p-6 cursor-pointer transition-colors ${
-                  selectedToken === token.id ? "ring-2 ring-rose-500" : "hover:bg-zinc-800"
-                } ${!isVerified ? "opacity-50" : ""}`}
+                className={`bg-[#18181b] rounded-lg p-6 cursor-pointer transition-colors ${
+                  selectedToken === token.id ? "ring-2 ring-white" : "hover:bg-gray-800"
+                } ${!isVerified ? "opacity-50 pointer-events-none" : ""}`}
                 onClick={() => isVerified && setSelectedToken(token.id)}
               >
                 <div className="flex items-start gap-4">
-                  <div className="p-3 bg-zinc-800 rounded-lg">{token.icon}</div>
+                  <div className="p-3 bg-gray-800 rounded-lg">{token.icon}</div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">{token.name}</h3>
-                      <span className="text-rose-500 font-bold">{token.pointsRequired} pts</span>
+                      <h3 className="text-lg font-semibold text-white">{token.name}</h3>
+                      <span className="text-white font-bold">{token.pointsRequired} pts</span>
                     </div>
-                    <p className="text-zinc-400 mt-1">{token.description}</p>
+                    <p className="text-gray-400 mt-1">{token.description}</p>
                     <div className="mt-4 flex items-center justify-between">
-                      <span className="text-sm text-zinc-400">
+                      <span className="text-sm text-gray-400">
                         You'll receive: {token.tokenAmount} {token.symbol}
                       </span>
                       <button
@@ -370,7 +370,7 @@ export default function RedeemPage() {
                           e.stopPropagation()
                           handleRedeem(token.id)
                         }}
-                        className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50"
+                        className="flex items-center gap-2 bg-black border-2 border-white hover:bg-white hover:text-black text-white px-4 py-2 rounded-md text-sm font-bold transition-colors disabled:opacity-50 disabled:bg-gray-700 disabled:text-gray-500"
                         disabled={!account || !isVerified || points < token.pointsRequired}
                       >
                         Redeem
@@ -385,33 +385,33 @@ export default function RedeemPage() {
 
           {/* How It Works */}
           <div className="mt-12">
-            <h2 className="text-2xl font-bold mb-4">How It Works</h2>
+            <h2 className="text-2xl font-bold mb-4 text-white">How It Works</h2>
             <div className="grid md:grid-cols-4 gap-6">
-              <div className="bg-zinc-900 rounded-lg p-6">
-                <div className="text-2xl font-bold text-rose-500 mb-2">1</div>
-                <h3 className="font-semibold mb-2">Connect Wallet</h3>
-                <p className="text-zinc-400 text-sm">
+              <div className="bg-[#18181b] rounded-lg p-6">
+                <div className="text-2xl font-bold text-white mb-2">1</div>
+                <h3 className="font-semibold mb-2 text-white">Connect Wallet</h3>
+                <p className="text-gray-400 text-sm">
                   Connect your Celo wallet to start the redemption process
                 </p>
               </div>
-              <div className="bg-zinc-900 rounded-lg p-6">
-                <div className="text-2xl font-bold text-rose-500 mb-2">2</div>
-                <h3 className="font-semibold mb-2">Verify Identity</h3>
-                <p className="text-zinc-400 text-sm">
+              <div className="bg-[#18181b] rounded-lg p-6">
+                <div className="text-2xl font-bold text-white mb-2">2</div>
+                <h3 className="font-semibold mb-2 text-white">Verify Identity</h3>
+                <p className="text-gray-400 text-sm">
                   Complete Self.xyz verification to ensure fair distribution
                 </p>
               </div>
-              <div className="bg-zinc-900 rounded-lg p-6">
-                <div className="text-2xl font-bold text-rose-500 mb-2">3</div>
-                <h3 className="font-semibold mb-2">Choose Token</h3>
-                <p className="text-zinc-400 text-sm">
+              <div className="bg-[#18181b] rounded-lg p-6">
+                <div className="text-2xl font-bold text-white mb-2">3</div>
+                <h3 className="font-semibold mb-2 text-white">Choose Token</h3>
+                <p className="text-gray-400 text-sm">
                   Select between cUSD or GoodDollar tokens
                 </p>
               </div>
-              <div className="bg-zinc-900 rounded-lg p-6">
-                <div className="text-2xl font-bold text-rose-500 mb-2">4</div>
-                <h3 className="font-semibold mb-2">Confirm Transaction</h3>
-                <p className="text-zinc-400 text-sm">
+              <div className="bg-[#18181b] rounded-lg p-6">
+                <div className="text-2xl font-bold text-white mb-2">4</div>
+                <h3 className="font-semibold mb-2 text-white">Confirm Transaction</h3>
+                <p className="text-gray-400 text-sm">
                   Confirm the transaction to receive your tokens
                 </p>
               </div>
