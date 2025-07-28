@@ -9,7 +9,7 @@ import { darkTheme } from "thirdweb/react";
 import { inAppWallet, createWallet } from "thirdweb/wallets";
 import { celoMainnet } from "@/lib/blockchain-service";
 const client = createThirdwebClient({
-  clientId: "....",
+  clientId: "e56828eab87b58000cb9a78170fac45b",
 });
 
 const wallets = [
