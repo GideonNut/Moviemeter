@@ -8,6 +8,7 @@ import { createThirdwebClient } from "thirdweb";
 import { ConnectButton } from "thirdweb/react";
 import { darkTheme } from "thirdweb/react";
 import { inAppWallet, createWallet } from "thirdweb/wallets";
+import { celoMainnet } from "@/lib/blockchain-service";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -32,6 +33,7 @@ export default function Header() {
           "apple",
         ],
       },
+      chain: celoMainnet,
     }),
     createWallet("io.metamask"),
     createWallet("com.coinbase.wallet"),
@@ -198,6 +200,7 @@ export default function Header() {
             {/* Connect Button */}
             <ConnectButton
               client={client}
+              chain={celoMainnet}
               connectModal={{ showThirdwebBranding: false, size: "compact" }}
               theme={darkTheme({
                 colors: {
@@ -207,6 +210,7 @@ export default function Header() {
                 },
               })}
               wallets={wallets}
+              accountAbstraction={{ chain: celoMainnet, sponsorGas: true }}
             />
 
             {/* Mobile Menu Button */}
