@@ -45,9 +45,6 @@ export default function PartnersSection() {
           <h2 className="text-2xl md:text-3xl font-semibold mb-4">
             Powered by Industry Leaders
           </h2>
-          <p className="text-muted-foreground">
-            Built on cutting-edge blockchain technology
-          </p>
         </motion.div>
         
         <InfiniteSlider 
