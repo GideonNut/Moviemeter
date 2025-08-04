@@ -26,6 +26,7 @@ const wallets = [
         "apple",
       ],
     },
+    chain: celoMainnet,
   }),
   createWallet("io.metamask"),
   createWallet("com.coinbase.wallet"),
