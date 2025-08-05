@@ -91,7 +91,7 @@ function VoteButtons({
           No ({voteCountNo})
         </button>
       </div>
-      {hasVoted && <p className="text-sm text-zinc-400">You've already voted on this movie</p>}
+      {hasVoted && <p className="text-base font-medium text-green-500 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-lg border border-green-200 dark:border-green-800">✓ You've already voted on this movie</p>}
     </div>
   )
 }
