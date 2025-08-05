@@ -269,16 +269,16 @@ export default function LeaderboardsPage() {
                           </td>
                                                      <td className="px-6 py-4 whitespace-nowrap">
                              <div className="text-lg font-semibold text-zinc-200">
-                               {currentLeaderboard.metric === "votes" && "votes" in user && `${(user as any).votes.toLocaleString()}`}
-                               {currentLeaderboard.metric === "earnings" && "earnings" in user && `${(user as any).earnings} G$`}
+                               {currentLeaderboard.metric === "votes" && "votes" in user && `${user.votes.toLocaleString()}`}
+                               {currentLeaderboard.metric === "earnings" && "earnings" in user && `${user.earnings} G$`}
                                {currentLeaderboard.metric === "streak" && `${user.streak} days`}
                              </div>
                            </td>
                            <td className="px-6 py-4 whitespace-nowrap">
                              <div className="text-sm text-zinc-400">
                                {currentLeaderboard.metric === "votes" && `${user.streak} days`}
-                               {currentLeaderboard.metric === "earnings" && "activity" in user && (user as any).activity}
-                               {currentLeaderboard.metric === "streak" && "totalVotes" in user && `${(user as any).totalVotes} votes`}
+                               {currentLeaderboard.metric === "earnings" && "activity" in user && user.activity}
+                               {currentLeaderboard.metric === "streak" && "totalVotes" in user && `${user.totalVotes} votes`}
                              </div>
                            </td>
                         </tr>
