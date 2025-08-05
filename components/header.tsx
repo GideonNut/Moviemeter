@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Search, Menu, ChevronDown, Bell, Sparkles, Film, Gift, Tv, Users } from "lucide-react"
+import { Search, Menu, ChevronDown, Bell, Sparkles, Film, Gift, Tv, Users, Trophy } from "lucide-react"
 import { createThirdwebClient } from "thirdweb";
 import { ConnectButton } from "thirdweb/react";
 import { darkTheme } from "thirdweb/react";
@@ -143,22 +143,34 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Celebs Dropdown */}
+            {/* Leaderboards Dropdown */}
             <div className="relative group">
               <button className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2">
-                <Users size={16} className="mr-1.5" />
-                Celebs <ChevronDown size={14} className="ml-1" />
+                <Trophy size={16} className="mr-1.5" />
+                Leaderboards <ChevronDown size={14} className="ml-1" />
               </button>
               <div className="absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg hidden group-hover:block">
                 <div className="py-1">
-                  <Link href="/celebrities" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    All Celebrities
+                  <Link href="/leaderboards" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                    All Leaderboards
                   </Link>
                   <Link
-                    href="/celebrities/trending"
+                    href="/leaderboards/top-voters"
                     className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
                   >
-                    Trending Stars
+                    Top Voters
+                  </Link>
+                  <Link
+                    href="/leaderboards/top-earners"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
+                  >
+                    Top Earners
+                  </Link>
+                  <Link
+                    href="/leaderboards/streaks"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
+                  >
+                    Longest Streaks
                   </Link>
                 </div>
               </div>
@@ -256,8 +268,8 @@ export default function Header() {
             <Link href="/tv" className="block py-2 text-zinc-300 hover:text-white">
               TV Shows
             </Link>
-            <Link href="/celebrities" className="block py-2 text-zinc-300 hover:text-white">
-              Celebs
+            <Link href="/leaderboards" className="block py-2 text-zinc-300 hover:text-white">
+              Leaderboards
             </Link>
             <Link href="/watchlist" className="block py-2 text-zinc-300 hover:text-white">
               Watchlist
