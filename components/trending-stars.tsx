@@ -100,8 +100,8 @@ export default function TrendingStars() {
       </div>
 
       <div className="mt-4 text-center">
-        <Link href="/celebrities" className="text-rose-500 hover:text-rose-400 text-sm font-medium">
-          View all trending celebrities
+        <Link href="/leaderboards" className="text-rose-500 hover:text-rose-400 text-sm font-medium">
+          View all leaderboards
         </Link>
       </div>
     </section>
