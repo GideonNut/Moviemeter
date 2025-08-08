@@ -13,12 +13,21 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [showSearch, setShowSearch] = useState(false)
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const account = useActiveAccount()
+
+  const handleDropdownToggle = (dropdown: string) => {
+    setOpenDropdown(openDropdown === dropdown ? null : dropdown)
+  }
+
+  const closeDropdown = () => {
+    setOpenDropdown(null)
+  }
 
   return (
     <header className="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16" onClick={closeDropdown}>
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <Image src="/moviemeter.png" alt="MovieMeter" width={168} height={48} className="object-contain" />
@@ -27,12 +36,24 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             {/* Movie Votings Dropdown */}
-            <div className="relative group">
-              <button className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2">
+            <div className="relative">
+              <button
+                className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleDropdownToggle("movies")
+                }}
+                onMouseEnter={() => setOpenDropdown("movies")}
+              >
                 <Film size={16} className="mr-1.5" />
                 Movie Votings <ChevronDown size={14} className="ml-1" />
               </button>
-              <div className="absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg hidden group-hover:block">
+              <div
+                className={`absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg transition-all duration-200 ${
+                  openDropdown === "movies" ? "opacity-100 visible" : "opacity-0 invisible"
+                }`}
+                onMouseLeave={() => setOpenDropdown(null)}
+              >
                 <div className="py-1">
                   <Link href="/movies" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
                     All Movies
@@ -48,12 +69,24 @@ export default function Header() {
             </div>
 
             {/* Rewards Dropdown */}
-            <div className="relative group">
-              <button className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2">
+            <div className="relative">
+              <button
+                className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleDropdownToggle("rewards")
+                }}
+                onMouseEnter={() => setOpenDropdown("rewards")}
+              >
                 <Gift size={16} className="mr-1.5" />
                 Rewards <ChevronDown size={14} className="ml-1" />
               </button>
-              <div className="absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg hidden group-hover:block">
+              <div
+                className={`absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg transition-all duration-200 ${
+                  openDropdown === "rewards" ? "opacity-100 visible" : "opacity-0 invisible"
+                }`}
+                onMouseLeave={() => setOpenDropdown(null)}
+              >
                 <div className="py-1">
                   <Link href="/rewards/earn" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
                     Earn Rewards
@@ -75,12 +108,24 @@ export default function Header() {
             </div>
 
             {/* AI Recommendations Dropdown */}
-            <div className="relative group">
-              <button className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2">
+            <div className="relative">
+              <button
+                className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleDropdownToggle("ai")
+                }}
+                onMouseEnter={() => setOpenDropdown("ai")}
+              >
                 <Sparkles size={16} className="mr-1.5" />
                 AI Recommendations <ChevronDown size={14} className="ml-1" />
               </button>
-              <div className="absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg hidden group-hover:block">
+              <div
+                className={`absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg transition-all duration-200 ${
+                  openDropdown === "ai" ? "opacity-100 visible" : "opacity-0 invisible"
+                }`}
+                onMouseLeave={() => setOpenDropdown(null)}
+              >
                 <div className="py-1">
                   <Link href="/recommendations" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
                     Get Recommendations
@@ -96,12 +141,24 @@ export default function Header() {
             </div>
 
             {/* TV Shows Dropdown */}
-            <div className="relative group">
-              <button className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2">
+            <div className="relative">
+              <button
+                className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleDropdownToggle("tv")
+                }}
+                onMouseEnter={() => setOpenDropdown("tv")}
+              >
                 <Tv size={16} className="mr-1.5" />
                 TV Shows <ChevronDown size={14} className="ml-1" />
               </button>
-              <div className="absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg hidden group-hover:block">
+              <div
+                className={`absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg transition-all duration-200 ${
+                  openDropdown === "tv" ? "opacity-100 visible" : "opacity-0 invisible"
+                }`}
+                onMouseLeave={() => setOpenDropdown(null)}
+              >
                 <div className="py-1">
                   <Link href="/tv" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
                     All Shows
@@ -117,12 +174,24 @@ export default function Header() {
             </div>
 
             {/* Celebs Dropdown */}
-            <div className="relative group">
-              <button className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2">
+            <div className="relative">
+              <button
+                className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleDropdownToggle("celebs")
+                }}
+                onMouseEnter={() => setOpenDropdown("celebs")}
+              >
                 <Users size={16} className="mr-1.5" />
                 Celebs <ChevronDown size={14} className="ml-1" />
               </button>
-              <div className="absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg hidden group-hover:block">
+              <div
+                className={`absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg transition-all duration-200 ${
+                  openDropdown === "celebs" ? "opacity-100 visible" : "opacity-0 invisible"
+                }`}
+                onMouseLeave={() => setOpenDropdown(null)}
+              >
                 <div className="py-1">
                   <Link href="/celebrities" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
                     All Celebrities
