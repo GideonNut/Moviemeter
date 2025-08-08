@@ -34,7 +34,7 @@ export default function Header() {
           "apple",
         ],
       },
-      chain: celoMainnet,
+      // chain: celoMainnet,
     }),
     createWallet("io.metamask"),
     createWallet("com.coinbase.wallet"),
