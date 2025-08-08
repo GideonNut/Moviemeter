@@ -3,18 +3,45 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Search, Menu, ChevronDown, Bell, Sparkles, Film, Gift, Tv, Users } from "lucide-react"
-import { ConnectButton, useActiveAccount } from "thirdweb/react"
-import { client } from "@/app/client"
-import { celoMainnet } from "@/lib/blockchain-service"
-import { supportedTokens } from "@/lib/token-config"
+import { Search, Menu, ChevronDown, Bell, Sparkles, Film, Gift, Tv, Users, Trophy } from "lucide-react"
+import { createThirdwebClient } from "thirdweb";
+import { ConnectButton } from "thirdweb/react";
+import { darkTheme } from "thirdweb/react";
+import { inAppWallet, createWallet } from "thirdweb/wallets";
+import { celoMainnet } from "@/lib/blockchain-service";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [showSearch, setShowSearch] = useState(false)
+  
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
-  const account = useActiveAccount()
+  const client = createThirdwebClient({
+    clientId: "e56828eab87b58000cb9a78170fac45b",
+  });
+  
+  const wallets = [
+    inAppWallet({
+      auth: {
+        options: [
+          "google",
+          "telegram",
+          "farcaster",
+          "email",
+          "x",
+          "passkey",
+          "phone",
+          "apple",
+        ],
+      },
+      chain: celoMainnet,
+    }),
+    createWallet("io.metamask"),
+    createWallet("com.coinbase.wallet"),
+    createWallet("me.rainbow"),
+    createWallet("io.rabby"),
+    createWallet("io.zerion.wallet"),
+  ];
 
   const handleDropdownToggle = (dropdown: string) => {
     setOpenDropdown(openDropdown === dropdown ? null : dropdown)
@@ -173,7 +200,7 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Celebs Dropdown */}
+            {/* Leaderboards Dropdown */}
             <div className="relative">
               <button
                 className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2"
@@ -183,8 +210,8 @@ export default function Header() {
                 }}
                 onMouseEnter={() => setOpenDropdown("celebs")}
               >
-                <Users size={16} className="mr-1.5" />
-                Celebs <ChevronDown size={14} className="ml-1" />
+                <Trophy size={16} className="mr-1.5" />
+                Leaderboards <ChevronDown size={14} className="ml-1" />
               </button>
               <div
                 className={`absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg transition-all duration-200 ${
@@ -193,14 +220,26 @@ export default function Header() {
                 onMouseLeave={() => setOpenDropdown(null)}
               >
                 <div className="py-1">
-                  <Link href="/celebrities" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    All Celebrities
+                  <Link href="/leaderboards" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                    All Leaderboards
                   </Link>
                   <Link
-                    href="/celebrities/trending"
+                    href="/leaderboards/top-voters"
                     className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
                   >
-                    Trending Stars
+                    Top Voters
+                  </Link>
+                  <Link
+                    href="/leaderboards/top-earners"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
+                  >
+                    Top Earners
+                  </Link>
+                  <Link
+                    href="/leaderboards/streaks"
+                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
+                  >
+                    Longest Streaks
                   </Link>
                 </div>
               </div>
@@ -239,17 +278,20 @@ export default function Header() {
             <Link href="/watchlist" className="text-zinc-300 hover:text-white hidden md:flex items-center">
               <Bell size={18} />
             </Link>
-
             {/* Connect Button */}
             <ConnectButton
               client={client}
-              appMetadata={{ name: "MovieMeter", url: "https://moviemeter.vercel.app" }}
               chain={celoMainnet}
-              accountAbstraction={{
-                chain: celoMainnet,
-                sponsorGas: true,
-              }}
-              supportedTokens={supportedTokens}
+              connectModal={{ showThirdwebBranding: false, size: "compact" }}
+              theme={darkTheme({
+                colors: {
+                  accentText: "hsl(0, 0%, 100%)",
+                  skeletonBg: "hsl(233, 12%, 15%)",
+                  connectedButtonBg: "hsl(228, 12%, 8%)",
+                },
+              })}
+              wallets={wallets}
+              accountAbstraction={{ chain: celoMainnet, sponsorGas: true }}
             />
 
             {/* Mobile Menu Button */}
@@ -295,8 +337,8 @@ export default function Header() {
             <Link href="/tv" className="block py-2 text-zinc-300 hover:text-white">
               TV Shows
             </Link>
-            <Link href="/celebrities" className="block py-2 text-zinc-300 hover:text-white">
-              Celebs
+            <Link href="/leaderboards" className="block py-2 text-zinc-300 hover:text-white">
+              Leaderboards
             </Link>
             <Link href="/watchlist" className="block py-2 text-zinc-300 hover:text-white">
               Watchlist

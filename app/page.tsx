@@ -3,10 +3,37 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ConnectButton } from "thirdweb/react"
-import { client } from "@/app/client"
-import { celoMainnet } from "@/lib/blockchain-service"
-import { supportedTokens } from "@/lib/token-config"
+import { createThirdwebClient } from "thirdweb";
+import { ConnectButton } from "thirdweb/react";
+import { darkTheme } from "thirdweb/react";
+import { inAppWallet, createWallet } from "thirdweb/wallets";
+import { celoMainnet } from "@/lib/blockchain-service";
+const client = createThirdwebClient({
+  clientId: "e56828eab87b58000cb9a78170fac45b",
+});
+
+const wallets = [
+  inAppWallet({
+    auth: {
+      options: [
+        "google",
+        "telegram",
+        "farcaster",
+        "email",
+        "x",
+        "passkey",
+        "phone",
+        "apple",
+      ],
+    },
+    chain: celoMainnet,
+  }),
+  createWallet("io.metamask"),
+  createWallet("com.coinbase.wallet"),
+  createWallet("me.rainbow"),
+  createWallet("io.rabby"),
+  createWallet("io.zerion.wallet"),
+];
 import { motion } from "framer-motion"
 import Header from "@/components/header"
 import PartnersSection from "@/components/partners-section"
@@ -146,13 +173,17 @@ export default function LandingPage() {
           {mounted && (
             <ConnectButton
               client={client}
-              appMetadata={{ name: "MovieMeter", url: "https://moviemeter.io" }}
               chain={celoMainnet}
-              accountAbstraction={{
-                chain: celoMainnet,
-                sponsorGas: true,
-              }}
-              supportedTokens={supportedTokens}
+              connectModal={{ showThirdwebBranding: false, size: "compact" }}
+              theme={darkTheme({
+                colors: {
+                  accentText: "hsl(0, 0%, 100%)",
+                  skeletonBg: "hsl(233, 12%, 15%)",
+                  connectedButtonBg: "hsl(228, 12%, 8%)",
+                },
+              })}
+              wallets={wallets}
+              accountAbstraction={{ chain: celoMainnet, sponsorGas: true }}
             />
           )}
           <button

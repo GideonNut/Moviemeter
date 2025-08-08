@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { ConnectButton, useActiveAccount, useReadContract, useSendTransaction, useContractEvents } from "thirdweb/react"
-import { getContract, defineChain, prepareContractCall } from "thirdweb"
+import { getContract, prepareContractCall } from "thirdweb"
 import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
 import { supportedTokens } from "@/lib/token-config"
@@ -27,45 +27,80 @@ function VoteButtons({
   onVoteSuccess,
 }: any) {
   const [isPending, setIsPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const { mutate: sendTransaction } = useSendTransaction()
-  const contractAddress: string = "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828"
-  const contract = getContract({ client, chain: celoMainnet, address: contractAddress })
+  const account = useActiveAccount()
 
   const handleVote = async (voteType: boolean) => {
     if (hasVoted) return
+    if (!address) {
+      setError("Please connect your wallet to vote")
+      return
+    }
+    
     setIsPending(true)
+    setError(null)
+    
     try {
+      // Debug: Log account info for account abstraction
+      console.log("Account info:", { 
+        address, 
+        movieId, 
+        voteType 
+      })
+      
+      // Optimistically update UI
       setHasVoted(true)
       if (voteType) setVoteCountYes((prev: number) => prev + 1)
       else setVoteCountNo((prev: number) => prev + 1)
 
-      // Send transaction to contract (use numeric movieId)
+      // Create contract instance
+      const contract = getContract({ 
+        client, 
+        chain: celoMainnet, 
+        address: "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828" 
+      })
+
+      // Send transaction to contract using account abstraction
       const transaction = prepareContractCall({
         contract,
         method: "function vote(uint256, bool)",
         params: [BigInt(movieId), voteType],
       })
 
+      console.log("Prepared transaction for account abstraction:", transaction)
+
       await new Promise((resolve, reject) => {
         sendTransaction(transaction, {
-          onSuccess: resolve,
+          onSuccess: (result: any) => {
+            console.log("Account abstraction transaction successful:", result)
+            resolve(result)
+          },
           onError: (err: any) => {
-            console.error("Transaction error:", err)
+            console.error("Account abstraction transaction error:", err)
+            setError(`Transaction failed: ${err.message || 'Unknown error'}`)
             reject(err)
           },
         })
       })
 
       // Save vote to MongoDB (use dbMovieId)
-      await fetch("/api/votes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ movieId: dbMovieId, address, voteType }),
-      })
+      try {
+        await fetch("/api/votes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ movieId: dbMovieId, address, voteType }),
+        })
+      } catch (dbError) {
+        console.error("Failed to save vote to database:", dbError)
+        // Don't fail the entire vote if database save fails
+      }
 
-      onVoteSuccess()
-    } catch (error) {
+      onVoteSuccess?.()
+    } catch (error: any) {
       console.error("Voting failed:", error)
+      setError(`Voting failed: ${error.message || 'Unknown error'}`)
+      // Revert optimistic updates
       setHasVoted(false)
       if (voteType) setVoteCountYes((prev: number) => prev - 1)
       else setVoteCountNo((prev: number) => prev - 1)
@@ -81,23 +116,82 @@ function VoteButtons({
           disabled={isPending || hasVoted}
           className={`flex-1 px-4 py-2 rounded-lg text-white bg-black border-2 border-zinc-700 hover:border-white transition-colors duration-150 ${hasVoted ? "opacity-60" : ""}`}
         >
-          Yes ({voteCountYes})
+          {isPending ? "Processing..." : `Yes (${voteCountYes})`}
         </button>
         <button
           onClick={() => handleVote(false)}
           disabled={isPending || hasVoted}
           className={`flex-1 px-4 py-2 rounded-lg text-white bg-black border-2 border-zinc-700 hover:border-white transition-colors duration-150 ${hasVoted ? "opacity-60" : ""}`}
         >
-          No ({voteCountNo})
+          {isPending ? "Processing..." : `No (${voteCountNo})`}
         </button>
       </div>
-      {hasVoted && <p className="text-sm text-zinc-400">You've already voted on this movie</p>}
+      {hasVoted && <p className="text-base font-medium text-green-500 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-lg border border-green-200 dark:border-green-800">✓ You've already voted on this movie</p>}
+      {error && <p className="text-base font-medium text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg border border-red-200 dark:border-red-800">{error}</p>}
     </div>
   )
 }
 
-const contractAddress: string = "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828"
-const contract = getContract({ client, chain: celoMainnet, address: contractAddress })
+const contractAddress: string = "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828";
+const contractAbi = [
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "movieId", "type": "uint256" },
+      { "indexed": false, "internalType": "address", "name": "voter", "type": "address" },
+      { "indexed": false, "internalType": "bool", "name": "vote", "type": "bool" }
+    ],
+    "name": "Voted",
+    "type": "event"
+  },
+  {
+    "inputs": [ { "internalType": "string", "name": "_title", "type": "string" } ],
+    "name": "addMovie",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [ { "internalType": "uint256", "name": "_movieId", "type": "uint256" } ],
+    "name": "getVotes",
+    "outputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "movieCount",
+    "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ],
+    "name": "movies",
+    "outputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "internalType": "string", "name": "title", "type": "string" },
+      { "internalType": "uint256", "name": "yesVotes", "type": "uint256" },
+      { "internalType": "uint256", "name": "noVotes", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_movieId", "type": "uint256" },
+      { "internalType": "bool", "name": "_vote", "type": "bool" }
+    ],
+    "name": "vote",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+] as const;
+const contract = getContract({ client, chain: celoMainnet, address: contractAddress, abi: contractAbi });
 
 interface Movie {
   id: number

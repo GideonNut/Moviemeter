@@ -59,35 +59,32 @@ export default function Home() {
               chain: celoMainnet,
               sponsorGas: true,
             }}
-            supportedTokens={supportedTokens}
           />
-          {address && (
-            <input
-              type="text"
-              placeholder="Search movies..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="mt-6 p-3 border border-zinc-800 rounded-lg bg-zinc-900 text-white w-full max-w-md focus:outline-none hover:bg-zinc-800"
-            />
-          )}
+          <input
+            type="text"
+            placeholder="Search movies..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="mt-6 p-3 border border-zinc-800 rounded-lg bg-zinc-900 text-white w-full max-w-md focus:outline-none hover:bg-zinc-800"
+          />
+          {address && <MovieCards address={address} searchQuery={searchQuery} />}
         </div>
-        {address && <MovieCards address={address} searchQuery={searchQuery} />}
       </div>
     </main>
   )
 }
 
+      <p className="text-zinc-300 text-base">
+        Your <code className="bg-zinc-800 text-zinc-300 px-2 rounded py-1 text-sm mx-1">Blockchain</code> IMDb.
+      </p>
+    </div>
+  );
+}
+
 function Header() {
   return (
-    <header className="flex flex-col items-center mb-20 md:mb-20">
-      <div className="relative w-[600px] h-[480px] mb-8">
-        <Image src="/mm-logo-new.png" alt="MovieMeter Logo" fill className="object-contain" priority />
-      </div>
-
-      <div className="relative w-full max-w-md mb-6">
-        <Image src="/moviemeter-logo.png" alt="MovieMeter" width={400} height={120} className="mx-auto" priority />
-      </div>
-
+    <header className="flex flex-col items-center mb-10">
+      <h1 className="text-3xl font-bold mb-2 text-white">Moviemeter</h1>
       <p className="text-zinc-300 text-base">
         Your <code className="bg-zinc-800 text-zinc-300 px-2 rounded py-1 text-sm mx-1">Blockchain</code> IMDb.
       </p>
@@ -123,23 +120,24 @@ function MovieCard({ id, title, description, address }: MovieCardProps) {
     contract,
     method: "getVotes",
     params: [id],
-  })
+  });
 
   useEffect(() => {
     if (votes) {
-      setVoteCountYes(votes.yes)
-      setVoteCountNo(votes.no)
-      if (votes.voters.includes(address)) {
-        setHasVoted(true)
-      }
+      // votes is [yesVotes, noVotes] per your ABI
+      const yes = votes[0] as number;
+      const no = votes[1] as number;
+      setVoteCountYes(yes);
+      setVoteCountNo(no);
+      // You may want to check if the user has voted by other means (e.g., backend)
     }
-  }, [votes, address])
+  }, [votes]);
 
   useContractEvents({
     contract,
     events: ["Voted"],
     onEvents: () => refetch(),
-  })
+  });
 
   return (
     <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full text-center">

@@ -1,11 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useActiveAccount } from "thirdweb/react"
+import { useActiveAccount, useSendTransaction } from "thirdweb/react"
+import { prepareContractCall, getContract } from "thirdweb"
 import { Button } from "@/components/ui/button"
 import { ThumbsUp, ThumbsDown } from "lucide-react"
-import { databases, client } from '../lib/appwrite'
+import { databases } from '../lib/appwrite'
 import { Query } from 'appwrite'
+import { celoMainnet } from '@/lib/blockchain-service'
+import { client } from '@/app/client'
 
 interface VoteButtonsProps {
   movieId: string
@@ -19,6 +22,7 @@ export function VoteButtons({ movieId, onVoteSuccess }: VoteButtonsProps) {
   const [error, setError] = useState<string | null>(null)
   const [hasVoted, setHasVoted] = useState(false)
   const [voteCounts, setVoteCounts] = useState({ yes: 0, no: 0 })
+  const { mutate: sendTransaction } = useSendTransaction()
 
   // IDs
   const databaseId = '6863e8de0036e5987040'
@@ -59,7 +63,46 @@ export function VoteButtons({ movieId, onVoteSuccess }: VoteButtonsProps) {
     }
     setError(null)
     setIsVoting(true)
+    
     try {
+      // Debug: Log account info for account abstraction
+      console.log("Account info:", { 
+        address, 
+        movieId, 
+        voteType 
+      })
+      
+      // First, send blockchain transaction using account abstraction
+      const contract = getContract({ 
+        client, 
+        chain: celoMainnet, 
+        address: "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828" 
+      })
+      
+      const transaction = prepareContractCall({
+        contract,
+        method: "function vote(uint256, bool)",
+        params: [BigInt(movieId), voteType],
+      })
+
+      console.log("Prepared transaction for account abstraction:", transaction)
+
+      // Send the transaction - account abstraction will handle gas sponsorship
+      await new Promise((resolve, reject) => {
+        sendTransaction(transaction, {
+          onSuccess: (result: any) => {
+            console.log("Account abstraction transaction successful:", result)
+            resolve(result)
+          },
+          onError: (err: any) => {
+            console.error("Account abstraction transaction error:", err)
+            setError(`Transaction failed: ${err.message || 'Unknown error'}`)
+            reject(err)
+          },
+        })
+      })
+
+      // Then save to Appwrite database
       await databases.createDocument(
         databaseId,
         collectionId,
@@ -71,10 +114,12 @@ export function VoteButtons({ movieId, onVoteSuccess }: VoteButtonsProps) {
           createdAt: new Date().toISOString(),
         }
       )
+      
       if (onVoteSuccess) onVoteSuccess()
       await fetchVotes()
-    } catch (err) {
-      setError("Failed to submit vote. Please try again.")
+    } catch (err: any) {
+      console.error("Vote error details:", err)
+      setError(`Failed to submit vote: ${err.message || 'Unknown error'}`)
     } finally {
       setIsVoting(false)
     }
@@ -90,7 +135,7 @@ export function VoteButtons({ movieId, onVoteSuccess }: VoteButtonsProps) {
           className="flex items-center gap-2"
         >
           <ThumbsUp size={16} />
-          <span>Yes ({voteCounts.yes})</span>
+          <span>{isVoting ? "Processing..." : `Yes (${voteCounts.yes})`}</span>
         </Button>
         <Button
           onClick={() => handleVote(false)}
@@ -99,7 +144,7 @@ export function VoteButtons({ movieId, onVoteSuccess }: VoteButtonsProps) {
           className="flex items-center gap-2"
         >
           <ThumbsDown size={16} />
-          <span>No ({voteCounts.no})</span>
+          <span>{isVoting ? "Processing..." : `No (${voteCounts.no})`}</span>
         </Button>
       </div>
       {hasVoted && <p className="text-green-600 text-sm">You have already voted for this movie.</p>}

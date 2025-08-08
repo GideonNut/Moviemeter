@@ -40,26 +40,55 @@ export async function POST(request: Request) {
     if (!proof || !publicSignals || !address) {
       return NextResponse.json({ error: "Proof, publicSignals, and address are required" }, { status: 400 })
     }
+    
+    // Check if required environment variables are set
+    if (!process.env.CELO_RPC_URL) {
+      console.error("CELO_RPC_URL environment variable is not set")
+      return NextResponse.json({ error: "Server configuration error: CELO_RPC_URL not set" }, { status: 500 })
+    }
+    
+    if (!process.env.SCOPE) {
+      console.error("SCOPE environment variable is not set")
+      return NextResponse.json({ error: "Server configuration error: SCOPE not set" }, { status: 500 })
+    }
+    
+    // Validate that SCOPE matches the expected domain
+    if (process.env.SCOPE !== 'moviemeter.io') {
+      console.error("SCOPE environment variable does not match expected domain")
+      return NextResponse.json({ error: "Server configuration error: Invalid SCOPE" }, { status: 500 })
+    }
+    
     const selfBackendVerifier = new SelfBackendVerifier(
-      process.env.CELO_RPC_URL || '',
-      process.env.SCOPE || ''
+      process.env.CELO_RPC_URL,
+      process.env.SCOPE
     )
+    
     // Optionally configure verification rules here
     const result = await selfBackendVerifier.verify(proof, publicSignals)
     if (result.isValid) {
-      await connectToDatabase()
-      const userId = await getUserIdentifier(publicSignals)
-      await Verification.findOneAndUpdate(
-        { address },
-        { userId, address, isVerified: true, verifiedAt: new Date() },
-        { upsert: true }
-      )
-      return NextResponse.json({ isVerified: true })
+      try {
+        await connectToDatabase()
+        const userId = await getUserIdentifier(publicSignals)
+        await Verification.findOneAndUpdate(
+          { address },
+          { userId, address, isVerified: true, verifiedAt: new Date() },
+          { upsert: true }
+        )
+        return NextResponse.json({ isVerified: true })
+      } catch (dbError) {
+        console.error("Database error during verification:", dbError)
+        return NextResponse.json({ error: "Failed to save verification status" }, { status: 500 })
+      }
     } else {
-      return NextResponse.json({ isVerified: false, details: result.isValidDetails }, { status: 400 })
+      console.error("Verification failed:", result.isValidDetails)
+      return NextResponse.json({ 
+        isVerified: false, 
+        details: result.isValidDetails,
+        error: "Proof verification failed. Please try again." 
+      }, { status: 400 })
     }
   } catch (error) {
     console.error("Error verifying proof:", error)
-    return NextResponse.json({ error: "Failed to verify proof" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to verify proof due to technical issues" }, { status: 500 })
   }
 } 
