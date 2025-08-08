@@ -10,7 +10,8 @@ import { ThemeProvider as NextThemesProvider } from "next-themes"
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <NextThemesProvider attribute="class" defaultTheme="dark">
-      <ThirdwebProvider client={client}>
+      {/* <ThirdwebProvider client={client}> */}
+      <ThirdwebProvider>
         <MovieProvider>{children}</MovieProvider>
       </ThirdwebProvider>
     </NextThemesProvider>
