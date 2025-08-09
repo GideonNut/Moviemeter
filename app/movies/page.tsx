@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ConnectButton, useActiveAccount, useReadContract, useSendTransaction, useContractEvents } from "thirdweb/react"
+import { ConnectButton, useActiveAccount, useReadContract, useSendTransaction, useContractEvents, darkTheme } from "thirdweb/react"
+import { inAppWallet, createWallet } from "thirdweb/wallets"
 import { getContract, prepareContractCall } from "thirdweb"
 import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
@@ -229,6 +230,29 @@ export default function MoviesPage() {
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [streakStats, setStreakStats] = useState<any>(null)
 
+  const wallets = [
+    inAppWallet({
+      auth: {
+        options: [
+          "google",
+          "telegram",
+          "farcaster",
+          "email",
+          "x",
+          "passkey",
+          "phone",
+          "apple",
+        ],
+      },
+      chain: celoMainnet,
+    }),
+    createWallet("io.metamask"),
+    createWallet("com.coinbase.wallet"),
+    createWallet("me.rainbow"),
+    createWallet("io.rabby"),
+    createWallet("io.zerion.wallet"),
+  ]
+
   // Load streak stats for the main page
   useEffect(() => {
     if (address) {
@@ -252,6 +276,15 @@ export default function MoviesPage() {
                 client={client}
                 appMetadata={{ name: "MovieMeter", url: "https://moviemeter.vercel.app" }}
                 chain={celoMainnet}
+                connectModal={{ showThirdwebBranding: false, size: "compact" }}
+                theme={darkTheme({
+                  colors: {
+                    accentText: "hsl(0, 0%, 100%)",
+                    skeletonBg: "hsl(233, 12%, 15%)",
+                    connectedButtonBg: "hsl(228, 12%, 8%)",
+                  },
+                })}
+                wallets={wallets}
                 accountAbstraction={{
                   chain: celoMainnet,
                   sponsorGas: true,
