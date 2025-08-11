@@ -59,7 +59,7 @@ export default function EarnRewardsPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <button
-          onClick={() => router.push("/rewards")}
+          onClick={() => router.back()}
           className="flex items-center text-zinc-400 hover:text-white mb-6"
         >
           <ArrowLeft className="mr-2" /> Back
