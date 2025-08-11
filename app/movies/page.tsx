@@ -374,6 +374,7 @@ function MovieCard({ _id, id, title, description, address, posterUrl }: any) {
   const [voteCountNo, setVoteCountNo] = useState<number>(0)
   const [showFrameLink, setShowFrameLink] = useState(false)
   const [streakStats, setStreakStats] = useState<any>(null)
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false)
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
   const frameUrl = `${baseUrl}/api/frame?id=${dbMovieId}`
 
@@ -420,7 +421,23 @@ function MovieCard({ _id, id, title, description, address, posterUrl }: any) {
         />
       </div>
       <h2 className="text-lg font-semibold mb-2">{title}</h2>
-      <p className="text-sm text-zinc-400 mb-4">{description}</p>
+      <div className="mb-4">
+        <p className="text-sm text-zinc-400">
+          {!isDescriptionExpanded && description && description.length > 110
+            ? `${description.slice(0, 110)}...`
+            : description}
+        </p>
+        {description && description.length > 110 && (
+                     <button
+             type="button"
+             aria-expanded={isDescriptionExpanded}
+             onClick={() => setIsDescriptionExpanded((prev) => !prev)}
+             className="mt-2 text-xs font-medium text-white hover:text-zinc-300"
+           >
+            {isDescriptionExpanded ? "See less" : "See more"}
+          </button>
+        )}
+      </div>
       <VoteButtons
         movieId={contractMovieId}
         dbMovieId={dbMovieId}
