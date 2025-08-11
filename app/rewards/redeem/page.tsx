@@ -235,7 +235,7 @@ export default function RedeemPage() {
     <div className="container mx-auto px-4 py-8 bg-black min-h-screen">
       <div className="max-w-4xl mx-auto">
         <button
-          onClick={() => router.push("/rewards")}
+          onClick={() => router.back()}
           className="flex items-center text-gray-300 hover:text-white mb-6"
         >
           <ArrowLeft className="mr-2" /> Back
