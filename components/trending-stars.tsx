@@ -12,7 +12,7 @@ const trendingStars = [
     name: "Zendaya",
     knownFor: "Dune: Part Two, Challengers",
     // New clean image for Zendaya
-    imageUrl: "https://media.glamour.com/photos/65c3d0412d11d3e62e9d3b4c/master/w_2560%2Cc_limit/1917419497",
+    imageUrl: "https://i.postimg.cc/yd3Wmqwm/zendaya.jpg",
   },
   {
     id: "star2",
@@ -26,7 +26,7 @@ const trendingStars = [
     name: "Florence Pugh",
     knownFor: "Dune: Part Two, Oppenheimer",
     // New clean image for Florence Pugh
-    imageUrl: "https://media.glamour.com/photos/63c5c2398453e73831b69d11/master/w_2560%2Cc_limit/1246133427",
+    imageUrl: "https://i.postimg.cc/8P7DsBgv/florence.jpg",
   },
   {
     id: "star4",
@@ -82,7 +82,7 @@ export default function TrendingStars() {
                     src={star.imageUrl || "/placeholder.svg"}
                     alt={star.name}
                     fill
-                    className="object-cover"
+                    className="object-cover object-top"
                     sizes="(max-width: 768px) 100vw, 33vw"
                     unoptimized // Disable Next.js image optimization to ensure no processing
                   />
