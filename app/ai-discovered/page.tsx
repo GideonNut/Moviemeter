@@ -182,7 +182,7 @@ export default function NewMoviesSection() {
   return (
     <motion.section ref={ref} className="mb-12" {...containerAnimation}>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold">AI-Discovered New Releases</h2>
+        <h2 className="text-2xl font-bold">Recently voted on New releases</h2>
         <div className="flex items-center gap-2">
           <button
             onClick={fetchMovies}
