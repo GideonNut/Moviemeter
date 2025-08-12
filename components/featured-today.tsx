@@ -10,14 +10,14 @@ const featuredContent = [
     id: "sxsw",
     title: "2025 SXSW Film & TV Festival Cheat Sheet",
     description: "See our picks",
-    gradient: "bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500",
+    gradient: "custom-gradient-1",
     type: "list",
   },
   {
     id: "trending-stars",
     title: "Trending: Stars to Watch",
     description: "See the gallery",
-    gradient: "bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600",
+    gradient: "custom-gradient-2",
     type: "photos",
   },
   {
