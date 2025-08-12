@@ -195,10 +195,13 @@ const contractAbi = [
 const contract = getContract({ client, chain: celoMainnet, address: contractAddress, abi: contractAbi });
 
 interface Movie {
+  _id: string
   id: number
   title: string
   description: string
   posterUrl?: string
+  isTVSeries?: boolean
+  createdAt: string
 }
 
 interface MovieCardsProps {
@@ -207,21 +210,8 @@ interface MovieCardsProps {
 }
 
 interface MovieCardProps {
-  id: number
-  title: string
-  description: string
+  movie: Movie
   address: string
-  posterUrl?: string
-}
-
-interface VoteButtonsProps {
-  id: number
-  hasVoted: boolean
-  setHasVoted: (value: boolean) => void
-  voteCountYes: number
-  voteCountNo: number
-  setVoteCountYes: (value: (prev: number) => number) => void
-  setVoteCountNo: (value: (prev: number) => number) => void
 }
 
 export default function MoviesPage() {
@@ -267,7 +257,10 @@ export default function MoviesPage() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col items-center mb-10">
-          <h1 className="text-3xl font-bold mb-6">Vote on Movies</h1>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold mb-6">Vote on Movies</h1>
+            <p className="text-zinc-400 mb-4">Click on any movie to view details and vote</p>
+          </div>
 
           {!address && (
             <div className="bg-zinc-900 p-6 rounded-lg mb-8 text-center">
@@ -322,7 +315,7 @@ export default function MoviesPage() {
 }
 
 function MovieCards({ address, searchQuery }: MovieCardsProps) {
-  const [movies, setMovies] = useState<any[]>([])
+  const [movies, setMovies] = useState<Movie[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -338,7 +331,7 @@ function MovieCards({ address, searchQuery }: MovieCardsProps) {
   }, [])
 
   // Deduplicate movies by title
-  const uniqueMovies: any[] = []
+  const uniqueMovies: Movie[] = []
   const seenTitles = new Set<string>()
   for (const movie of movies) {
     if (movie.title && !seenTitles.has(movie.title)) {
@@ -347,12 +340,21 @@ function MovieCards({ address, searchQuery }: MovieCardsProps) {
     }
   }
 
-  // Only include movies with a year in the title (e.g., '(2025)')
-  const moviesWithYear = uniqueMovies.filter((movie) => /\(\d{4}\)/.test(movie.title))
+  // Only include movies with a year in the title (e.g., '(2025)') and exclude TV series
+  const moviesWithYear = uniqueMovies.filter((movie) => /\(\d{4}\)/.test(movie.title) && movie.isTVSeries !== true)
 
   const filteredMovies = moviesWithYear.filter((movie) => movie.title.toLowerCase().includes(searchQuery.toLowerCase()))
 
-  if (loading) return <div>Loading movies...</div>
+  if (loading) return <div className="text-center py-12">Loading movies...</div>
+
+  if (filteredMovies.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-zinc-400 text-lg">No movies found.</p>
+        <p className="text-zinc-500 text-sm mt-2">Try adjusting your search or add some movies through the admin panel.</p>
+      </div>
+    )
+  }
 
   // Reverse the order so newest movies appear at the top
   const displayMovies = filteredMovies.slice().reverse()
@@ -360,23 +362,21 @@ function MovieCards({ address, searchQuery }: MovieCardsProps) {
   return (
     <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-center">
       {displayMovies.map((movie) => (
-        <MovieCard key={movie._id || movie.id} {...movie} address={address} />
+        <MovieCard key={movie._id || movie.id} movie={movie} address={address} />
       ))}
     </div>
   )
 }
 
-function MovieCard({ _id, id, title, description, address, posterUrl }: any) {
+function MovieCard({ movie, address }: MovieCardProps) {
+  const { _id, id, title, description, posterUrl } = movie
   const contractMovieId = typeof id === 'number' || !isNaN(Number(id)) ? Number(id) : 0;
   const dbMovieId = _id || id;
   const [hasVoted, setHasVoted] = useState<boolean>(false)
   const [voteCountYes, setVoteCountYes] = useState<number>(0)
   const [voteCountNo, setVoteCountNo] = useState<number>(0)
-  const [showFrameLink, setShowFrameLink] = useState(false)
   const [streakStats, setStreakStats] = useState<any>(null)
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false)
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://moviemeter12.vercel.app"
-  const frameUrl = `${baseUrl}/api/frame?id=${dbMovieId}`
 
   // Fetch votes from MongoDB
   useEffect(() => {
@@ -404,23 +404,21 @@ function MovieCard({ _id, id, title, description, address, posterUrl }: any) {
     }
   }, [address])
 
-  const copyFrameLink = () => {
-    navigator.clipboard.writeText(frameUrl)
-    setShowFrameLink(true)
-    setTimeout(() => setShowFrameLink(false), 3000)
-  }
-
   return (
     <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full">
-      <div className="relative aspect-[2/3] mb-4 overflow-hidden rounded-md">
-        <Image
-          src={posterUrl || `/placeholder.svg?height=450&width=300&text=${encodeURIComponent(title)}`}
-          alt={title}
-          fill
-          className="object-cover"
-        />
-      </div>
-      <h2 className="text-lg font-semibold mb-2">{title}</h2>
+      {/* Clickable poster and title area */}
+      <Link href={`/movies/${dbMovieId}`} className="block group">
+        <div className="relative aspect-[2/3] mb-4 overflow-hidden rounded-md">
+          <Image
+            src={posterUrl || `/placeholder.svg?height=450&width=300&text=${encodeURIComponent(title)}`}
+            alt={title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        </div>
+        <h2 className="text-lg font-semibold mb-2 group-hover:text-rose-500 transition-colors">{title}</h2>
+      </Link>
+      
       <div className="mb-4">
         <p className="text-sm text-zinc-400">
           {!isDescriptionExpanded && description && description.length > 110
@@ -428,16 +426,27 @@ function MovieCard({ _id, id, title, description, address, posterUrl }: any) {
             : description}
         </p>
         {description && description.length > 110 && (
-                     <button
-             type="button"
-             aria-expanded={isDescriptionExpanded}
-             onClick={() => setIsDescriptionExpanded((prev) => !prev)}
-             className="mt-2 text-xs font-medium text-white hover:text-zinc-300"
-           >
+          <button
+            type="button"
+            aria-expanded={isDescriptionExpanded}
+            onClick={() => setIsDescriptionExpanded((prev) => !prev)}
+            className="mt-2 text-xs font-medium text-white hover:text-zinc-300"
+          >
             {isDescriptionExpanded ? "See less" : "See more"}
           </button>
         )}
       </div>
+
+      {/* View Details Link */}
+      <div className="mb-4">
+        <Link 
+          href={`/movies/${dbMovieId}`}
+          className="inline-flex items-center text-rose-500 hover:text-rose-400 text-sm font-medium"
+        >
+          View Details →
+        </Link>
+      </div>
+      
       <VoteButtons
         movieId={contractMovieId}
         dbMovieId={dbMovieId}
