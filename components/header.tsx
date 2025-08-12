@@ -95,40 +95,34 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Rewards Dropdown */}
+            {/* TV Shows Dropdown */}
             <div className="relative">
               <button
                 className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2"
                 onClick={(e) => {
                   e.stopPropagation()
-                  handleDropdownToggle("rewards")
+                  handleDropdownToggle("tv")
                 }}
-                onMouseEnter={() => setOpenDropdown("rewards")}
+                onMouseEnter={() => setOpenDropdown("tv")}
               >
-                <Gift size={16} className="mr-1.5" />
-                Rewards <ChevronDown size={14} className="ml-1" />
+                <Tv size={16} className="mr-1.5" />
+                TV Shows <ChevronDown size={14} className="ml-1" />
               </button>
               <div
                 className={`absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg transition-all duration-200 ${
-                  openDropdown === "rewards" ? "opacity-100 visible" : "opacity-0 invisible"
+                  openDropdown === "tv" ? "opacity-100 visible" : "opacity-0 invisible"
                 }`}
                 onMouseLeave={() => setOpenDropdown(null)}
               >
                 <div className="py-1">
-                  <Link href="/rewards/earn" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    Earn Rewards
+                  <Link href="/tv" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                    All Shows
                   </Link>
-                  <Link href="/rewards/redeem" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    Redeem Points
+                  <Link href="/tv/popular" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                    Popular Shows
                   </Link>
-                  <Link href="/rewards/history" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    Reward History
-                  </Link>
-                  <Link href="/rewards/good-voters" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    Good Voters
-                  </Link>
-                  <Link href="/rewards/streak" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    Streak Rewards
+                  <Link href="/tv/upcoming" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                    Upcoming Releases
                   </Link>
                 </div>
               </div>
@@ -167,34 +161,40 @@ export default function Header() {
               </div>
             </div>
 
-            {/* TV Shows Dropdown */}
+            {/* Rewards Dropdown */}
             <div className="relative">
               <button
                 className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2"
                 onClick={(e) => {
                   e.stopPropagation()
-                  handleDropdownToggle("tv")
+                  handleDropdownToggle("rewards")
                 }}
-                onMouseEnter={() => setOpenDropdown("tv")}
+                onMouseEnter={() => setOpenDropdown("rewards")}
               >
-                <Tv size={16} className="mr-1.5" />
-                TV Shows <ChevronDown size={14} className="ml-1" />
+                <Gift size={16} className="mr-1.5" />
+                Rewards <ChevronDown size={14} className="ml-1" />
               </button>
               <div
                 className={`absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg transition-all duration-200 ${
-                  openDropdown === "tv" ? "opacity-100 visible" : "opacity-0 invisible"
+                  openDropdown === "rewards" ? "opacity-100 visible" : "opacity-0 invisible"
                 }`}
                 onMouseLeave={() => setOpenDropdown(null)}
               >
                 <div className="py-1">
-                  <Link href="/tv" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    All Shows
+                  <Link href="/rewards/earn" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                    Earn Rewards
                   </Link>
-                  <Link href="/tv/popular" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    Popular Shows
+                  <Link href="/rewards/redeem" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                    Redeem Points
                   </Link>
-                  <Link href="/tv/upcoming" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    Upcoming Releases
+                  <Link href="/rewards/history" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                    Reward History
+                  </Link>
+                  <Link href="/rewards/good-voters" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                    Good Voters
+                  </Link>
+                  <Link href="/rewards/streak" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                    Streak Rewards
                   </Link>
                 </div>
               </div>
@@ -328,14 +328,14 @@ export default function Header() {
             <Link href="/movies" className="block py-2 text-zinc-300 hover:text-white">
               Movie Votings
             </Link>
-            <Link href="/rewards/earn" className="block py-2 text-zinc-300 hover:text-white">
-              Rewards
+            <Link href="/tv" className="block py-2 text-zinc-300 hover:text-white">
+              TV Shows
             </Link>
             <Link href="/recommendations" className="block py-2 text-zinc-300 hover:text-white">
               AI Recommendations
             </Link>
-            <Link href="/tv" className="block py-2 text-zinc-300 hover:text-white">
-              TV Shows
+            <Link href="/rewards/earn" className="block py-2 text-zinc-300 hover:text-white">
+              Rewards
             </Link>
             <Link href="/leaderboards" className="block py-2 text-zinc-300 hover:text-white">
               Leaderboards
