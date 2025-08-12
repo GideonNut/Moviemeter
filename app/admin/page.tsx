@@ -57,6 +57,7 @@ export default function AdminDashboard() {
   const [movieTitle, setMovieTitle] = useState("")
   const [movieDescription, setMovieDescription] = useState("")
   const [moviePosterUrl, setMoviePosterUrl] = useState("")
+  const [isTVSeries, setIsTVSeries] = useState(false)
   const [addMovieResult, setAddMovieResult] = useState<string | null>(null)
 
   const handleAddMovie = async (e: React.FormEvent) => {
@@ -70,6 +71,7 @@ export default function AdminDashboard() {
           title: movieTitle,
           description: movieDescription,
           posterUrl: moviePosterUrl,
+          isTVSeries: isTVSeries,
         }),
       })
       if (res.ok) {
@@ -77,6 +79,7 @@ export default function AdminDashboard() {
         setMovieTitle("")
         setMovieDescription("")
         setMoviePosterUrl("")
+        setIsTVSeries(false)
       } else {
         setAddMovieResult("Failed to add movie.")
       }
@@ -116,6 +119,18 @@ export default function AdminDashboard() {
               onChange={e => setMoviePosterUrl(e.target.value)}
               className="p-2 rounded bg-zinc-800 text-white border border-zinc-700"
             />
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="isTVSeries"
+                checked={isTVSeries}
+                onChange={e => setIsTVSeries(e.target.checked)}
+                className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label htmlFor="isTVSeries" className="text-zinc-400">
+                This is a TV series
+              </label>
+            </div>
             <button
               type="submit"
               className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
