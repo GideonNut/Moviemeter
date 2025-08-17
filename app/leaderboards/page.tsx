@@ -161,7 +161,7 @@ export default function LeaderboardsPage() {
               <p className="text-red-400 mb-4">{error}</p>
               <button 
                 onClick={fetchLeaderboardData}
-                className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg"
+                className="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-lg"
               >
                 Try Again
               </button>
@@ -202,7 +202,7 @@ export default function LeaderboardsPage() {
               onClick={() => setActiveTab(type.id)}
               className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
                 activeTab === type.id
-                  ? "bg-rose-600 text-white"
+                  ? "bg-white text-zinc-950"
                   : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white"
               }`}
             >
