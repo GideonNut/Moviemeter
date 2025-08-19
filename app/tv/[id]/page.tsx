@@ -1,18 +1,19 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Calendar, Clock } from "lucide-react"
+import { ArrowLeft, Calendar, Clock, MessageCircle } from "lucide-react"
 import { ConnectButton, useActiveAccount, useSendTransaction, darkTheme } from "thirdweb/react"
-import { inAppWallet, createWallet } from "thirdweb/wallets"
 import { getContract, prepareContractCall } from "thirdweb"
 import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
 import { supportedTokens } from "@/lib/token-config"
+import { getAvailableWallets } from "@/lib/wallet-config"
 import Header from "@/components/header"
 import { updateUserStreak, getStreakStats } from "@/lib/streak-service"
 import StreakDisplay from "@/components/streak-display"
+import CommentsSection from "@/components/comments-section"
 
 interface TVShow {
   _id: string
@@ -142,7 +143,8 @@ function VoteButtons({
   )
 }
 
-export default function TVShowDetailPage({ params }: { params: { id: string } }) {
+export default function TVShowDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
   const [tvShow, setTvShow] = useState<TVShow | null>(null)
   const [allTVShows, setAllTVShows] = useState<TVShow[]>([])
   const [loading, setLoading] = useState(true)
@@ -152,29 +154,9 @@ export default function TVShowDetailPage({ params }: { params: { id: string } })
   const [voteCountYes, setVoteCountYes] = useState<number>(0)
   const [voteCountNo, setVoteCountNo] = useState<number>(0)
   const [streakStats, setStreakStats] = useState<any>(null)
+  const [commentCount, setCommentCount] = useState<number>(0)
 
-  const wallets = [
-    inAppWallet({
-      auth: {
-        options: [
-          "google",
-          "telegram",
-          "farcaster",
-          "email",
-          "x",
-          "passkey",
-          "phone",
-          "apple",
-        ],
-      },
-      chain: celoMainnet,
-    }),
-    createWallet("io.metamask"),
-    createWallet("com.coinbase.wallet"),
-    createWallet("me.rainbow"),
-    createWallet("io.rabby"),
-    createWallet("io.zerion.wallet"),
-  ]
+  const wallets = getAvailableWallets()
 
   useEffect(() => {
     async function fetchTVShow() {
@@ -182,7 +164,7 @@ export default function TVShowDetailPage({ params }: { params: { id: string } })
         setLoading(true)
         const res = await fetch(`/api/movies`)
         const allMovies = await res.json()
-        const show = allMovies.find((movie: TVShow) => movie._id === params.id && movie.isTVSeries === true)
+        const show = allMovies.find((movie: TVShow) => movie._id === id && movie.isTVSeries === true)
         setTvShow(show || null)
         
         // Also fetch all TV shows for the related section
@@ -196,7 +178,7 @@ export default function TVShowDetailPage({ params }: { params: { id: string } })
     }
 
     fetchTVShow()
-  }, [params.id])
+  }, [id])
 
   // Fetch votes from MongoDB
   useEffect(() => {
@@ -226,6 +208,25 @@ export default function TVShowDetailPage({ params }: { params: { id: string } })
       setStreakStats(stats)
     }
   }, [address])
+
+  // Fetch comment count
+  useEffect(() => {
+    if (tvShow?._id) {
+      fetchCommentCount()
+    }
+  }, [tvShow?._id])
+
+  const fetchCommentCount = async () => {
+    try {
+      const response = await fetch(`/api/comments?movieId=${tvShow?._id}`)
+      if (response.ok) {
+        const comments = await response.json()
+        setCommentCount(comments.length)
+      }
+    } catch (error) {
+      console.error("Failed to fetch comment count:", error)
+    }
+  }
 
   if (loading) {
     return (
@@ -303,7 +304,15 @@ export default function TVShowDetailPage({ params }: { params: { id: string } })
               <span className="text-zinc-400">TV Series</span>
             </div>
 
-            <h1 className="text-4xl font-bold mb-6">{tvShow.title}</h1>
+            <div className="mb-6">
+              <h1 className="text-4xl font-bold mb-2">{tvShow.title}</h1>
+              <div className="flex items-center gap-4 text-zinc-400">
+                <div className="flex items-center gap-2">
+                  <MessageCircle size={18} />
+                  <span>{commentCount} comment{commentCount !== 1 ? 's' : ''}</span>
+                </div>
+              </div>
+            </div>
             
             <div className="prose prose-invert max-w-none">
               <p className="text-lg text-zinc-300 leading-relaxed mb-6">
@@ -396,6 +405,11 @@ export default function TVShowDetailPage({ params }: { params: { id: string } })
               <p className="text-zinc-400">
                 This is a television series available for streaming. Check your favorite streaming platforms for availability.
               </p>
+            </div>
+
+            {/* Comments Section */}
+            <div className="mt-8">
+              <CommentsSection movieId={tvShow._id} />
             </div>
           </div>
         </div>
