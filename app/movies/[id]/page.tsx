@@ -1,18 +1,19 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Calendar, Clock, Bell, BellOff } from "lucide-react"
+import { ArrowLeft, Calendar, Clock, Bell, BellOff, MessageCircle } from "lucide-react"
 import { ConnectButton, useActiveAccount, useSendTransaction, darkTheme } from "thirdweb/react"
-import { inAppWallet, createWallet } from "thirdweb/wallets"
 import { getContract, prepareContractCall } from "thirdweb"
 import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
 import { supportedTokens } from "@/lib/token-config"
+import { getAvailableWallets } from "@/lib/wallet-config"
 import Header from "@/components/header"
 import { updateUserStreak, getStreakStats } from "@/lib/streak-service"
 import StreakDisplay from "@/components/streak-display"
+import CommentsSection from "@/components/comments-section"
 
 interface Movie {
   _id: string
@@ -143,7 +144,8 @@ function VoteButtons({
   )
 }
 
-export default function MovieDetailPage({ params }: { params: { id: string } }) {
+export default function MovieDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
   const [movie, setMovie] = useState<Movie | null>(null)
   const [allMovies, setAllMovies] = useState<Movie[]>([])
   const [loading, setLoading] = useState(true)
@@ -155,29 +157,9 @@ export default function MovieDetailPage({ params }: { params: { id: string } }) 
   const [streakStats, setStreakStats] = useState<any>(null)
   const [isInWatchlist, setIsInWatchlist] = useState<boolean>(false)
   const [watchlistLoading, setWatchlistLoading] = useState<boolean>(false)
+  const [commentCount, setCommentCount] = useState<number>(0)
 
-  const wallets = [
-    inAppWallet({
-      auth: {
-        options: [
-          "google",
-          "telegram",
-          "farcaster",
-          "email",
-          "x",
-          "passkey",
-          "phone",
-          "apple",
-        ],
-      },
-      chain: celoMainnet,
-    }),
-    createWallet("io.metamask"),
-    createWallet("com.coinbase.wallet"),
-    createWallet("me.rainbow"),
-    createWallet("io.rabby"),
-    createWallet("io.zerion.wallet"),
-  ]
+  const wallets = getAvailableWallets()
 
   useEffect(() => {
     async function fetchMovie() {
@@ -185,7 +167,7 @@ export default function MovieDetailPage({ params }: { params: { id: string } }) 
         setLoading(true)
         const res = await fetch(`/api/movies`)
         const allMovies = await res.json()
-        const foundMovie = allMovies.find((m: Movie) => m._id === params.id && m.isTVSeries !== true)
+        const foundMovie = allMovies.find((m: Movie) => m._id === id && m.isTVSeries !== true)
         setMovie(foundMovie || null)
         
         // Also fetch all movies for the related section
@@ -199,7 +181,7 @@ export default function MovieDetailPage({ params }: { params: { id: string } }) 
     }
 
     fetchMovie()
-  }, [params.id])
+  }, [id])
 
   // Fetch votes from MongoDB
   useEffect(() => {
@@ -273,6 +255,25 @@ export default function MovieDetailPage({ params }: { params: { id: string } }) 
       console.error("Failed to toggle watchlist:", error)
     } finally {
       setWatchlistLoading(false)
+    }
+  }
+
+  // Fetch comment count
+  useEffect(() => {
+    if (movie?._id) {
+      fetchCommentCount()
+    }
+  }, [movie?._id])
+
+  const fetchCommentCount = async () => {
+    try {
+      const response = await fetch(`/api/comments?movieId=${movie?._id}`)
+      if (response.ok) {
+        const comments = await response.json()
+        setCommentCount(comments.length)
+      }
+    } catch (error) {
+      console.error("Failed to fetch comment count:", error)
     }
   }
 
@@ -353,7 +354,15 @@ export default function MovieDetailPage({ params }: { params: { id: string } }) 
             </div>
 
             <div className="flex items-center gap-4 mb-6">
-              <h1 className="text-4xl font-bold">{movie.title}</h1>
+              <div className="flex-1">
+                <h1 className="text-4xl font-bold mb-2">{movie.title}</h1>
+                <div className="flex items-center gap-4 text-zinc-400">
+                  <div className="flex items-center gap-2">
+                    <MessageCircle size={18} />
+                    <span>{commentCount} comment{commentCount !== 1 ? 's' : ''}</span>
+                  </div>
+                </div>
+              </div>
               {address && (
                 <button
                   onClick={toggleWatchlist}
@@ -467,6 +476,11 @@ export default function MovieDetailPage({ params }: { params: { id: string } }) 
               <p className="text-zinc-400">
                 This is a feature film available for viewing. Check your favorite streaming platforms or theaters for availability.
               </p>
+            </div>
+
+            {/* Comments Section */}
+            <div className="mt-8">
+              <CommentsSection movieId={movie._id} />
             </div>
           </div>
         </div>
