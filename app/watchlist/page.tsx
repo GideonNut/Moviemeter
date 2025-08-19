@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Trash2, Bell } from "lucide-react"
+import { ArrowLeft, Trash2, Bell, MessageCircle } from "lucide-react"
 import { useActiveAccount } from "thirdweb/react"
 import Header from "@/components/header"
 
@@ -21,6 +21,7 @@ export default function WatchlistPage() {
   const [watchlist, setWatchlist] = useState<Movie[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({})
   const account = useActiveAccount()
   const address = account?.address
 
@@ -41,6 +42,22 @@ export default function WatchlistPage() {
       }
       const data = await response.json()
       setWatchlist(data)
+      
+      // Fetch comment counts for all movies
+      const counts: Record<string, number> = {}
+      for (const movie of data) {
+        try {
+          const commentResponse = await fetch(`/api/comments?movieId=${movie._id}`)
+          if (commentResponse.ok) {
+            const comments = await commentResponse.json()
+            counts[movie._id] = comments.length
+          }
+        } catch (error) {
+          console.error("Failed to fetch comment count for movie:", movie._id)
+          counts[movie._id] = 0
+        }
+      }
+      setCommentCounts(counts)
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -179,10 +196,16 @@ export default function WatchlistPage() {
                   </p>
                   <div className="flex items-center justify-between text-xs text-zinc-500">
                     <span>{new Date(movie.createdAt).getFullYear()}</span>
-                    <span className="flex items-center gap-1">
-                      <Bell size={14} className="text-rose-500" />
-                      In Watchlist
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1">
+                        <MessageCircle size={14} className="text-zinc-400" />
+                        {commentCounts[movie._id] || 0}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Bell size={14} className="text-rose-500" />
+                        In Watchlist
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
