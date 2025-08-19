@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Star, Filter } from "lucide-react"
+import { Star, Filter, MessageCircle } from "lucide-react"
 import { ConnectButton, useActiveAccount, useSendTransaction, darkTheme } from "thirdweb/react"
-import { inAppWallet, createWallet } from "thirdweb/wallets"
 import { getContract, prepareContractCall } from "thirdweb"
 import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
 import { supportedTokens } from "@/lib/token-config"
+import { getAvailableWallets } from "@/lib/wallet-config"
 import Header from "@/components/header"
 import { updateUserStreak, getStreakStats } from "@/lib/streak-service"
 import StreakDisplay from "@/components/streak-display"
@@ -150,28 +150,7 @@ export default function TVShowsPage() {
   const address: string | undefined = account?.address
   const [streakStats, setStreakStats] = useState<any>(null)
 
-  const wallets = [
-    inAppWallet({
-      auth: {
-        options: [
-          "google",
-          "telegram",
-          "farcaster",
-          "email",
-          "x",
-          "passkey",
-          "phone",
-          "apple",
-        ],
-      },
-      chain: celoMainnet,
-    }),
-    createWallet("io.metamask"),
-    createWallet("com.coinbase.wallet"),
-    createWallet("me.rainbow"),
-    createWallet("io.rabby"),
-    createWallet("io.zerion.wallet"),
-  ]
+  const wallets = getAvailableWallets()
 
   useEffect(() => {
     async function fetchTVShows() {
@@ -301,6 +280,7 @@ function TVShowCard({ show, address }: { show: TVShow; address?: string }) {
   const [voteCountNo, setVoteCountNo] = useState<number>(0)
   const [streakStats, setStreakStats] = useState<any>(null)
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false)
+  const [commentCount, setCommentCount] = useState<number>(0)
 
   // Fetch votes from MongoDB
   useEffect(() => {
@@ -327,6 +307,22 @@ function TVShowCard({ show, address }: { show: TVShow; address?: string }) {
       setStreakStats(stats)
     }
   }, [address])
+
+  // Fetch comment count
+  useEffect(() => {
+    async function fetchCommentCount() {
+      try {
+        const response = await fetch(`/api/comments?movieId=${show._id}`)
+        if (response.ok) {
+          const comments = await response.json()
+          setCommentCount(comments.length)
+        }
+      } catch (error) {
+        console.error("Failed to fetch comment count:", error)
+      }
+    }
+    fetchCommentCount()
+  }, [show._id])
 
   return (
     <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full">
@@ -364,14 +360,18 @@ function TVShowCard({ show, address }: { show: TVShow; address?: string }) {
         {new Date(show.createdAt).getFullYear()}
       </p>
       
-      {/* View Details Link */}
-      <div className="mb-4">
+      {/* View Details Link and Comment Count */}
+      <div className="mb-4 flex items-center justify-between">
         <Link 
           href={`/tv/${show._id}`}
           className="inline-flex items-center text-rose-500 hover:text-rose-400 text-sm font-medium"
         >
           View Details →
         </Link>
+        <div className="flex items-center gap-2 text-zinc-400 text-sm">
+          <MessageCircle size={16} />
+          <span>{commentCount}</span>
+        </div>
       </div>
       
       {address && (
