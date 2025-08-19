@@ -7,49 +7,29 @@ import { Providers } from "./providers"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "MovieMeter - Vote on Movies, Earn Rewards",
-  description: "Vote on your favorite films, earn rewards, and join the decentralized movie community.",
-  keywords: ["movies", "voting", "rewards", "blockchain", "celo", "web3"],
-  authors: [{ name: "MovieMeter Team" }],
-  creator: "MovieMeter",
-  publisher: "MovieMeter",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  metadataBase: new URL("https://moviemeter.vercel.app"),
-  openGraph: {
-    title: "MovieMeter - Vote on Movies, Earn Rewards",
-    description: "Vote on your favorite films, earn rewards, and join the decentralized movie community.",
-    url: "https://moviemeter.vercel.app",
-    siteName: "MovieMeter",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "MovieMeter - Vote on Movies, Earn Rewards",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "MovieMeter - Vote on Movies, Earn Rewards",
-    description: "Vote on your favorite films, earn rewards, and join the decentralized movie community.",
-    images: ["/og-image.png"],
-  },
+  title: "MovieMeter - Vote on Movies",
+  description: "Vote on your favorite movies and earn rewards",
+}
+
+// Global error handler for ethereum conflicts
+if (typeof window !== 'undefined') {
+  window.addEventListener('error', (event) => {
+    if (event.error && event.error.message && 
+        (event.error.message.includes('Cannot redefine property: ethereum') ||
+         event.error.message.includes('ethereum'))) {
+      event.preventDefault()
+      console.warn('Ethereum object conflict detected and handled:', event.error.message)
+    }
+  })
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body className={inter.className}>
         <Providers>{children}</Providers>
       </body>
