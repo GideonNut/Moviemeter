@@ -19,7 +19,9 @@ function VoteButtons({
   movieId,
   dbMovieId,
   hasVoted,
+  userVoteType,
   setHasVoted,
+  setUserVoteType,
   voteCountYes,
   voteCountNo,
   setVoteCountYes,
@@ -52,6 +54,7 @@ function VoteButtons({
       
       // Optimistically update UI
       setHasVoted(true)
+      setUserVoteType(voteType)
       if (voteType) setVoteCountYes((prev: number) => prev + 1)
       else setVoteCountNo((prev: number) => prev + 1)
 
@@ -103,6 +106,7 @@ function VoteButtons({
       setError(`Voting failed: ${error.message || 'Unknown error'}`)
       // Revert optimistic updates
       setHasVoted(false)
+      setUserVoteType(null)
       if (voteType) setVoteCountYes((prev: number) => prev - 1)
       else setVoteCountNo((prev: number) => prev - 1)
     }
@@ -111,23 +115,53 @@ function VoteButtons({
 
   return (
     <div className="flex flex-col items-center gap-3 mt-4">
-      <div className="flex gap-3 w-full">
+      <div className="group">
+        <div className="flex gap-3 w-full">
         <button
           onClick={() => handleVote(true)}
           disabled={isPending || hasVoted}
-          className={`flex-1 px-4 py-2 rounded-lg text-white bg-black border-2 border-zinc-700 hover:border-white transition-colors duration-150 ${hasVoted ? "opacity-60" : ""}`}
-        >
-          {isPending ? "Processing..." : `Yes (${voteCountYes})`}
+                      className={`flex-1 px-4 py-2 rounded-lg text-white transition-colors duration-150 ${
+              hasVoted && userVoteType === true 
+                ? "bg-green-600/70 border-2 border-green-500/70" 
+                : "bg-black border-2 border-zinc-700 hover:border-white"
+            } ${hasVoted ? "opacity-90" : ""}`}
+                  >
+            {isPending ? "Processing..." : (
+              <span className="flex items-center justify-center gap-2">
+                <span>Yes</span>
+                <span className="text-sm opacity-80">({voteCountYes})</span>
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => handleVote(false)}
+            disabled={isPending || hasVoted}
+            className={`flex-1 px-4 py-2 rounded-lg text-white transition-colors duration-150 ${
+              hasVoted && userVoteType === false 
+                ? "bg-red-600/70 border-2 border-red-500/70" 
+                : "bg-black border-2 border-zinc-700 hover:border-white"
+            } ${hasVoted ? "opacity-80" : ""}`}
+          >
+            {isPending ? "Processing..." : (
+              <span className="flex items-center justify-center gap-2">
+                <span>No</span>
+                <span className="text-sm opacity-80">({voteCountNo})</span>
+              </span>
+            )}
         </button>
-        <button
-          onClick={() => handleVote(false)}
-          disabled={isPending || hasVoted}
-          className={`flex-1 px-4 py-2 rounded-lg text-white bg-black border-2 border-zinc-700 hover:border-white transition-colors duration-150 ${hasVoted ? "opacity-60" : ""}`}
-        >
-          {isPending ? "Processing..." : `No (${voteCountNo})`}
-        </button>
+        </div>
+        {hasVoted && (
+          <div className="relative">
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+              <div className="bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap shadow-lg">
+                ✓ You voted <span className="font-bold">{userVoteType ? 'YES' : 'NO'}</span> on this movie
+              </div>
+              {/* Arrow pointing down */}
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-green-600"></div>
+            </div>
+          </div>
+        )}
       </div>
-      {hasVoted && <p className="text-base font-medium text-green-500 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-lg border border-green-200 dark:border-green-800">✓ You've already voted on this movie</p>}
       {error && <p className="text-base font-medium text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg border border-red-200 dark:border-red-800">{error}</p>}
     </div>
   )
@@ -352,6 +386,7 @@ function MovieCard({ movie, address }: MovieCardProps) {
   const contractMovieId = typeof id === 'number' || !isNaN(Number(id)) ? Number(id) : 0;
   const dbMovieId = _id || id;
   const [hasVoted, setHasVoted] = useState<boolean>(false)
+  const [userVoteType, setUserVoteType] = useState<boolean | null>(null)
   const [voteCountYes, setVoteCountYes] = useState<number>(0)
   const [voteCountNo, setVoteCountNo] = useState<number>(0)
   const [streakStats, setStreakStats] = useState<any>(null)
@@ -365,15 +400,19 @@ function MovieCard({ movie, address }: MovieCardProps) {
     async function fetchVotes() {
       const res = await fetch(`/api/votes?movieId=${dbMovieId}`)
       const votes = await res.json()
-      let yes = 0, no = 0, voted = false
+      let yes = 0, no = 0, voted = false, userVote = null
       votes.forEach((vote: any) => {
         if (vote.voteType) yes++
         else no++
-        if (vote.address === address) voted = true
+        if (vote.address === address) {
+          voted = true
+          userVote = vote.voteType
+        }
       })
       setVoteCountYes(yes)
       setVoteCountNo(no)
       setHasVoted(voted)
+      setUserVoteType(userVote)
     }
     if (address) fetchVotes()
   }, [dbMovieId, address])
@@ -522,7 +561,9 @@ function MovieCard({ movie, address }: MovieCardProps) {
         movieId={contractMovieId}
         dbMovieId={dbMovieId}
         hasVoted={hasVoted}
+        userVoteType={userVoteType}
         setHasVoted={setHasVoted}
+        setUserVoteType={setUserVoteType}
         voteCountYes={voteCountYes}
         voteCountNo={voteCountNo}
         setVoteCountYes={setVoteCountYes}
