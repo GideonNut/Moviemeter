@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Calendar, Clock } from "lucide-react"
+import { ArrowLeft, Calendar, Clock, Bell, BellOff } from "lucide-react"
 import { ConnectButton, useActiveAccount, useSendTransaction, darkTheme } from "thirdweb/react"
 import { inAppWallet, createWallet } from "thirdweb/wallets"
 import { getContract, prepareContractCall } from "thirdweb"
@@ -153,6 +153,8 @@ export default function MovieDetailPage({ params }: { params: { id: string } }) 
   const [voteCountYes, setVoteCountYes] = useState<number>(0)
   const [voteCountNo, setVoteCountNo] = useState<number>(0)
   const [streakStats, setStreakStats] = useState<any>(null)
+  const [isInWatchlist, setIsInWatchlist] = useState<boolean>(false)
+  const [watchlistLoading, setWatchlistLoading] = useState<boolean>(false)
 
   const wallets = [
     inAppWallet({
@@ -227,6 +229,52 @@ export default function MovieDetailPage({ params }: { params: { id: string } }) 
       setStreakStats(stats)
     }
   }, [address])
+
+  // Check if movie is in watchlist
+  useEffect(() => {
+    if (address && movie?._id) {
+      checkWatchlistStatus()
+    }
+  }, [address, movie?._id])
+
+  const checkWatchlistStatus = async () => {
+    try {
+      const response = await fetch(`/api/watchlist?address=${address}`)
+      if (response.ok) {
+        const watchlist = await response.json()
+        setIsInWatchlist(watchlist.some((item: any) => item._id === movie?._id))
+      }
+    } catch (error) {
+      console.error("Failed to check watchlist status:", error)
+    }
+  }
+
+  const toggleWatchlist = async () => {
+    if (!address || !movie?._id) return
+    
+    setWatchlistLoading(true)
+    try {
+      if (isInWatchlist) {
+        // Remove from watchlist
+        await fetch(`/api/watchlist?address=${address}&movieId=${movie._id}`, {
+          method: "DELETE",
+        })
+        setIsInWatchlist(false)
+      } else {
+        // Add to watchlist
+        await fetch("/api/watchlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address, movieId: movie._id }),
+        })
+        setIsInWatchlist(true)
+      }
+    } catch (error) {
+      console.error("Failed to toggle watchlist:", error)
+    } finally {
+      setWatchlistLoading(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -304,7 +352,29 @@ export default function MovieDetailPage({ params }: { params: { id: string } }) 
               <span className="text-zinc-400">Movie</span>
             </div>
 
-            <h1 className="text-4xl font-bold mb-6">{movie.title}</h1>
+            <div className="flex items-center gap-4 mb-6">
+              <h1 className="text-4xl font-bold">{movie.title}</h1>
+              {address && (
+                <button
+                  onClick={toggleWatchlist}
+                  disabled={watchlistLoading}
+                  className={`p-3 rounded-full transition-all duration-200 ${
+                    isInWatchlist 
+                      ? 'bg-rose-600 hover:bg-rose-700 text-white' 
+                      : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white'
+                  }`}
+                  title={isInWatchlist ? "Remove from watchlist" : "Add to watchlist"}
+                >
+                  {watchlistLoading ? (
+                    <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : isInWatchlist ? (
+                    <Bell size={24} />
+                  ) : (
+                    <BellOff size={24} />
+                  )}
+                </button>
+              )}
+            </div>
             
             <div className="prose prose-invert max-w-none">
               <p className="text-lg text-zinc-300 leading-relaxed mb-6">
