@@ -10,7 +10,7 @@ import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
 import { supportedTokens } from "@/lib/token-config"
 import Header from "@/components/header"
-import { Share2 } from "lucide-react"
+import { Share2, Bell, BellOff } from "lucide-react"
 import { updateUserStreak, getStreakStats } from "@/lib/streak-service"
 import StreakDisplay from "@/components/streak-display"
 
@@ -377,6 +377,8 @@ function MovieCard({ movie, address }: MovieCardProps) {
   const [voteCountNo, setVoteCountNo] = useState<number>(0)
   const [streakStats, setStreakStats] = useState<any>(null)
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false)
+  const [isInWatchlist, setIsInWatchlist] = useState<boolean>(false)
+  const [watchlistLoading, setWatchlistLoading] = useState<boolean>(false)
 
   // Fetch votes from MongoDB
   useEffect(() => {
@@ -404,6 +406,52 @@ function MovieCard({ movie, address }: MovieCardProps) {
     }
   }, [address])
 
+  // Check if movie is in watchlist
+  useEffect(() => {
+    if (address && dbMovieId) {
+      checkWatchlistStatus()
+    }
+  }, [address, dbMovieId])
+
+  const checkWatchlistStatus = async () => {
+    try {
+      const response = await fetch(`/api/watchlist?address=${address}`)
+      if (response.ok) {
+        const watchlist = await response.json()
+        setIsInWatchlist(watchlist.some((item: any) => item._id === dbMovieId))
+      }
+    } catch (error) {
+      console.error("Failed to check watchlist status:", error)
+    }
+  }
+
+  const toggleWatchlist = async () => {
+    if (!address || !dbMovieId) return
+    
+    setWatchlistLoading(true)
+    try {
+      if (isInWatchlist) {
+        // Remove from watchlist
+        await fetch(`/api/watchlist?address=${address}&movieId=${dbMovieId}`, {
+          method: "DELETE",
+        })
+        setIsInWatchlist(false)
+      } else {
+        // Add to watchlist
+        await fetch("/api/watchlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address, movieId: dbMovieId }),
+        })
+        setIsInWatchlist(true)
+      }
+    } catch (error) {
+      console.error("Failed to toggle watchlist:", error)
+    } finally {
+      setWatchlistLoading(false)
+    }
+  }
+
   return (
     <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full">
       {/* Clickable poster and title area */}
@@ -415,6 +463,29 @@ function MovieCard({ movie, address }: MovieCardProps) {
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
+          {/* Watchlist Bell */}
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              toggleWatchlist()
+            }}
+            disabled={watchlistLoading}
+            className={`absolute top-2 right-2 p-2 rounded-full transition-all duration-200 ${
+              isInWatchlist 
+                ? 'bg-rose-600 hover:bg-rose-700 text-white' 
+                : 'bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-300 hover:text-white'
+            }`}
+            title={isInWatchlist ? "Remove from watchlist" : "Add to watchlist"}
+          >
+            {watchlistLoading ? (
+              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+            ) : isInWatchlist ? (
+              <Bell size={16} />
+            ) : (
+              <BellOff size={16} />
+            )}
+          </button>
         </div>
         <h2 className="text-lg font-semibold mb-2 group-hover:text-rose-500 transition-colors">{title}</h2>
       </Link>
