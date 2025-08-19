@@ -4,13 +4,13 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { ConnectButton, useActiveAccount, useReadContract, useSendTransaction, useContractEvents, darkTheme } from "thirdweb/react"
-import { inAppWallet, createWallet } from "thirdweb/wallets"
 import { getContract, prepareContractCall } from "thirdweb"
 import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
 import { supportedTokens } from "@/lib/token-config"
+import { getAvailableWallets } from "@/lib/wallet-config"
 import Header from "@/components/header"
-import { Share2, Bell, BellOff } from "lucide-react"
+import { Share2, Bell, BellOff, MessageCircle } from "lucide-react"
 import { updateUserStreak, getStreakStats } from "@/lib/streak-service"
 import StreakDisplay from "@/components/streak-display"
 
@@ -220,28 +220,7 @@ export default function MoviesPage() {
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [streakStats, setStreakStats] = useState<any>(null)
 
-  const wallets = [
-    inAppWallet({
-      auth: {
-        options: [
-          "google",
-          "telegram",
-          "farcaster",
-          "email",
-          "x",
-          "passkey",
-          "phone",
-          "apple",
-        ],
-      },
-      chain: celoMainnet,
-    }),
-    createWallet("io.metamask"),
-    createWallet("com.coinbase.wallet"),
-    createWallet("me.rainbow"),
-    createWallet("io.rabby"),
-    createWallet("io.zerion.wallet"),
-  ]
+  const wallets = getAvailableWallets()
 
   // Load streak stats for the main page
   useEffect(() => {
@@ -379,6 +358,7 @@ function MovieCard({ movie, address }: MovieCardProps) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false)
   const [isInWatchlist, setIsInWatchlist] = useState<boolean>(false)
   const [watchlistLoading, setWatchlistLoading] = useState<boolean>(false)
+  const [commentCount, setCommentCount] = useState<number>(0)
 
   // Fetch votes from MongoDB
   useEffect(() => {
@@ -452,6 +432,22 @@ function MovieCard({ movie, address }: MovieCardProps) {
     }
   }
 
+  // Fetch comment count
+  useEffect(() => {
+    async function fetchCommentCount() {
+      try {
+        const response = await fetch(`/api/comments?movieId=${dbMovieId}`)
+        if (response.ok) {
+          const comments = await response.json()
+          setCommentCount(comments.length)
+        }
+      } catch (error) {
+        console.error("Failed to fetch comment count:", error)
+      }
+    }
+    fetchCommentCount()
+  }, [dbMovieId])
+
   return (
     <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full">
       {/* Clickable poster and title area */}
@@ -508,14 +504,18 @@ function MovieCard({ movie, address }: MovieCardProps) {
         )}
       </div>
 
-      {/* View Details Link */}
-      <div className="mb-4">
+      {/* View Details Link and Comment Count */}
+      <div className="mb-4 flex items-center justify-between">
         <Link 
           href={`/movies/${dbMovieId}`}
           className="inline-flex items-center text-rose-500 hover:text-rose-400 text-sm font-medium"
         >
           View Details →
         </Link>
+        <div className="flex items-center gap-2 text-zinc-400 text-sm">
+          <MessageCircle size={16} />
+          <span>{commentCount}</span>
+        </div>
       </div>
       
       <VoteButtons
