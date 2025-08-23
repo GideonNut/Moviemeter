@@ -62,71 +62,17 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            {/* Movie Votings Dropdown */}
-            <div className="relative">
-              <button
-                className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleDropdownToggle("movies")
-                }}
-                onMouseEnter={() => setOpenDropdown("movies")}
-              >
-                <Film size={16} className="mr-1.5" />
-                Movie Votings <ChevronDown size={14} className="ml-1" />
-              </button>
-              <div
-                className={`absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg transition-all duration-200 ${
-                  openDropdown === "movies" ? "opacity-100 visible" : "opacity-0 invisible"
-                }`}
-                onMouseLeave={() => setOpenDropdown(null)}
-              >
-                <div className="py-1">
-                  <Link href="/movies" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    All Movies
-                  </Link>
-                  <Link href="/top-rated" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    Top Rated
-                  </Link>
-                  <Link href="/coming-soon" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    Coming Soon
-                  </Link>
-                </div>
-              </div>
-            </div>
+            {/* Movie Votings Link */}
+            <Link href="/movies" className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2">
+              <Film size={16} className="mr-1.5" />
+              Movie Votings
+            </Link>
 
-            {/* TV Shows Dropdown */}
-            <div className="relative">
-              <button
-                className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleDropdownToggle("tv")
-                }}
-                onMouseEnter={() => setOpenDropdown("tv")}
-              >
-                <Tv size={16} className="mr-1.5" />
-                TV Shows <ChevronDown size={14} className="ml-1" />
-              </button>
-              <div
-                className={`absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg transition-all duration-200 ${
-                  openDropdown === "tv" ? "opacity-100 visible" : "opacity-0 invisible"
-                }`}
-                onMouseLeave={() => setOpenDropdown(null)}
-              >
-                <div className="py-1">
-                  <Link href="/tv" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    All Shows
-                  </Link>
-                  <Link href="/tv/popular" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    Popular Shows
-                  </Link>
-                  <Link href="/tv/upcoming" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    Upcoming Releases
-                  </Link>
-                </div>
-              </div>
-            </div>
+            {/* TV Shows Link */}
+            <Link href="/tv" className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2">
+              <Tv size={16} className="mr-1.5" />
+              TV Shows
+            </Link>
 
             {/* AI Recommendations Dropdown */}
             <div className="relative">
@@ -200,50 +146,11 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Leaderboards Dropdown */}
-            <div className="relative">
-              <button
-                className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleDropdownToggle("celebs")
-                }}
-                onMouseEnter={() => setOpenDropdown("celebs")}
-              >
-                <Trophy size={16} className="mr-1.5" />
-                Leaderboards <ChevronDown size={14} className="ml-1" />
-              </button>
-              <div
-                className={`absolute left-0 mt-1 w-48 bg-zinc-800 rounded-md shadow-lg transition-all duration-200 ${
-                  openDropdown === "celebs" ? "opacity-100 visible" : "opacity-0 invisible"
-                }`}
-                onMouseLeave={() => setOpenDropdown(null)}
-              >
-                <div className="py-1">
-                  <Link href="/leaderboards" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
-                    All Leaderboards
-                  </Link>
-                  <Link
-                    href="/leaderboards/top-voters"
-                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
-                  >
-                    Top Voters
-                  </Link>
-                  <Link
-                    href="/leaderboards/top-earners"
-                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
-                  >
-                    Top Earners
-                  </Link>
-                  <Link
-                    href="/leaderboards/streaks"
-                    className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
-                  >
-                    Longest Streaks
-                  </Link>
-                </div>
-              </div>
-            </div>
+            {/* Leaderboards Link */}
+            <Link href="/leaderboards" className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2">
+              <Trophy size={16} className="mr-1.5" />
+              Leaderboards
+            </Link>
           </nav>
 
           {/* Right Side - Search, Auth & Watchlist */}
