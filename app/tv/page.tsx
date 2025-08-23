@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Star, Filter, MessageCircle } from "lucide-react"
+import { Star, Filter, MessageCircle, Bell, BellOff } from "lucide-react"
 import { ConnectButton, useActiveAccount, useSendTransaction, darkTheme } from "thirdweb/react"
 import { getContract, prepareContractCall } from "thirdweb"
 import { client } from "@/app/client"
@@ -23,12 +23,14 @@ interface TVShow {
   createdAt: string
 }
 
-// VoteButtons component for TV shows
+// Add VoteButtons component back
 function VoteButtons({
   movieId,
   dbMovieId,
   hasVoted,
+  userVoteType,
   setHasVoted,
+  setUserVoteType,
   voteCountYes,
   voteCountNo,
   setVoteCountYes,
@@ -61,6 +63,7 @@ function VoteButtons({
       
       // Optimistically update UI
       setHasVoted(true)
+      setUserVoteType(voteType)
       if (voteType) setVoteCountYes((prev: number) => prev + 1)
       else setVoteCountNo((prev: number) => prev + 1)
 
@@ -112,6 +115,7 @@ function VoteButtons({
       setError(`Voting failed: ${error.message || 'Unknown error'}`)
       // Revert optimistic updates
       setHasVoted(false)
+      setUserVoteType(null)
       if (voteType) setVoteCountYes((prev: number) => prev - 1)
       else setVoteCountNo((prev: number) => prev - 1)
     }
@@ -120,23 +124,53 @@ function VoteButtons({
 
   return (
     <div className="flex flex-col items-center gap-3 mt-4">
-      <div className="flex gap-3 w-full">
+      <div className="group">
+        <div className="flex gap-3 w-full">
         <button
           onClick={() => handleVote(true)}
           disabled={isPending || hasVoted}
-          className={`flex-1 px-4 py-2 rounded-lg text-white bg-black border-2 border-zinc-700 hover:border-white transition-colors duration-150 ${hasVoted ? "opacity-60" : ""}`}
-        >
-          {isPending ? "Processing..." : `Yes (${voteCountYes})`}
+                      className={`flex-1 px-4 py-2 rounded-lg text-white transition-colors duration-150 ${
+              hasVoted && userVoteType === true 
+                ? "bg-green-600/70 border-2 border-green-500/70" 
+                : "bg-black border-2 border-zinc-700 hover:border-white"
+            } ${hasVoted ? "opacity-90" : ""}`}
+                  >
+            {isPending ? "Processing..." : (
+              <span className="flex items-center justify-center gap-2">
+                <span>Yes</span>
+                <span className="text-sm opacity-80">({voteCountYes})</span>
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => handleVote(false)}
+            disabled={isPending || hasVoted}
+            className={`flex-1 px-4 py-2 rounded-lg text-white transition-colors duration-150 ${
+              hasVoted && userVoteType === false 
+                ? "bg-red-600/70 border-2 border-red-500/70" 
+                : "bg-black border-2 border-zinc-700 hover:border-white"
+            } ${hasVoted ? "opacity-80" : ""}`}
+          >
+            {isPending ? "Processing..." : (
+              <span className="flex items-center justify-center gap-2">
+                <span>No</span>
+                <span className="text-sm opacity-80">({voteCountNo})</span>
+              </span>
+            )}
         </button>
-        <button
-          onClick={() => handleVote(false)}
-          disabled={isPending || hasVoted}
-          className={`flex-1 px-4 py-2 rounded-lg text-white bg-black border-2 border-zinc-700 hover:border-white transition-colors duration-150 ${hasVoted ? "opacity-60" : ""}`}
-        >
-          {isPending ? "Processing..." : `No (${voteCountNo})`}
-        </button>
+        </div>
+        {hasVoted && (
+          <div className="relative">
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+              <div className="bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap shadow-lg">
+                ✓ You voted <span className="font-bold">{userVoteType ? 'YES' : 'NO'}</span> on this TV show
+              </div>
+              {/* Arrow pointing down */}
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-green-600"></div>
+            </div>
+          </div>
+        )}
       </div>
-      {hasVoted && <p className="text-base font-medium text-green-500 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-lg border border-green-200 dark:border-green-800">✓ You've already voted on this TV show</p>}
       {error && <p className="text-base font-medium text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg border border-red-200 dark:border-red-800">{error}</p>}
     </div>
   )
@@ -264,11 +298,7 @@ export default function TVShowsPage() {
           </div>
         )}
 
-        {tvShows.length > 0 && (
-          <div className="mt-8 flex justify-center">
-            <button className="bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-6 rounded-md">Load More</button>
-          </div>
-        )}
+
       </div>
     </main>
   )
@@ -276,10 +306,13 @@ export default function TVShowsPage() {
 
 function TVShowCard({ show, address }: { show: TVShow; address?: string }) {
   const [hasVoted, setHasVoted] = useState<boolean>(false)
+  const [userVoteType, setUserVoteType] = useState<boolean | null>(null)
   const [voteCountYes, setVoteCountYes] = useState<number>(0)
   const [voteCountNo, setVoteCountNo] = useState<number>(0)
   const [streakStats, setStreakStats] = useState<any>(null)
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false)
+  const [isInWatchlist, setIsInWatchlist] = useState<boolean>(false)
+  const [watchlistLoading, setWatchlistLoading] = useState<boolean>(false)
   const [commentCount, setCommentCount] = useState<number>(0)
 
   // Fetch votes from MongoDB
@@ -287,15 +320,19 @@ function TVShowCard({ show, address }: { show: TVShow; address?: string }) {
     async function fetchVotes() {
       const res = await fetch(`/api/votes?movieId=${show._id}`)
       const votes = await res.json()
-      let yes = 0, no = 0, voted = false
+      let yes = 0, no = 0, voted = false, userVote = null
       votes.forEach((vote: any) => {
         if (vote.voteType) yes++
         else no++
-        if (vote.address === address) voted = true
+        if (vote.address === address) {
+          voted = true
+          userVote = vote.voteType
+        }
       })
       setVoteCountYes(yes)
       setVoteCountNo(no)
       setHasVoted(voted)
+      setUserVoteType(userVote)
     }
     if (address) fetchVotes()
   }, [show._id, address])
@@ -307,6 +344,52 @@ function TVShowCard({ show, address }: { show: TVShow; address?: string }) {
       setStreakStats(stats)
     }
   }, [address])
+
+  // Check if TV show is in watchlist
+  useEffect(() => {
+    if (address && show._id) {
+      checkWatchlistStatus()
+    }
+  }, [address, show._id])
+
+  const checkWatchlistStatus = async () => {
+    try {
+      const response = await fetch(`/api/watchlist?address=${address}`)
+      if (response.ok) {
+        const watchlist = await response.json()
+        setIsInWatchlist(watchlist.some((item: any) => item._id === show._id))
+      }
+    } catch (error) {
+      console.error("Failed to check watchlist status:", error)
+    }
+  }
+
+  const toggleWatchlist = async () => {
+    if (!address || !show._id) return
+    
+    setWatchlistLoading(true)
+    try {
+      if (isInWatchlist) {
+        // Remove from watchlist
+        await fetch(`/api/watchlist?address=${address}&movieId=${show._id}`, {
+          method: "DELETE",
+        })
+        setIsInWatchlist(false)
+      } else {
+        // Add to watchlist
+        await fetch("/api/watchlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address, movieId: show._id }),
+        })
+        setIsInWatchlist(true)
+      }
+    } catch (error) {
+      console.error("Failed to toggle watchlist:", error)
+    } finally {
+      setWatchlistLoading(false)
+    }
+  }
 
   // Fetch comment count
   useEffect(() => {
@@ -335,6 +418,29 @@ function TVShowCard({ show, address }: { show: TVShow; address?: string }) {
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
+          {/* Watchlist Bell */}
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              toggleWatchlist()
+            }}
+            disabled={watchlistLoading}
+            className={`absolute top-2 right-2 p-2 rounded-full transition-all duration-200 ${
+              isInWatchlist 
+                ? 'bg-rose-600 hover:bg-rose-700 text-white' 
+                : 'bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-300 hover:text-white'
+            }`}
+            title={isInWatchlist ? "Remove from watchlist" : "Add to watchlist"}
+          >
+            {watchlistLoading ? (
+              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+            ) : isInWatchlist ? (
+              <Bell size={16} />
+            ) : (
+              <BellOff size={16} />
+            )}
+          </button>
         </div>
         <h2 className="text-lg font-semibold mb-2 group-hover:text-rose-500 transition-colors">{show.title}</h2>
       </Link>
@@ -356,9 +462,6 @@ function TVShowCard({ show, address }: { show: TVShow; address?: string }) {
           </button>
         )}
       </div>
-      <p className="text-zinc-500 text-xs mb-4">
-        {new Date(show.createdAt).getFullYear()}
-      </p>
       
       {/* View Details Link and Comment Count */}
       <div className="mb-4 flex items-center justify-between">
@@ -379,7 +482,9 @@ function TVShowCard({ show, address }: { show: TVShow; address?: string }) {
           movieId={0} // TV shows don't have contract IDs, so we use 0
           dbMovieId={show._id}
           hasVoted={hasVoted}
+          userVoteType={userVoteType}
           setHasVoted={setHasVoted}
+          setUserVoteType={setUserVoteType}
           voteCountYes={voteCountYes}
           voteCountNo={voteCountNo}
           setVoteCountYes={setVoteCountYes}
