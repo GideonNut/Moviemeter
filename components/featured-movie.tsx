@@ -8,14 +8,14 @@ import VideoPlayer from "./video-player"
 // Sample featured movies data with real images
 const featuredMovies = [
   {
-    id: "final-destination",
-    title: "Final Destination: Bloodlines",
-    description: "Death is coming for a new group of unsuspecting victims in this terrifying new chapter.",
-    trailerUrl: "https://www.youtube.com/embed/EL4sUiPQDrQ",
-    imageUrl: "https://i.ytimg.com/vi/EL4sUiPQDrQ/maxresdefault.jpg",
+    id: "mission-impossible-final-reckoning",
+    title: "Mission: Impossible - The Final Reckoning",
+    description: "Ethan Hunt and his IMF team embark on their most dangerous mission yet, facing a mysterious enemy that threatens all of humanity.",
+    trailerUrl: "https://www.youtube.com/embed/fsQgc9pCyDU",
+    imageUrl: "https://i.postimg.cc/MGNwGPQb/mission-impossible.jpg",
     posterUrl:
-      "https://m.media-amazon.com/images/M/MV5BZDJlYzMyZTctYzBiMi00Y2ZjLTg0MTctMDQ1ZTVhZDQ5ZTI1XkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg",
-    duration: "2:25",
+      "https://m.media-amazon.com/images/M/MV5BNDc0YTQ5NGEtMWQ4OC00NjM2LThmNDAtZTI0MDI5OGYzYjFjXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_.jpg",
+    duration: "2:35",
   },
   {
     id: "dune-2",
@@ -55,9 +55,9 @@ export default function FeaturedMovie() {
     setCurrentIndex((prev) => (prev - 1 + featuredMovies.length) % featuredMovies.length)
   }
 
-  // Set Final Destination: Bloodlines as the default featured movie on initial load
+  // Set Mission: Impossible - The Final Reckoning as the default featured movie on initial load
   useEffect(() => {
-    setCurrentIndex(0) // Index 0 is Final Destination: Bloodlines
+    setCurrentIndex(0) // Index 0 is Mission: Impossible - The Final Reckoning
   }, [])
 
   return (
