@@ -26,7 +26,6 @@ const wallets = [
         "apple",
       ],
     },
-    chain: celoMainnet,
   }),
   createWallet("io.metamask"),
   createWallet("com.coinbase.wallet"),
@@ -150,113 +149,120 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground relative">
-     
+    <div className="min-h-screen w-full relative">
+      {/* Dark Horizon Glow */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          background: "radial-gradient(125% 125% at 50% 10%, #000000 40%, #0d1a36 100%)",
+        }}
+      />
       
-      
-      <header className="container mx-auto px-4 py-6 flex justify-between items-center relative z-10">
-        <div className="flex items-center">
-          {mounted && (
-            <Image
-              src={theme === "dark" ? "/moviemeter-dark.png" : "/logo.png"}
-              alt="MovieMeter"
-              width={180}
-              height={40}
-              className="object-contain"
-            />
-          )}
-          {!mounted && (
-            <div className="w-[180px] h-[40px]" /> // Placeholder to prevent layout shift
-          )}
-        </div>
-        <div className="flex items-center gap-4">
-          {mounted && (
-            <ConnectButton
-              client={client}
-              chain={celoMainnet}
-              connectModal={{ showThirdwebBranding: false, size: "compact" }}
-              theme={darkTheme({
-                colors: {
-                  accentText: "hsl(0, 0%, 100%)",
-                  skeletonBg: "hsl(233, 12%, 15%)",
-                  connectedButtonBg: "hsl(228, 12%, 8%)",
-                },
-              })}
-              wallets={wallets}
-              accountAbstraction={{ chain: celoMainnet, sponsorGas: true }}
-            />
-          )}
-          <button
-            className="p-2 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            aria-label="Toggle theme"
-          >
-            {mounted && (
-              theme === "dark" ? (
-                <Sun size={20} className="text-foreground" />
-              ) : (
-                <Moon size={20} className="text-foreground" />
-              )
-            )}
-          </button>
-        </div>
-      </header>
-
-      <main className="flex-1 flex flex-col items-center justify-center text-center px-4 relative z-10">
-        <motion.div className="max-w-4xl w-full" variants={container} initial="hidden" animate="show">
-          <motion.div variants={item} className="mb-8 flex justify-center">
+      <div className="min-h-screen flex flex-col text-foreground relative">
+        <header className="container mx-auto px-4 py-6 flex justify-between items-center relative z-10">
+          <div className="flex items-center">
             {mounted && (
               <Image
-                src={theme === "dark" ? "/logo-dark.png" : "/mm-logo.png"}
-                alt="MovieMeter Logo"
-                width={320}
-                height={320}
-                className="mb-6"
+                src={theme === "dark" ? "/moviemeter-dark.png" : "/logo.png"}
+                alt="MovieMeter"
+                width={180}
+                height={40}
+                className="object-contain"
               />
             )}
-          </motion.div>
-
-          <motion.h1 variants={item} className="text-4xl md:text-6xl font-bold mb-6 text-foreground">
-            Do you love movies? <br />
-            Do you trust your movie taste? <br />
-            Do you like to earn?
-          </motion.h1>
-
-          <motion.p variants={item} className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-            Vote on your favorite films, earn rewards, and join the decentralized movie community.
-          </motion.p>
-
-          <motion.div variants={item} className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/home"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 py-3 px-8 rounded-full text-base font-medium transition-colors"
+            {!mounted && (
+              <div className="w-[180px] h-[40px]" /> // Placeholder to prevent layout shift
+            )}
+          </div>
+          <div className="flex items-center gap-4">
+            {mounted && (
+              <ConnectButton
+                client={client}
+                chain={celoMainnet}
+                connectModal={{ showThirdwebBranding: false, size: "compact" }}
+                theme={darkTheme({
+                  colors: {
+                    accentText: "hsl(0, 0%, 100%)",
+                    skeletonBg: "hsl(233, 12%, 15%)",
+                    connectedButtonBg: "hsl(228, 12%, 8%)",
+                  },
+                })}
+                wallets={wallets}
+                accountAbstraction={{ chain: celoMainnet, sponsorGas: true }}
+              />
+            )}
+            <button
+              className="p-2 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              aria-label="Toggle theme"
             >
-              Explore
-            </Link>
-            <Link
-              href="/movies"
-              className="bg-transparent border border-border text-foreground hover:bg-accent hover:text-accent-foreground py-3 px-8 rounded-full text-base font-medium transition-colors"
-            >
-              Earn Rewards
-            </Link>
+              {mounted && (
+                theme === "dark" ? (
+                  <Sun size={20} className="text-foreground" />
+                ) : (
+                  <Moon size={20} className="text-foreground" />
+                )
+              )}
+            </button>
+          </div>
+        </header>
+
+        <main className="flex-1 flex flex-col items-center justify-center text-center px-4 relative z-10">
+          <motion.div className="max-w-4xl w-full" variants={container} initial="hidden" animate="show">
+            <motion.div variants={item} className="mb-8 flex justify-center">
+              {mounted && (
+                <Image
+                  src={theme === "dark" ? "/logo-dark.png" : "/mm-logo.png"}
+                  alt="MovieMeter Logo"
+                  width={320}
+                  height={320}
+                  className="mb-6"
+                />
+              )}
+            </motion.div>
+
+            <motion.h1 variants={item} className="text-4xl md:text-6xl font-bold mb-6 text-foreground">
+              Do you love movies? <br />
+              Do you trust your movie taste? <br />
+              Do you like to earn?
+            </motion.h1>
+
+            <motion.p variants={item} className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
+              Vote on your favorite films, earn rewards, and join the decentralized movie community.
+            </motion.p>
+
+            <motion.div variants={item} className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/home"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 py-3 px-8 rounded-full text-base font-medium transition-colors"
+              >
+                Explore
+              </Link>
+              <Link
+                href="/movies"
+                className="bg-transparent border border-border text-foreground hover:bg-accent hover:text-accent-foreground py-3 px-8 rounded-full text-base font-medium transition-colors"
+              >
+                Earn Rewards
+              </Link>
+            </motion.div>
           </motion.div>
-        </motion.div>
-      </main>
+        </main>
 
-      {/* All other sections */}
-      <div className="relative z-10">
-        <PartnersSection />
-        <AnimatedCardBackgroundHover />
-         <EarningProcess />
-        <FAQSection />
-        
-        <footer className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} MovieMeter. All rights reserved.</p>
-        </footer>
+        {/* All other sections */}
+        <div className="relative z-10">
+          <PartnersSection />
+          <AnimatedCardBackgroundHover />
+          <EarningProcess />
+          <FAQSection />
+          
+          <footer className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+            <p>© {new Date().getFullYear()} MovieMeter. All rights reserved.</p>
+          </footer>
 
-        <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-          <button onClick={handlePing}>Send a ping</button>
-          {result && <p>{result}</p>}
+          <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+            <button onClick={handlePing}>Send a ping</button>
+            {result && <p>{result}</p>}
+          </div>
         </div>
       </div>
     </div>
