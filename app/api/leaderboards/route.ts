@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { connectToDatabase } from "../../../lib/mongodb"
 import Vote from "../../../models/Vote"
+import User from "@/models/User"
 import { getVotesFromApillon } from "@/lib/apillon-vote-service"
 
 interface LeaderboardEntry {
@@ -58,7 +59,7 @@ export async function GET(req: NextRequest) {
 		})
 		
 		// Convert to arrays and sort
-		const topVoters = Object.values(userStats)
+		const topVotersBase = Object.values(userStats)
 			.sort((a, b) => b.totalVotes - a.totalVotes)
 			.slice(0, 10)
 			.map((user, index) => ({
@@ -71,7 +72,7 @@ export async function GET(req: NextRequest) {
 				lastVoteDate: user.lastVoteDate
 			}))
 		
-		const longestStreaks = Object.values(userStats)
+		const longestStreaksBase = Object.values(userStats)
 			.sort((a, b) => b.streak - a.streak)
 			.slice(0, 10)
 			.map((user, index) => ({
@@ -81,6 +82,28 @@ export async function GET(req: NextRequest) {
 				totalVotes: user.totalVotes,
 				lastVoteDate: user.lastVoteDate
 			}))
+
+		// Attach nicknames where available
+		const allAddresses = Array.from(new Set([
+			...topVotersBase.map(u => u.address?.toLowerCase?.() || u.address),
+			...longestStreaksBase.map(u => u.address?.toLowerCase?.() || u.address),
+		]))
+		const users = await User.find({ address: { $in: allAddresses } })
+		const addrToNickname: Record<string, string> = {}
+		const addrToPoints: Record<string, number> = {}
+		for (const u of users) {
+			if (u.address && u.nickname) addrToNickname[u.address.toLowerCase()] = u.nickname
+			if (u.address) addrToPoints[u.address.toLowerCase()] = typeof u.points === 'number' ? u.points : 0
+		}
+
+		const withDisplay = (arr: any[]) => arr.map((u) => ({
+			...u,
+			displayName: addrToNickname[u.address.toLowerCase?.() || u.address] || u.address,
+			points: addrToPoints[u.address.toLowerCase?.() || u.address] ?? 0,
+		}))
+
+		const topVoters = withDisplay(topVotersBase)
+		const longestStreaks = withDisplay(longestStreaksBase)
 		
 		return NextResponse.json({
 			topVoters,
