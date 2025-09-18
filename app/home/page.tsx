@@ -10,7 +10,7 @@ import Header from "@/components/header"
 
 export default function HomePage() {
   return (
-    <main className="min-h-[100vh] bg-zinc-950 text-white">
+    <main className="min-h-screen bg-background text-foreground">
       <Header />
 
       <div className="container mx-auto px-4 py-6">
