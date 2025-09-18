@@ -8,6 +8,8 @@ interface LeaderboardData {
 	topVoters: Array<{
 		rank: number
 		address: string
+		displayName?: string
+		points?: number
 		votes: number
 		streak: number
 		yesVotes: number
@@ -17,6 +19,8 @@ interface LeaderboardData {
 	longestStreaks: Array<{
 		rank: number
 		address: string
+		displayName?: string
+		points?: number
 		streak: number
 		totalVotes: number
 		lastVoteDate: string
@@ -137,12 +141,15 @@ export default function LeaderboardsPage() {
 								<table className="w-full">
 									<thead className="bg-zinc-800 border-b border-zinc-700">
 										<tr>
-											<th className="px-6 py-3 text-left text-xs font-medium text-zinc-300 uppercase tracking-wider">
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-300 uppercase tracking-wider">
 												Rank
 											</th>
 											<th className="px-6 py-3 text-left text-xs font-medium text-zinc-300 uppercase tracking-wider">
 												User
 											</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-300 uppercase tracking-wider">
+                                                Points
+                                            </th>
 											<th className="px-6 py-3 text-left text-xs font-medium text-zinc-300 uppercase tracking-wider">
 												{currentLeaderboard.metric === "votes" && "Total Votes"}
 												{currentLeaderboard.metric === "streak" && "Current Streak"}
@@ -167,14 +174,17 @@ export default function LeaderboardsPage() {
 											</tr>
 										)}
 										{!loading && !error && getCurrentLeaderboardData().map((user: any) => (
-											<tr key={`${currentLeaderboard.metric}-${user.address}`} className="border-b border-zinc-800">
+                                            <tr key={`${currentLeaderboard.metric}-${user.address}`} className="border-b border-zinc-800">
 												<td className={`px-6 py-4 whitespace-nowrap font-semibold ${getRankColor(user.rank)}`}>
 													{getRankIcon(user.rank)}
 												</td>
-												<td className="px-6 py-4">
-													<div className="text-sm font-medium text-white">{user.address}</div>
+                                                <td className="px-6 py-4">
+                                                    <div className="text-sm font-medium text-white">{user.displayName || user.address}</div>
 													<div className="text-xs text-zinc-400">Last vote: {user.lastVoteDate}</div>
 												</td>
+                                                <td className="px-6 py-4">
+                                                    <div className="text-sm text-zinc-200">{(user.points ?? 0).toLocaleString()}</div>
+                                                </td>
 												<td className="px-6 py-4">
 													<div className="text-lg font-semibold text-zinc-200">
 														{currentLeaderboard.metric === "votes" && "votes" in user && `${user.votes.toLocaleString()}`}
