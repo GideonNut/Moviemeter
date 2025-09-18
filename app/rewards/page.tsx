@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
+import { useActiveAccount } from "thirdweb/react"
 import Image from "next/image"
 import Link from "next/link"
 import { motion } from "framer-motion"
@@ -19,6 +20,8 @@ interface Reward {
 }
 
 export default function RewardsPage() {
+  const account = useActiveAccount()
+  const [userPoints, setUserPoints] = useState<number | null>(null)
   const [rewards, setRewards] = useState<Reward[]>([])
   const [visibleRewards, setVisibleRewards] = useState<Reward[]>([])
   const [loading, setLoading] = useState(false)
@@ -94,6 +97,20 @@ export default function RewardsPage() {
   }, [])
 
   useEffect(() => {
+    const run = async () => {
+      if (!account?.address) { setUserPoints(null); return }
+      try {
+        const res = await fetch(`/api/user?address=${account.address}`)
+        const data = await res.json()
+        setUserPoints(typeof data?.user?.points === 'number' ? data.user.points : 0)
+      } catch {
+        setUserPoints(0)
+      }
+    }
+    run()
+  }, [account?.address])
+
+  useEffect(() => {
     if (inView) {
       fetchRewards()
     }
@@ -125,6 +142,19 @@ export default function RewardsPage() {
       >
         <ArrowLeft className="mr-2" /> Back
       </button>
+      <div className="mb-6 flex justify-center">
+        {account?.address ? (
+          <div className="w-full max-w-xl rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-sm text-center">
+            <h3 className="text-sm text-zinc-400">Your Points</h3>
+            <div className="mt-1 text-4xl font-semibold tracking-tight">{userPoints === null ? '—' : userPoints?.toLocaleString()}</div>
+            <div className="mt-2 text-xs text-zinc-500">Earn 1 per vote, 2 per comment</div>
+          </div>
+        ) : (
+          <div className="w-full max-w-xl rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-sm text-center text-zinc-400">
+            Connect your wallet to see your points.
+          </div>
+        )}
+      </div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold">Available Rewards</h2>
         <div className="flex items-center gap-2">
@@ -148,7 +178,7 @@ export default function RewardsPage() {
       >
         <div
           ref={scrollContainerRef}
-          className="flex overflow-x-auto pb-4 scrollbar-hide gap-4 scroll-smooth"
+          className="flex overflow-x-auto pb-4 scrollbar-hide gap-4 scroll-smooth blur-sm pointer-events-none select-none"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {visibleRewards.map((reward) => (
@@ -177,6 +207,12 @@ export default function RewardsPage() {
               </Link>
             </div>
           ))}
+        </div>
+        {/* Coming soon overlay */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="rounded-full bg-black/60 px-4 py-2 text-sm text-zinc-200 border border-zinc-700">
+            Rewards coming soon
+          </div>
         </div>
 
         {visibleRewards.length > 3 && (
