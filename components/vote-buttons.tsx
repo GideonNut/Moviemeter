@@ -115,6 +115,17 @@ export function VoteButtons({ movieId, onVoteSuccess }: VoteButtonsProps) {
         }
       )
       
+      // Award points for voting
+      try {
+        await fetch('/api/points', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ address, type: 'vote' }),
+        })
+      } catch (e) {
+        console.warn('Failed to award vote points', e)
+      }
+
       if (onVoteSuccess) onVoteSuccess()
       await fetchVotes()
     } catch (err: any) {
