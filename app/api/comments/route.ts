@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/mongodb"
 import Comment from "@/models/Comment"
+import User from "@/models/User"
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,7 +19,26 @@ export async function GET(request: NextRequest) {
       .sort({ timestamp: -1 })
       .limit(100) // Limit to prevent overwhelming responses
 
-    return NextResponse.json(comments)
+    // Attach displayName for commenters and repliers
+    const addresses = new Set<string>()
+    comments.forEach((c: any) => {
+      addresses.add((c.address || "").toLowerCase())
+      ;(c.replies || []).forEach((r: any) => addresses.add((r.address || "").toLowerCase()))
+    })
+    const users = await User.find({ address: { $in: Array.from(addresses) } })
+    const map: Record<string, string> = {}
+    users.forEach((u: any) => { if (u.nickname) map[u.address.toLowerCase()] = u.nickname })
+
+    const withNames = comments.map((c: any) => ({
+      ...c.toObject(),
+      displayName: map[c.address?.toLowerCase?.() || c.address] || undefined,
+      replies: (c.replies || []).map((r: any) => ({
+        ...r,
+        displayName: map[r.address?.toLowerCase?.() || r.address] || undefined,
+      })),
+    }))
+
+    return NextResponse.json(withNames)
   } catch (error) {
     console.error("Error fetching comments:", error)
     return NextResponse.json({ error: "Failed to fetch comments" }, { status: 500 })
@@ -46,6 +66,17 @@ export async function POST(request: NextRequest) {
     // Create new comment
     const comment = new Comment({ movieId, address, content })
     await comment.save()
+
+    // Award points for commenting
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/points`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address, type: "comment" }),
+      })
+    } catch (e) {
+      console.warn("Failed to award comment points", e)
+    }
 
     return NextResponse.json({ message: "Comment added successfully", comment }, { status: 201 })
   } catch (error) {
