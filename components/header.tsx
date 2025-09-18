@@ -127,7 +127,7 @@ export default function Header() {
                 onMouseLeave={() => setOpenDropdown(null)}
               >
                 <div className="py-1">
-                  <Link href="/rewards/earn" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
+                  <Link href="/rewards" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
                     Earn Rewards
                   </Link>
                   <Link href="/rewards/redeem" className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700">
@@ -241,7 +241,7 @@ export default function Header() {
             <Link href="/recommendations" className="block py-2 text-zinc-300 hover:text-white font-semibold">
               AI Recommendations
             </Link>
-            <Link href="/rewards/earn" className="block py-2 text-zinc-300 hover:text-white font-semibold">
+            <Link href="/rewards" className="block py-2 text-zinc-300 hover:text-white font-semibold">
               Rewards
             </Link>
             <Link href="/leaderboards" className="block py-2 text-zinc-300 hover:text-white font-semibold">
