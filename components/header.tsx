@@ -63,13 +63,13 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             {/* Movie Votings Link */}
-            <Link href="/movies" className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2">
+            <Link href="/movies" className="flex items-center text-zinc-300 hover:text-white text-sm font-semibold py-2">
               <Film size={16} className="mr-1.5" />
               Movie Votings
             </Link>
 
             {/* TV Shows Link */}
-            <Link href="/tv" className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2">
+            <Link href="/tv" className="flex items-center text-zinc-300 hover:text-white text-sm font-semibold py-2">
               <Tv size={16} className="mr-1.5" />
               TV Shows
             </Link>
@@ -77,7 +77,7 @@ export default function Header() {
             {/* AI Recommendations Dropdown */}
             <div className="relative">
               <button
-                className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2"
+                className="flex items-center text-zinc-300 hover:text-white text-sm font-semibold py-2"
                 onClick={(e) => {
                   e.stopPropagation()
                   handleDropdownToggle("ai")
@@ -110,7 +110,7 @@ export default function Header() {
             {/* Rewards Dropdown */}
             <div className="relative">
               <button
-                className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2"
+                className="flex items-center text-zinc-300 hover:text-white text-sm font-semibold py-2"
                 onClick={(e) => {
                   e.stopPropagation()
                   handleDropdownToggle("rewards")
@@ -147,7 +147,7 @@ export default function Header() {
             </div>
 
             {/* Leaderboards Link */}
-            <Link href="/leaderboards" className="flex items-center text-zinc-300 hover:text-white text-sm font-medium py-2">
+            <Link href="/leaderboards" className="flex items-center text-zinc-300 hover:text-white text-sm font-semibold py-2">
               <Trophy size={16} className="mr-1.5" />
               Leaderboards
             </Link>
@@ -232,19 +232,19 @@ export default function Header() {
           </div>
 
           <nav className="px-4 pt-2 pb-4 space-y-1">
-            <Link href="/movies" className="block py-2 text-zinc-300 hover:text-white">
+            <Link href="/movies" className="block py-2 text-zinc-300 hover:text-white font-semibold">
               Movie Votings
             </Link>
-            <Link href="/tv" className="block py-2 text-zinc-300 hover:text-white">
+            <Link href="/tv" className="block py-2 text-zinc-300 hover:text-white font-semibold">
               TV Shows
             </Link>
-            <Link href="/recommendations" className="block py-2 text-zinc-300 hover:text-white">
+            <Link href="/recommendations" className="block py-2 text-zinc-300 hover:text-white font-semibold">
               AI Recommendations
             </Link>
-            <Link href="/rewards/earn" className="block py-2 text-zinc-300 hover:text-white">
+            <Link href="/rewards/earn" className="block py-2 text-zinc-300 hover:text-white font-semibold">
               Rewards
             </Link>
-            <Link href="/leaderboards" className="block py-2 text-zinc-300 hover:text-white">
+            <Link href="/leaderboards" className="block py-2 text-zinc-300 hover:text-white font-semibold">
               Leaderboards
             </Link>
             <Link href="/watchlist" className="block py-2 text-zinc-300 hover:text-white">
