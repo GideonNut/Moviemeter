@@ -8,11 +8,13 @@ interface Comment {
   _id: string
   movieId: string
   address: string
+  displayName?: string
   content: string
   timestamp: string
   likes: string[]
   replies: {
     address: string
+    displayName?: string
     content: string
     timestamp: string
     likes: string[]
@@ -262,7 +264,7 @@ export default function CommentsSection({ movieId }: CommentsSectionProps) {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="font-medium text-zinc-300">{formatAddress(comment.address)}</span>
+                    <span className="font-medium text-zinc-300">{comment.displayName || formatAddress(comment.address)}</span>
                     <span className="text-zinc-500 text-sm">{formatTime(comment.timestamp)}</span>
                   </div>
                   <p className="text-zinc-200 mb-3">{comment.content}</p>
@@ -338,7 +340,7 @@ export default function CommentsSection({ movieId }: CommentsSectionProps) {
                       {comment.replies.map((reply, replyIndex) => (
                         <div key={replyIndex} className="bg-zinc-800 p-3 rounded-lg ml-8">
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="font-medium text-zinc-300 text-sm">{formatAddress(reply.address)}</span>
+                            <span className="font-medium text-zinc-300 text-sm">{reply.displayName || formatAddress(reply.address)}</span>
                             <span className="text-zinc-500 text-xs">{formatTime(reply.timestamp)}</span>
                           </div>
                           <p className="text-zinc-200 text-sm mb-2">{reply.content}</p>
