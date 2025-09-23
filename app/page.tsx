@@ -8,6 +8,17 @@ import { ConnectButton } from "thirdweb/react";
 import { darkTheme } from "thirdweb/react";
 import { inAppWallet, createWallet } from "thirdweb/wallets";
 import { celoMainnet } from "@/lib/blockchain-service";
+import { motion } from "framer-motion"
+import Header from "@/components/header"
+import PartnersSection from "@/components/partners-section"
+import EarningProcess from "@/components/earning-process"
+import FAQSection from "@/components/faq-section"
+import { AnimatedMovies } from "@/components/ui/animatedmovies"
+import { useTheme } from "next-themes"
+import { Sun, Moon, Trophy, Star, Users } from "lucide-react"
+import { AnimatedBackground } from '@/components/motion-primitives/animated-background'
+import { account } from '../lib/appwrite'
+
 const client = createThirdwebClient({
   clientId: "e56828eab87b58000cb9a78170fac45b",
 });
@@ -17,7 +28,7 @@ const wallets = [
     auth: {
       options: [
         "google",
-        "telegram",
+        "telegram", 
         "farcaster",
         "email",
         "x",
@@ -33,15 +44,6 @@ const wallets = [
   createWallet("io.rabby"),
   createWallet("io.zerion.wallet"),
 ];
-import { motion } from "framer-motion"
-import Header from "@/components/header"
-import PartnersSection from "@/components/partners-section"
-import EarningProcess from "@/components/earning-process"
-import FAQSection from "@/components/faq-section"
-import { useTheme } from "next-themes"
-import { Sun, Moon, Trophy, Star, Users } from "lucide-react"
-import { AnimatedBackground } from '@/components/motion-primitives/animated-background'
-import { account } from '../lib/appwrite'
 
 function AnimatedCardBackgroundHover() {
   const ITEMS = [
@@ -113,6 +115,32 @@ export default function LandingPage() {
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
   const [result, setResult] = useState<string | null>(null)
+  const [featuredMovies, setFeaturedMovies] = useState([])
+
+  // Fetch featured movies for the showcase
+  useEffect(() => {
+    const fetchFeaturedMovies = async () => {
+      try {
+        const response = await fetch('/api/movies')
+        const movies = await response.json()
+        
+        // Transform movie data to match AnimatedMovies component format
+        const formattedMovies = movies.slice(0, 5).map((movie: any) => ({
+          quote: movie.description || "A captivating story that will keep you on the edge of your seat.",
+          name: movie.title,
+          designation: `${new Date(movie.createdAt).getFullYear()} • ${movie.isTVSeries ? 'TV Series' : 'Movie'}`,
+          src: movie.posterUrl || "/placeholder-movie.jpg"
+        }))
+        
+        setFeaturedMovies(formattedMovies)
+      } catch (error) {
+        console.error('Failed to fetch movies:', error)
+      
+      }
+    }
+
+    fetchFeaturedMovies()
+  }, [])
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -171,7 +199,7 @@ export default function LandingPage() {
               />
             )}
             {!mounted && (
-              <div className="w-[180px] h-[40px]" /> // Placeholder to prevent layout shift
+              <div className="w-[180px] h-[40px]" />
             )}
           </div>
           <div className="flex items-center gap-4">
@@ -208,15 +236,14 @@ export default function LandingPage() {
         </header>
 
         <main className="flex-1 flex flex-col items-center justify-center text-center px-4 relative z-10">
-          <motion.div className="max-w-4xl w-full" variants={container} initial="hidden" animate="show">
-            <motion.div variants={item} className="mb-8 flex justify-center">
-              {mounted && (
-                <Image
-                  src={theme === "dark" ? "/logo-dark.png" : "/mm-logo.png"}
-                  alt="MovieMeter Logo"
-                  width={320}
-                  height={320}
-                  className="mb-6"
+          <motion.div className="max-w-6xl w-full" variants={container} initial="hidden" animate="show">
+            
+            {/* Featured Movies Showcase */}
+            <motion.div variants={item} className="mb-8">
+              {featuredMovies.length > 0 && (
+                <AnimatedMovies  
+                  testimonials={featuredMovies}
+                  autoplay={true}
                 />
               )}
             </motion.div>
