@@ -74,13 +74,6 @@ export default function Home() {
   )
 }
 
-      <p className="text-zinc-300 text-base">
-        Your <code className="bg-zinc-800 text-zinc-300 px-2 rounded py-1 text-sm mx-1">Blockchain</code> IMDb.
-      </p>
-    </div>
-  );
-}
-
 function Header() {
   return (
     <header className="flex flex-col items-center mb-10">
