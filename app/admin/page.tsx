@@ -300,28 +300,28 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
           <div className="flex items-center gap-4">
-            <div className="flex items-center bg-green-900/20 border border-green-900 px-3 py-1 rounded">
+            <div className="flex items-center bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-900 px-3 py-1 rounded">
               <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-              <span className="text-sm">System Online</span>
+              <span className="text-sm text-green-800 dark:text-green-200">System Online</span>
             </div>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex flex-wrap gap-2 mb-8 border-b border-zinc-800">
+        <div className="flex flex-wrap gap-2 mb-8 border-b border-border">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-t-lg transition-colors ${
                 activeTab === tab.id
-                  ? "bg-zinc-800 text-white border-b-2 border-rose-500"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+                  ? "bg-muted text-foreground border-b-2 border-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               }`}
             >
               <tab.icon size={16} />
@@ -333,15 +333,15 @@ export default function AdminDashboard() {
         {activeTab === "home" && (
           <div className="space-y-8">
             {/* Featured Movies Management */}
-            <div className="bg-zinc-900 p-6 rounded-lg">
+            <div className="bg-card p-6 rounded-lg border">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold flex items-center">
+                <h2 className="text-xl font-semibold flex items-center text-foreground">
                   <Star className="mr-2" />
                   Featured Movies
                 </h2>
                 <button
                   onClick={addFeaturedMovie}
-                  className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded"
+                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded"
                 >
                   <Plus size={16} />
                   Add Movie
@@ -350,12 +350,12 @@ export default function AdminDashboard() {
               
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {featuredMovies.map((movie, index) => (
-                  <div key={movie.id} className="bg-zinc-800 p-4 rounded-lg">
+                  <div key={movie.id} className="bg-muted/50 p-4 rounded-lg border">
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm text-zinc-400">Order: {movie.order}</span>
+                      <span className="text-sm text-muted-foreground">Order: {movie.order}</span>
                       <button
                         onClick={() => removeFeaturedMovie(index)}
-                        className="text-red-400 hover:text-red-300"
+                        className="text-destructive hover:text-destructive/80"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -366,34 +366,34 @@ export default function AdminDashboard() {
                         type="text"
                         value={movie.title}
                         onChange={(e) => updateFeaturedMovie(index, "title", e.target.value)}
-                        className="w-full p-2 bg-zinc-700 text-white rounded border border-zinc-600"
+                        className="w-full p-2 bg-background text-foreground rounded border border-input"
                         placeholder="Movie Title"
                       />
                       <textarea
                         value={movie.description}
                         onChange={(e) => updateFeaturedMovie(index, "description", e.target.value)}
-                        className="w-full p-2 bg-zinc-700 text-white rounded border border-zinc-600 h-20 resize-none"
+                        className="w-full p-2 bg-background text-foreground rounded border border-input h-20 resize-none"
                         placeholder="Movie Description"
                       />
                       <input
                         type="text"
                         value={movie.imageUrl}
                         onChange={(e) => updateFeaturedMovie(index, "imageUrl", e.target.value)}
-                        className="w-full p-2 bg-zinc-700 text-white rounded border border-zinc-600"
+                        className="w-full p-2 bg-background text-foreground rounded border border-input"
                         placeholder="Image URL"
                       />
                       <input
                         type="text"
                         value={movie.trailerUrl}
                         onChange={(e) => updateFeaturedMovie(index, "trailerUrl", e.target.value)}
-                        className="w-full p-2 bg-zinc-700 text-white rounded border border-zinc-600"
+                        className="w-full p-2 bg-background text-foreground rounded border border-input"
                         placeholder="Trailer URL"
                       />
                       <input
                         type="text"
                         value={movie.duration}
                         onChange={(e) => updateFeaturedMovie(index, "duration", e.target.value)}
-                        className="w-full p-2 bg-zinc-700 text-white rounded border border-zinc-600"
+                        className="w-full p-2 bg-background text-foreground rounded border border-input"
                         placeholder="Duration"
                       />
                     </div>
@@ -403,15 +403,15 @@ export default function AdminDashboard() {
             </div>
 
             {/* Featured Today Content */}
-            <div className="bg-zinc-900 p-6 rounded-lg">
+            <div className="bg-card p-6 rounded-lg border">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold flex items-center">
+                <h2 className="text-xl font-semibold flex items-center text-foreground">
                   <TrendingUp className="mr-2" />
                   Featured Today Content
                 </h2>
                 <button
                   onClick={addFeaturedContent}
-                  className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded"
+                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded"
                 >
                   <Plus size={16} />
                   Add Content
@@ -420,12 +420,12 @@ export default function AdminDashboard() {
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {featuredContent.map((content, index) => (
-                  <div key={content.id} className="bg-zinc-800 p-4 rounded-lg">
+                  <div key={content.id} className="bg-muted/50 p-4 rounded-lg border">
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm text-zinc-400">Order: {content.order}</span>
+                      <span className="text-sm text-muted-foreground">Order: {content.order}</span>
                       <button
                         onClick={() => removeFeaturedContent(index)}
-                        className="text-red-400 hover:text-red-300"
+                        className="text-destructive hover:text-destructive/80"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -436,27 +436,27 @@ export default function AdminDashboard() {
                         type="text"
                         value={content.title}
                         onChange={(e) => updateFeaturedContent(index, "title", e.target.value)}
-                        className="w-full p-2 bg-zinc-700 text-white rounded border border-zinc-600"
+                        className="w-full p-2 bg-background text-foreground rounded border border-input"
                         placeholder="Content Title"
                       />
                       <input
                         type="text"
                         value={content.description}
                         onChange={(e) => updateFeaturedContent(index, "description", e.target.value)}
-                        className="w-full p-2 bg-zinc-700 text-white rounded border border-zinc-600"
+                        className="w-full p-2 bg-background text-foreground rounded border border-input"
                         placeholder="Description"
                       />
                       <input
                         type="text"
                         value={content.gradient}
                         onChange={(e) => updateFeaturedContent(index, "gradient", e.target.value)}
-                        className="w-full p-2 bg-zinc-700 text-white rounded border border-zinc-600"
+                        className="w-full p-2 bg-background text-foreground rounded border border-input"
                         placeholder="Gradient CSS Class"
                       />
                       <select
                         value={content.type}
                         onChange={(e) => updateFeaturedContent(index, "type", e.target.value)}
-                        className="w-full p-2 bg-zinc-700 text-white rounded border border-zinc-600"
+                        className="w-full p-2 bg-background text-foreground rounded border border-input"
                       >
                         <option value="list">List</option>
                         <option value="photos">Photos</option>
@@ -468,15 +468,15 @@ export default function AdminDashboard() {
             </div>
 
             {/* Trending Stars */}
-            <div className="bg-zinc-900 p-6 rounded-lg">
+            <div className="bg-card p-6 rounded-lg border">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold flex items-center">
+                <h2 className="text-xl font-semibold flex items-center text-foreground">
                   <Users className="mr-2" />
                   Trending Stars
                 </h2>
                 <button
                   onClick={addTrendingStar}
-                  className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded"
+                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded"
                 >
                   <Plus size={16} />
                   Add Star
@@ -485,12 +485,12 @@ export default function AdminDashboard() {
               
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {trendingStars.map((star, index) => (
-                  <div key={star.id} className="bg-zinc-800 p-4 rounded-lg">
+                  <div key={star.id} className="bg-muted/50 p-4 rounded-lg border">
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm text-zinc-400">Order: {star.order}</span>
+                      <span className="text-sm text-muted-foreground">Order: {star.order}</span>
                       <button
                         onClick={() => removeTrendingStar(index)}
-                        className="text-red-400 hover:text-red-300"
+                        className="text-destructive hover:text-destructive/80"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -501,21 +501,21 @@ export default function AdminDashboard() {
                         type="text"
                         value={star.name}
                         onChange={(e) => updateTrendingStar(index, "name", e.target.value)}
-                        className="w-full p-2 bg-zinc-700 text-white rounded border border-zinc-600"
+                        className="w-full p-2 bg-background text-foreground rounded border border-input"
                         placeholder="Star Name"
                       />
                       <input
                         type="text"
                         value={star.knownFor}
                         onChange={(e) => updateTrendingStar(index, "knownFor", e.target.value)}
-                        className="w-full p-2 bg-zinc-700 text-white rounded border border-zinc-600"
+                        className="w-full p-2 bg-background text-foreground rounded border border-input"
                         placeholder="Known For"
                       />
                       <input
                         type="text"
                         value={star.imageUrl}
                         onChange={(e) => updateTrendingStar(index, "imageUrl", e.target.value)}
-                        className="w-full p-2 bg-zinc-700 text-white rounded border border-zinc-600"
+                        className="w-full p-2 bg-background text-foreground rounded border border-input"
                         placeholder="Image URL"
                       />
                     </div>
@@ -529,55 +529,55 @@ export default function AdminDashboard() {
         {/* Explore Pages Management */}
         {activeTab === "explore" && (
           <div className="space-y-8">
-            <div className="bg-zinc-900 p-6 rounded-lg">
-              <h2 className="text-xl font-semibold mb-6">Explore Pages Settings</h2>
+            <div className="bg-card p-6 rounded-lg border">
+              <h2 className="text-xl font-semibold mb-6 text-foreground">Explore Pages Settings</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-zinc-800 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-3">Movies Page</h3>
-                  <p className="text-zinc-400 text-sm mb-4">Manage movie discovery and voting features</p>
+                <div className="bg-muted/50 p-4 rounded-lg border">
+                  <h3 className="font-semibold mb-3 text-foreground">Movies Page</h3>
+                  <p className="text-muted-foreground text-sm mb-4">Manage movie discovery and voting features</p>
                   <div className="space-y-2">
                     <label className="flex items-center">
                       <input type="checkbox" className="mr-2" defaultChecked />
-                      <span className="text-sm">Enable voting system</span>
+                      <span className="text-sm text-foreground">Enable voting system</span>
                     </label>
                     <label className="flex items-center">
                       <input type="checkbox" className="mr-2" defaultChecked />
-                      <span className="text-sm">Show movie recommendations</span>
+                      <span className="text-sm text-foreground">Show movie recommendations</span>
                     </label>
                     <label className="flex items-center">
                       <input type="checkbox" className="mr-2" />
-                      <span className="text-sm">Enable comments</span>
+                      <span className="text-sm text-foreground">Enable comments</span>
                     </label>
                   </div>
                 </div>
 
-                <div className="bg-zinc-800 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-3">Recommendations Page</h3>
-                  <p className="text-zinc-400 text-sm mb-4">AI-powered movie recommendations</p>
+                <div className="bg-muted/50 p-4 rounded-lg border">
+                  <h3 className="font-semibold mb-3 text-foreground">Recommendations Page</h3>
+                  <p className="text-muted-foreground text-sm mb-4">AI-powered movie recommendations</p>
                   <div className="space-y-2">
                     <label className="flex items-center">
                       <input type="checkbox" className="mr-2" defaultChecked />
-                      <span className="text-sm">Enable AI recommendations</span>
+                      <span className="text-sm text-foreground">Enable AI recommendations</span>
                     </label>
                     <label className="flex items-center">
                       <input type="checkbox" className="mr-2" />
-                      <span className="text-sm">Personalized suggestions</span>
+                      <span className="text-sm text-foreground">Personalized suggestions</span>
                     </label>
                   </div>
                 </div>
 
-                <div className="bg-zinc-800 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-3">Celebrities Page</h3>
-                  <p className="text-zinc-400 text-sm mb-4">Celebrity profiles and information</p>
+                <div className="bg-muted/50 p-4 rounded-lg border">
+                  <h3 className="font-semibold mb-3 text-foreground">Celebrities Page</h3>
+                  <p className="text-muted-foreground text-sm mb-4">Celebrity profiles and information</p>
                   <div className="space-y-2">
                     <label className="flex items-center">
                       <input type="checkbox" className="mr-2" defaultChecked />
-                      <span className="text-sm">Show celebrity profiles</span>
+                      <span className="text-sm text-foreground">Show celebrity profiles</span>
                     </label>
                     <label className="flex items-center">
                       <input type="checkbox" className="mr-2" />
-                      <span className="text-sm">Enable celebrity voting</span>
+                      <span className="text-sm text-foreground">Enable celebrity voting</span>
                     </label>
                   </div>
                 </div>
@@ -590,15 +590,15 @@ export default function AdminDashboard() {
         {activeTab === "movies" && (
           <div className="space-y-8">
             {/* Add Movie Form */}
-            <div className="bg-zinc-900 p-6 rounded-lg">
-              <h2 className="text-xl font-semibold mb-4">Add New Movie</h2>
+            <div className="bg-card p-6 rounded-lg border">
+              <h2 className="text-xl font-semibold mb-4 text-foreground">Add New Movie</h2>
               <form onSubmit={handleAddMovie} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
                   type="text"
                   placeholder="Title"
                   value={movieTitle}
                   onChange={e => setMovieTitle(e.target.value)}
-                  className="p-3 rounded bg-zinc-800 text-white border border-zinc-700"
+                  className="p-3 rounded bg-background text-foreground border border-input"
                   required
                 />
                 <input
@@ -606,13 +606,13 @@ export default function AdminDashboard() {
                   placeholder="Poster URL"
                   value={moviePosterUrl}
                   onChange={e => setMoviePosterUrl(e.target.value)}
-                  className="p-3 rounded bg-zinc-800 text-white border border-zinc-700"
+                  className="p-3 rounded bg-background text-foreground border border-input"
                 />
                 <textarea
                   placeholder="Description"
                   value={movieDescription}
                   onChange={e => setMovieDescription(e.target.value)}
-                  className="p-3 rounded bg-zinc-800 text-white border border-zinc-700 md:col-span-2 h-24 resize-none"
+                  className="p-3 rounded bg-background text-foreground border border-input md:col-span-2 h-24 resize-none"
                   required
                 />
                 <div className="flex items-center md:col-span-2">
@@ -621,9 +621,9 @@ export default function AdminDashboard() {
                     id="isTVSeries"
                     checked={isTVSeries}
                     onChange={e => setIsTVSeries(e.target.checked)}
-                    className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="mr-2 h-4 w-4 text-primary focus:ring-primary border-input rounded"
                   />
-                  <label htmlFor="isTVSeries" className="text-zinc-400">
+                  <label htmlFor="isTVSeries" className="text-muted-foreground">
                     This is a TV series
                   </label>
                 </div>
@@ -633,24 +633,24 @@ export default function AdminDashboard() {
                 >
                   Add Movie
                 </button>
-                {addMovieResult && <div className="text-sm mt-2 md:col-span-2">{addMovieResult}</div>}
+                {addMovieResult && <div className="text-sm mt-2 md:col-span-2 text-foreground">{addMovieResult}</div>}
               </form>
             </div>
 
             {/* AI Agent Controls */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-zinc-900 p-6 rounded-lg">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
+              <div className="bg-card p-6 rounded-lg border">
+                <h2 className="text-xl font-semibold mb-4 flex items-center text-foreground">
                   <Film className="mr-2" /> AI Movie Management
                 </h2>
-                <p className="text-zinc-400 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Use the AI agent to fetch new movies and update existing movie information.
                 </p>
                 <div className="flex flex-col space-y-4">
                   <button
                     onClick={fetchNewMovies}
                     disabled={loading}
-                    className="bg-rose-600 hover:bg-rose-700 text-white py-3 px-4 rounded flex items-center justify-center"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground py-3 px-4 rounded flex items-center justify-center"
                   >
                     {loading ? <RefreshCw className="animate-spin mr-2" /> : <RefreshCw className="mr-2" />}
                     Fetch New Movies
@@ -658,7 +658,7 @@ export default function AdminDashboard() {
                   <button
                     onClick={updateAllMovies}
                     disabled={loading}
-                    className="bg-zinc-800 hover:bg-zinc-700 text-white py-3 px-4 rounded flex items-center justify-center"
+                    className="bg-muted hover:bg-muted/80 text-foreground py-3 px-4 rounded flex items-center justify-center"
                   >
                     {loading ? <Clock className="animate-spin mr-2" /> : <Clock className="mr-2" />}
                     Update All Movie Information
@@ -666,13 +666,13 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="bg-zinc-900 p-6 rounded-lg">
-                <h2 className="text-xl font-semibold mb-4">System Status</h2>
+              <div className="bg-card p-6 rounded-lg border">
+                <h2 className="text-xl font-semibold mb-4 text-foreground">System Status</h2>
                 <div className="flex items-center mb-4">
                   <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                  <span>AI Agent is active and ready</span>
+                  <span className="text-foreground">AI Agent is active and ready</span>
                 </div>
-                <div className="text-sm text-zinc-400 space-y-1">
+                <div className="text-sm text-muted-foreground space-y-1">
                   <p>Last run: 2 hours ago</p>
                   <p>Movies in database: 42</p>
                   <p>New movies added this week: 7</p>
@@ -681,17 +681,21 @@ export default function AdminDashboard() {
 
                 {result && (
                   <div
-                    className={`mt-4 p-3 rounded ${result.success ? "bg-green-900/20 border border-green-900" : "bg-red-900/20 border border-red-900"}`}
+                    className={`mt-4 p-3 rounded border ${
+                      result.success 
+                        ? "bg-green-100 dark:bg-green-900/20 border-green-300 dark:border-green-900" 
+                        : "bg-red-100 dark:bg-red-900/20 border-red-300 dark:border-red-900"
+                    }`}
                   >
                     <div className="flex items-start">
                       {result.success ? (
-                        <div className="w-5 h-5 rounded-full bg-green-500 mr-2 flex items-center justify-center text-xs">
+                        <div className="w-5 h-5 rounded-full bg-green-500 mr-2 flex items-center justify-center text-xs text-white">
                           ✓
                         </div>
                       ) : (
                         <AlertTriangle className="w-5 h-5 text-red-500 mr-2" />
                       )}
-                      <p>{result.message}</p>
+                      <p className={result.success ? "text-green-800 dark:text-green-200" : "text-red-800 dark:text-red-200"}>{result.message}</p>
                     </div>
                   </div>
                 )}
@@ -699,43 +703,43 @@ export default function AdminDashboard() {
             </div>
 
             {/* Scheduled Tasks */}
-            <div className="bg-zinc-900 p-6 rounded-lg">
-              <h2 className="text-xl font-semibold mb-4">Scheduled Tasks</h2>
+            <div className="bg-card p-6 rounded-lg border">
+              <h2 className="text-xl font-semibold mb-4 text-foreground">Scheduled Tasks</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
-                    <tr className="border-b border-zinc-800">
-                      <th className="pb-3">Task</th>
-                      <th className="pb-3">Frequency</th>
-                      <th className="pb-3">Last Run</th>
-                      <th className="pb-3">Next Run</th>
-                      <th className="pb-3">Status</th>
+                    <tr className="border-b border-border">
+                      <th className="pb-3 text-foreground">Task</th>
+                      <th className="pb-3 text-foreground">Frequency</th>
+                      <th className="pb-3 text-foreground">Last Run</th>
+                      <th className="pb-3 text-foreground">Next Run</th>
+                      <th className="pb-3 text-foreground">Status</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-b border-zinc-800">
-                      <td className="py-3">Fetch New Movies</td>
-                      <td>Daily</td>
-                      <td>2024-01-15 08:00</td>
-                      <td>2024-01-16 08:00</td>
+                    <tr className="border-b border-border">
+                      <td className="py-3 text-foreground">Fetch New Movies</td>
+                      <td className="text-muted-foreground">Daily</td>
+                      <td className="text-muted-foreground">2024-01-15 08:00</td>
+                      <td className="text-muted-foreground">2024-01-16 08:00</td>
                       <td>
                         <span className="text-green-500">Active</span>
                       </td>
                     </tr>
-                    <tr className="border-b border-zinc-800">
-                      <td className="py-3">Update Movie Information</td>
-                      <td>Weekly</td>
-                      <td>2024-01-12 10:00</td>
-                      <td>2024-01-19 10:00</td>
+                    <tr className="border-b border-border">
+                      <td className="py-3 text-foreground">Update Movie Information</td>
+                      <td className="text-muted-foreground">Weekly</td>
+                      <td className="text-muted-foreground">2024-01-12 10:00</td>
+                      <td className="text-muted-foreground">2024-01-19 10:00</td>
                       <td>
                         <span className="text-green-500">Active</span>
                       </td>
                     </tr>
                     <tr>
-                      <td className="py-3">Generate Recommendations</td>
-                      <td>Daily</td>
-                      <td>2024-01-15 09:00</td>
-                      <td>2024-01-16 09:00</td>
+                      <td className="py-3 text-foreground">Generate Recommendations</td>
+                      <td className="text-muted-foreground">Daily</td>
+                      <td className="text-muted-foreground">2024-01-15 09:00</td>
+                      <td className="text-muted-foreground">2024-01-16 09:00</td>
                       <td>
                         <span className="text-green-500">Active</span>
                       </td>
@@ -749,23 +753,23 @@ export default function AdminDashboard() {
 
         {/* User Management */}
         {activeTab === "users" && (
-          <div className="bg-zinc-900 p-6 rounded-lg">
-            <h2 className="text-xl font-semibold mb-6">User Management</h2>
+          <div className="bg-card p-6 rounded-lg border">
+            <h2 className="text-xl font-semibold mb-6 text-foreground">User Management</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-zinc-800 p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">Total Users</h3>
-                <p className="text-3xl font-bold text-rose-500">1,234</p>
-                <p className="text-zinc-400 text-sm">+12% this month</p>
+              <div className="bg-muted/50 p-4 rounded-lg border">
+                <h3 className="font-semibold mb-2 text-foreground">Total Users</h3>
+                <p className="text-3xl font-bold text-primary">1,234</p>
+                <p className="text-muted-foreground text-sm">+12% this month</p>
               </div>
-              <div className="bg-zinc-800 p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">Active Users</h3>
+              <div className="bg-muted/50 p-4 rounded-lg border">
+                <h3 className="font-semibold mb-2 text-foreground">Active Users</h3>
                 <p className="text-3xl font-bold text-green-500">892</p>
-                <p className="text-zinc-400 text-sm">+8% this week</p>
+                <p className="text-muted-foreground text-sm">+8% this week</p>
               </div>
-              <div className="bg-zinc-800 p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">Total Votes</h3>
+              <div className="bg-muted/50 p-4 rounded-lg border">
+                <h3 className="font-semibold mb-2 text-foreground">Total Votes</h3>
                 <p className="text-3xl font-bold text-blue-500">5,678</p>
-                <p className="text-zinc-400 text-sm">+23% this month</p>
+                <p className="text-muted-foreground text-sm">+23% this month</p>
               </div>
             </div>
           </div>
@@ -773,46 +777,46 @@ export default function AdminDashboard() {
 
         {/* Settings */}
         {activeTab === "settings" && (
-          <div className="bg-zinc-900 p-6 rounded-lg">
-            <h2 className="text-xl font-semibold mb-6">System Settings</h2>
+          <div className="bg-card p-6 rounded-lg border">
+            <h2 className="text-xl font-semibold mb-6 text-foreground">System Settings</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-zinc-800 p-4 rounded-lg">
-                <h3 className="font-semibold mb-4">General Settings</h3>
+              <div className="bg-muted/50 p-4 rounded-lg border">
+                <h3 className="font-semibold mb-4 text-foreground">General Settings</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm text-zinc-400 mb-2">Site Name</label>
+                    <label className="block text-sm text-muted-foreground mb-2">Site Name</label>
                     <input
                       type="text"
                       defaultValue="MovieMeter"
-                      className="w-full p-2 bg-zinc-700 text-white rounded border border-zinc-600"
+                      className="w-full p-2 bg-background text-foreground rounded border border-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-zinc-400 mb-2">Maintenance Mode</label>
+                    <label className="block text-sm text-muted-foreground mb-2">Maintenance Mode</label>
                     <label className="flex items-center">
                       <input type="checkbox" className="mr-2" />
-                      <span className="text-sm">Enable maintenance mode</span>
+                      <span className="text-sm text-foreground">Enable maintenance mode</span>
                     </label>
                   </div>
                 </div>
               </div>
-              <div className="bg-zinc-800 p-4 rounded-lg">
-                <h3 className="font-semibold mb-4">API Settings</h3>
+              <div className="bg-muted/50 p-4 rounded-lg border">
+                <h3 className="font-semibold mb-4 text-foreground">API Settings</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm text-zinc-400 mb-2">OpenAI API Key</label>
+                    <label className="block text-sm text-muted-foreground mb-2">OpenAI API Key</label>
                     <input
                       type="password"
                       placeholder="sk-..."
-                      className="w-full p-2 bg-zinc-700 text-white rounded border border-zinc-600"
+                      className="w-full p-2 bg-background text-foreground rounded border border-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-zinc-400 mb-2">Rate Limit</label>
+                    <label className="block text-sm text-muted-foreground mb-2">Rate Limit</label>
                     <input
                       type="number"
                       defaultValue="100"
-                      className="w-full p-2 bg-zinc-700 text-white rounded border border-zinc-600"
+                      className="w-full p-2 bg-background text-foreground rounded border border-input"
                     />
                   </div>
                 </div>
