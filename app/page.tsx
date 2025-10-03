@@ -80,18 +80,18 @@ function AnimatedCardBackgroundHover() {
             <div className="rounded-lg bg-white border-[1px] border-gray-200 dark:bg-[#0d0d0d] dark:border-[#ffffff1f] p-12 h-full">
               <div className='flex flex-col select-none items-center gap-6'>
                 {index === 0 && (
-                  <div className="bg-blue-100 dark:bg-white rounded-lg w-14 h-14 flex items-center justify-center ">
-                  <Star className="w-10 h-10 text-blue-800 dark:text-zinc-800 flex-shrink-0" />
+                  <div className="bg-gray-100 dark:bg-white rounded-lg w-14 h-14 flex items-center justify-center ">
+                  <Star className="w-10 h-10 text-gray-800 dark:text-zinc-800 flex-shrink-0" />
                   </div>
                 )}
                 {index === 1 && (
-                  <div className="bg-blue-100 dark:bg-white rounded-lg w-14 h-14 flex items-center justify-center ">
-                  <Trophy className="w-10 h-10 text-blue-800 dark:text-zinc-800 flex-shrink-0" />
+                  <div className="bg-gray-100 dark:bg-white rounded-lg w-14 h-14 flex items-center justify-center ">
+                  <Trophy className="w-10 h-10 text-gray-800 dark:text-zinc-800 flex-shrink-0" />
                   </div>
                 )}
                 {index === 2 && (
-                  <div className="bg-blue-100 dark:bg-white rounded-lg w-14 h-14  flex items-center justify-center ">
-                  <Users className="w-10 h-10 text-blue-800 dark:text-zinc-800 flex-shrink-0" />
+                  <div className="bg-gray-100 dark:bg-white rounded-lg w-14 h-14  flex items-center justify-center ">
+                  <Users className="w-10 h-10 text-gray-800 dark:text-zinc-800 flex-shrink-0" />
                   </div>
                 )}
                 <div className="flex flex-col space-y-2">
@@ -180,7 +180,7 @@ export default function LandingPage() {
     <div className="min-h-screen w-full relative">
       {/* Theme-aware Background */}
       <div
-        className="absolute inset-0 z-0 dark:bg-gradient-to-br dark:from-black dark:via-blue-900/20 dark:to-black bg-gradient-to-br from-gray-50 via-blue-50/30 to-white"
+        className="absolute inset-0 z-0 dark:bg-black bg-gray-100"
       />
       
       <div className="min-h-screen flex flex-col text-foreground relative">
