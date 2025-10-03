@@ -140,6 +140,14 @@ export default function AdminDashboard() {
     }
   ])
 
+  // Hero section state
+  const [heroContent, setHeroContent] = useState({
+    title: "Do you love movies?\nDo you trust your movie taste?\nDo you like to earn?",
+    description: "Vote on your favorite films, earn rewards, and join the decentralized movie community.",
+    exploreButtonText: "Explore",
+    earnButtonText: "Earn Rewards"
+  })
+
   // Movie adding form state
   const [movieTitle, setMovieTitle] = useState("")
   const [movieDescription, setMovieDescription] = useState("")
@@ -332,6 +340,61 @@ export default function AdminDashboard() {
         {/* Home Page Management */}
         {activeTab === "home" && (
           <div className="space-y-8">
+            {/* Hero Section Management */}
+            <div className="bg-card p-6 rounded-lg border">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold flex items-center text-foreground">
+                  <Settings className="mr-2" />
+                  Hero Section
+                </h2>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-2">Hero Title</label>
+                    <textarea
+                      value={heroContent.title}
+                      onChange={(e) => setHeroContent({...heroContent, title: e.target.value})}
+                      className="w-full p-3 bg-background text-foreground rounded border border-input h-24 resize-none"
+                      placeholder="Enter hero title (use \n for line breaks)"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-2">Hero Description</label>
+                    <textarea
+                      value={heroContent.description}
+                      onChange={(e) => setHeroContent({...heroContent, description: e.target.value})}
+                      className="w-full p-3 bg-background text-foreground rounded border border-input h-20 resize-none"
+                      placeholder="Enter hero description"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-2">Explore Button Text</label>
+                    <input
+                      type="text"
+                      value={heroContent.exploreButtonText}
+                      onChange={(e) => setHeroContent({...heroContent, exploreButtonText: e.target.value})}
+                      className="w-full p-3 bg-background text-foreground rounded border border-input"
+                      placeholder="Enter explore button text"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-2">Earn Rewards Button Text</label>
+                    <input
+                      type="text"
+                      value={heroContent.earnButtonText}
+                      onChange={(e) => setHeroContent({...heroContent, earnButtonText: e.target.value})}
+                      className="w-full p-3 bg-background text-foreground rounded border border-input"
+                      placeholder="Enter earn rewards button text"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Featured Movies Management */}
             <div className="bg-card p-6 rounded-lg border">
               <div className="flex items-center justify-between mb-6">
