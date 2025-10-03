@@ -235,16 +235,6 @@ export default function LandingPage() {
         <main className="flex-1 flex flex-col items-center justify-center text-center px-4 relative z-10">
           <motion.div className="max-w-6xl w-full" variants={container} initial="hidden" animate="show">
             
-            {/* Featured Movies Showcase */}
-            <motion.div variants={item} className="mb-8">
-              {featuredMovies.length > 0 && (
-                <AnimatedMovies  
-                  testimonials={featuredMovies}
-                  autoplay={true}
-                />
-              )}
-            </motion.div>
-
             <motion.h1 variants={item} className="text-4xl md:text-6xl font-bold mb-6 text-foreground">
               Do you love movies? <br />
               Do you trust your movie taste? <br />
@@ -255,7 +245,7 @@ export default function LandingPage() {
               Vote on your favorite films, earn rewards, and join the decentralized movie community.
             </motion.p>
 
-            <motion.div variants={item} className="flex flex-col sm:flex-row gap-4 justify-center">
+            <motion.div variants={item} className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Link
                 href="/home"
                 className="bg-primary text-primary-foreground hover:bg-primary/90 py-3 px-8 rounded-full text-base font-medium transition-colors"
@@ -268,6 +258,16 @@ export default function LandingPage() {
               >
                 Earn Rewards
               </Link>
+            </motion.div>
+
+            {/* Featured Movies Showcase */}
+            <motion.div variants={item} className="mb-8">
+              {featuredMovies.length > 0 && (
+                <AnimatedMovies  
+                  testimonials={featuredMovies}
+                  autoplay={true}
+                />
+              )}
             </motion.div>
           </motion.div>
         </main>
