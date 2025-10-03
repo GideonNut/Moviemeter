@@ -369,8 +369,8 @@ function MovieCards({ address, searchQuery }: MovieCardsProps) {
     )
   }
 
-  // Reverse the order so newest movies appear at the top
-  const displayMovies = filteredMovies.slice().reverse()
+  // Movies are already sorted by newest first from the API
+  const displayMovies = filteredMovies
 
   return (
     <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-center">
