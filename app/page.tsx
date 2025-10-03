@@ -77,21 +77,21 @@ function AnimatedCardBackgroundHover() {
             }}
             enableHover
           >
-            <div className="rounded-lg bg-zinc-100 border-[1px] border-[#ffffff1f] dark:bg-[#0d0d0d] p-12 h-full">
+            <div className="rounded-lg bg-white border-[1px] border-gray-200 dark:bg-[#0d0d0d] dark:border-[#ffffff1f] p-12 h-full">
               <div className='flex flex-col select-none items-center gap-6'>
                 {index === 0 && (
-                  <div className="bg-white rounded-lg w-14 h-14 flex items-center justify-center ">
-                  <Star className="w-10 h-10 text-zinc-800 dark:text-zinc-800 flex-shrink-0" />
+                  <div className="bg-blue-100 dark:bg-white rounded-lg w-14 h-14 flex items-center justify-center ">
+                  <Star className="w-10 h-10 text-blue-800 dark:text-zinc-800 flex-shrink-0" />
                   </div>
                 )}
                 {index === 1 && (
-                  <div className="bg-white rounded-lg w-14 h-14 flex items-center justify-center ">
-                  <Trophy className="w-10 h-10 text-zinc-800 dark:text-zinc-800 flex-shrink-0" />
+                  <div className="bg-blue-100 dark:bg-white rounded-lg w-14 h-14 flex items-center justify-center ">
+                  <Trophy className="w-10 h-10 text-blue-800 dark:text-zinc-800 flex-shrink-0" />
                   </div>
                 )}
                 {index === 2 && (
-                  <div className="bg-white rounded-lg w-14 h-14  flex items-center justify-center ">
-                  <Users className="w-10 h-10 text-zinc-800 dark:text-zinc-800 flex-shrink-0" />
+                  <div className="bg-blue-100 dark:bg-white rounded-lg w-14 h-14  flex items-center justify-center ">
+                  <Users className="w-10 h-10 text-blue-800 dark:text-zinc-800 flex-shrink-0" />
                   </div>
                 )}
                 <div className="flex flex-col space-y-2">
@@ -178,12 +178,9 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen w-full relative">
-      {/* Dark Horizon Glow */}
+      {/* Theme-aware Background */}
       <div
-        className="absolute inset-0 z-0"
-        style={{
-          background: "radial-gradient(125% 125% at 50% 10%, #000000 40%, #0d1a36 100%)",
-        }}
+        className="absolute inset-0 z-0 dark:bg-gradient-to-br dark:from-black dark:via-blue-900/20 dark:to-black bg-gradient-to-br from-gray-50 via-blue-50/30 to-white"
       />
       
       <div className="min-h-screen flex flex-col text-foreground relative">
@@ -204,17 +201,17 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-4">
             {mounted && (
-              <ConnectButton
+                <ConnectButton
                 client={client}
                 chain={celoMainnet}
                 connectModal={{ showThirdwebBranding: false, size: "compact" }}
-                theme={darkTheme({
+                theme={theme === "dark" ? darkTheme({
                   colors: {
                     accentText: "hsl(0, 0%, 100%)",
                     skeletonBg: "hsl(233, 12%, 15%)",
                     connectedButtonBg: "hsl(228, 12%, 8%)",
                   },
-                })}
+                }) : undefined}
                 wallets={wallets}
                 accountAbstraction={{ chain: celoMainnet, sponsorGas: true }}
               />
