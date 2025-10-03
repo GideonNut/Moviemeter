@@ -9,11 +9,13 @@ import { ConnectButton } from "thirdweb/react";
 import { darkTheme } from "thirdweb/react";
 import { inAppWallet, createWallet } from "thirdweb/wallets";
 import { celoMainnet } from "@/lib/blockchain-service";
+import { useTheme } from "next-themes";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [showSearch, setShowSearch] = useState(false)
+  const { theme } = useTheme()
   
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const client = createThirdwebClient({
@@ -190,13 +192,13 @@ export default function Header() {
               client={client}
               chain={celoMainnet}
               connectModal={{ showThirdwebBranding: false, size: "compact" }}
-              theme={darkTheme({
+              theme={theme === "dark" ? darkTheme({
                 colors: {
                   accentText: "hsl(0, 0%, 100%)",
                   skeletonBg: "hsl(233, 12%, 15%)",
                   connectedButtonBg: "hsl(228, 12%, 8%)",
                 },
-              })}
+              }) : undefined}
               wallets={wallets}
               accountAbstraction={{ chain: celoMainnet, sponsorGas: true }}
             />
