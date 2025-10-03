@@ -116,14 +116,6 @@ export default function LandingPage() {
   const { theme, setTheme } = useTheme()
   const [result, setResult] = useState<string | null>(null)
   const [featuredMovies, setFeaturedMovies] = useState([])
-  
-  // Hero content state
-  const [heroContent, setHeroContent] = useState({
-    title: "Do you love movies?\nDo you trust your movie taste?\nDo you like to earn?",
-    description: "Vote on your favorite films, earn rewards, and join the decentralized movie community.",
-    exploreButtonText: "Explore",
-    earnButtonText: "Earn Rewards"
-  })
 
   // Fetch featured movies for the showcase
   useEffect(() => {
@@ -244,16 +236,13 @@ export default function LandingPage() {
           <motion.div className="max-w-6xl w-full" variants={container} initial="hidden" animate="show">
             
             <motion.h1 variants={item} className="text-4xl md:text-6xl font-bold mb-6 text-foreground">
-              {heroContent.title.split('\n').map((line, index) => (
-                <span key={index}>
-                  {line}
-                  {index < heroContent.title.split('\n').length - 1 && <br />}
-                </span>
-              ))}
+              Do you love movies? <br />
+              Do you trust your movie taste? <br />
+              Do you like to earn?
             </motion.h1>
 
             <motion.p variants={item} className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-              {heroContent.description}
+              Vote on your favorite films, earn rewards, and join the decentralized movie community.
             </motion.p>
 
             <motion.div variants={item} className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -261,13 +250,13 @@ export default function LandingPage() {
                 href="/home"
                 className="bg-primary text-primary-foreground hover:bg-primary/90 py-3 px-8 rounded-full text-base font-medium transition-colors"
               >
-                {heroContent.exploreButtonText}
+                Explore
               </Link>
               <Link
                 href="/movies"
                 className="bg-transparent border border-border text-foreground hover:bg-accent hover:text-accent-foreground py-3 px-8 rounded-full text-base font-medium transition-colors"
               >
-                {heroContent.earnButtonText}
+                Earn Rewards
               </Link>
             </motion.div>
 
