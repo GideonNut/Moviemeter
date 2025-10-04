@@ -3,12 +3,13 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useActiveAccount, useSendTransaction } from "thirdweb/react"
-import { prepareContractCall, getContract, prepareTransaction } from "thirdweb"
+import { prepareTransaction } from "thirdweb"
 import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
 import { 
   PAYMENT_RECIPIENT_ADDRESS, 
-  PAYMENT_AMOUNT_WEI, 
+  PAYMENT_AMOUNT_WEI,
+  PAYMENT_AMOUNT_CELO,
   PAYMENT_DESCRIPTION,
   PAYWALL_FEATURES,
   PAYMENT_MESSAGES
@@ -77,7 +78,7 @@ export default function AIPaywall({ isOpen, onClose, onPaymentSuccess, userPrefe
       })
     } catch (err) {
       console.error("Payment error:", err)
-      setError(PAYMENT_MESSAGES.FAILED)
+      setError(err instanceof Error ? err.message : PAYMENT_MESSAGES.FAILED)
     } finally {
       setIsProcessing(false)
     }
