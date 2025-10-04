@@ -45,7 +45,8 @@ export default function RecommendationsPage() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to get recommendations')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.message || `HTTP ${response.status}: Failed to get recommendations`)
       }
 
       const data = await response.json()
@@ -108,6 +109,8 @@ export default function RecommendationsPage() {
       // setSubmitted(true)
     } catch (error) {
       console.error("Error getting recommendations:", error)
+      // Show error to user
+      alert(`Error getting recommendations: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setLoading(false)
     }
@@ -118,11 +121,11 @@ export default function RecommendationsPage() {
     getRecommendations()
   }
 
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = async () => {
     setHasAccess(true)
     setShowPaywall(false)
     // Automatically fetch recommendations after payment
-    getRecommendations()
+    await getRecommendations()
   }
 
   // Example recommendations for first-time visitors
