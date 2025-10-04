@@ -7,6 +7,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { Star, ThumbsUp, Search, Loader2 } from "lucide-react"
 import Header from "@/components/header"
+import AIPaywall from "@/components/ai-paywall"
+import { useActiveAccount } from "thirdweb/react"
 import type { MovieData } from "@/lib/ai-agent"
 
 export default function RecommendationsPage() {
@@ -14,16 +16,45 @@ export default function RecommendationsPage() {
   const [recommendations, setRecommendations] = useState<(MovieData & { recommendationReason?: string })[]>([])
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [showPaywall, setShowPaywall] = useState(false)
+  const [hasAccess, setHasAccess] = useState(false)
+  const account = useActiveAccount()
 
   const getRecommendations = async () => {
     if (!preferences.trim()) return
 
+    // Check if user has access or show paywall
+    if (!hasAccess) {
+      setShowPaywall(true)
+      return
+    }
+
     try {
       setLoading(true)
 
-      // In a real implementation, this would call your API
-      // For demo purposes, we'll use mock data
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      // Call the actual API
+      const response = await fetch('/api/movies/recommendations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          preferences,
+          walletAddress: account?.address,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to get recommendations')
+      }
+
+      const data = await response.json()
+      if (data.success) {
+        setRecommendations(data.data)
+        setSubmitted(true)
+      } else {
+        throw new Error(data.message || 'Failed to get recommendations')
+      }
 
       const mockRecommendations: (MovieData & { recommendationReason: string })[] = [
         {
@@ -72,8 +103,9 @@ export default function RecommendationsPage() {
         },
       ]
 
-      setRecommendations(mockRecommendations)
-      setSubmitted(true)
+      // Remove mock data - we're using API now
+      // setRecommendations(mockRecommendations)
+      // setSubmitted(true)
     } catch (error) {
       console.error("Error getting recommendations:", error)
     } finally {
@@ -83,6 +115,13 @@ export default function RecommendationsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    getRecommendations()
+  }
+
+  const handlePaymentSuccess = () => {
+    setHasAccess(true)
+    setShowPaywall(false)
+    // Automatically fetch recommendations after payment
     getRecommendations()
   }
 
@@ -266,6 +305,14 @@ export default function RecommendationsPage() {
           </div>
         </div>
       </div>
+
+      {/* AI Paywall Modal */}
+      <AIPaywall
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        onPaymentSuccess={handlePaymentSuccess}
+        userPreferences={preferences}
+      />
     </main>
   )
 }
