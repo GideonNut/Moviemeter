@@ -177,19 +177,19 @@ export default function RecommendationsPage() {
   }, [submitted, recommendations.length])
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-gray-100 dark:bg-black text-foreground">
       <Header />
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8 text-center">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">AI Movie Recommendations</h1>
-            <p className="text-zinc-400 max-w-2xl mx-auto">
+            <p className="text-muted-foreground max-w-2xl mx-auto">
               Our AI analyzes your preferences to recommend movies you'll love. Tell us what you enjoy watching!
             </p>
           </div>
 
-          <div className="bg-zinc-900 p-6 rounded-lg mb-10">
+          <div className="bg-white dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#ffffff1f] p-6 rounded-lg mb-10">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="preferences" className="block text-sm font-medium text-zinc-300 mb-2">
@@ -199,7 +199,7 @@ export default function RecommendationsPage() {
                   id="preferences"
                   rows={3}
                   placeholder="E.g., I like sci-fi movies with complex plots, psychological thrillers, and visually stunning films. I enjoy Christopher Nolan's work and movies that make me think."
-                  className="w-full bg-zinc-800 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-1 focus:ring-rose-600"
+                  className="w-full bg-gray-100 dark:bg-zinc-800 text-foreground rounded-md py-3 px-4 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                   value={preferences}
                   onChange={(e) => setPreferences(e.target.value)}
                 />
@@ -208,7 +208,7 @@ export default function RecommendationsPage() {
                 <button
                   type="submit"
                   disabled={loading || !preferences.trim()}
-                  className="bg-rose-600 hover:bg-rose-700 text-white py-2 px-6 rounded-md flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-foreground hover:bg-foreground/90 text-background py-2 px-6 rounded-md flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <>
@@ -232,7 +232,7 @@ export default function RecommendationsPage() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {recommendations.map((movie) => (
-                <div key={movie.id} className="bg-zinc-900 rounded-lg overflow-hidden">
+                <div key={movie.id} className="bg-white dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#ffffff1f] rounded-lg overflow-hidden">
                   <div className="relative aspect-[2/3] overflow-hidden">
                     <Image
                       src={movie.posterUrl || "/placeholder.svg"}
@@ -250,15 +250,15 @@ export default function RecommendationsPage() {
 
                   <div className="p-4">
                     <h3 className="font-bold text-lg mb-1">{movie.title}</h3>
-                    <p className="text-zinc-400 text-sm mb-2">
+                    <p className="text-muted-foreground text-sm mb-2">
                       {new Date(movie.releaseDate).getFullYear()} • {movie.genres?.join(", ")}
                     </p>
-                    <p className="text-zinc-300 text-sm line-clamp-3 mb-3">{movie.description}</p>
+                    <p className="text-muted-foreground text-sm line-clamp-3 mb-3">{movie.description}</p>
 
                     {movie.recommendationReason && (
-                      <div className="bg-zinc-800 p-3 rounded-md mt-3">
-                        <p className="text-sm text-zinc-300 italic">
-                          <span className="font-semibold text-rose-500">Why we recommend this: </span>
+                      <div className="bg-gray-100 dark:bg-zinc-800 p-3 rounded-md mt-3">
+                        <p className="text-sm text-muted-foreground italic">
+                          <span className="font-semibold text-foreground">Why we recommend this: </span>
                           {movie.recommendationReason}
                         </p>
                       </div>
@@ -267,11 +267,11 @@ export default function RecommendationsPage() {
                     <div className="mt-4 flex justify-between">
                       <Link
                         href={`/movies/${movie.id}`}
-                        className="text-rose-500 hover:text-rose-400 text-sm font-medium"
+                        className="text-foreground hover:opacity-80 text-sm font-medium underline-offset-4 hover:underline"
                       >
                         View Details
                       </Link>
-                      <button className="text-zinc-400 hover:text-white flex items-center text-sm">
+                      <button className="text-muted-foreground hover:text-foreground flex items-center text-sm">
                         <ThumbsUp size={16} className="mr-1" /> Like
                       </button>
                     </div>
@@ -281,28 +281,28 @@ export default function RecommendationsPage() {
             </div>
           </div>
 
-          <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-lg">
+          <div className="bg-white/80 dark:bg-[#0d0d0d]/80 border border-gray-200 dark:border-[#ffffff1f] p-6 rounded-lg">
             <h3 className="text-lg font-semibold mb-3">How Our AI Recommendations Work</h3>
-            <p className="text-zinc-400 mb-4">
+            <p className="text-muted-foreground mb-4">
               Our advanced AI analyzes your preferences, viewing history, and similar users' tastes to suggest movies
               you're likely to enjoy. The more specific you are about what you like, the better our recommendations will
               be!
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-              <div className="bg-zinc-800 p-4 rounded-lg">
-                <div className="text-rose-500 font-bold text-lg mb-2">1</div>
+              <div className="bg-gray-100 dark:bg-zinc-800 p-4 rounded-lg">
+                <div className="text-foreground font-bold text-lg mb-2">1</div>
                 <h4 className="font-medium mb-1">Analyze Preferences</h4>
-                <p className="text-zinc-500 text-sm">We process your movie preferences and viewing history</p>
+                <p className="text-muted-foreground text-sm">We process your movie preferences and viewing history</p>
               </div>
-              <div className="bg-zinc-800 p-4 rounded-lg">
-                <div className="text-rose-500 font-bold text-lg mb-2">2</div>
+              <div className="bg-gray-100 dark:bg-zinc-800 p-4 rounded-lg">
+                <div className="text-foreground font-bold text-lg mb-2">2</div>
                 <h4 className="font-medium mb-1">Match Patterns</h4>
-                <p className="text-zinc-500 text-sm">Our AI identifies patterns and similar content</p>
+                <p className="text-muted-foreground text-sm">Our AI identifies patterns and similar content</p>
               </div>
-              <div className="bg-zinc-800 p-4 rounded-lg">
-                <div className="text-rose-500 font-bold text-lg mb-2">3</div>
+              <div className="bg-gray-100 dark:bg-zinc-800 p-4 rounded-lg">
+                <div className="text-foreground font-bold text-lg mb-2">3</div>
                 <h4 className="font-medium mb-1">Personalize Results</h4>
-                <p className="text-zinc-500 text-sm">We deliver tailored recommendations just for you</p>
+                <p className="text-muted-foreground text-sm">We deliver tailored recommendations just for you</p>
               </div>
             </div>
           </div>
