@@ -11,7 +11,7 @@ import NicknameModal from "@/components/nickname-modal"
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-gray-100 dark:bg-black text-foreground">
       <Header />
       <NicknameModal />
 
