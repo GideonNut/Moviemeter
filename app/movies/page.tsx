@@ -13,6 +13,7 @@ import Header from "@/components/header"
 import { Share2, Bell, BellOff, MessageCircle } from "lucide-react"
 import { updateUserStreak, getStreakStats } from "@/lib/streak-service"
 import StreakDisplay from "@/components/streak-display"
+import { useInView } from "react-intersection-observer"
 
 // Add VoteButtons component back
 function VoteButtons({
@@ -328,25 +329,29 @@ export default function MoviesPage() {
 }
 
 function MovieCards({ address, searchQuery }: MovieCardsProps) {
-  const [movies, setMovies] = useState<Movie[]>([])
+  const [allMovies, setAllMovies] = useState<Movie[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function fetchMovies() {
+    async function fetchAllMovies() {
       setLoading(true)
-      // Movies are now returned sorted by newest first (createdAt descending) from the API
-      const res = await fetch("/api/movies")
-      const data = await res.json()
-      setMovies(data)
-      setLoading(false)
+      try {
+        const res = await fetch("/api/movies")
+        const data = await res.json()
+        setAllMovies(data)
+      } catch (error) {
+        console.error('Failed to fetch movies:', error)
+      } finally {
+        setLoading(false)
+      }
     }
-    fetchMovies()
+    fetchAllMovies()
   }, [])
 
   // Deduplicate movies by title
   const uniqueMovies: Movie[] = []
   const seenTitles = new Set<string>()
-  for (const movie of movies) {
+  for (const movie of allMovies) {
     if (movie.title && !seenTitles.has(movie.title)) {
       uniqueMovies.push(movie)
       seenTitles.add(movie.title)
@@ -356,7 +361,33 @@ function MovieCards({ address, searchQuery }: MovieCardsProps) {
   // Only include movies with a year in the title (e.g., '(2025)') and exclude TV series
   const moviesWithYear = uniqueMovies.filter((movie) => /\(\d{4}\)/.test(movie.title) && movie.isTVSeries !== true)
 
-  const filteredMovies = moviesWithYear.filter((movie) => movie.title.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredMovies = moviesWithYear.filter((movie) => 
+    movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  // For infinite scroll, we'll show movies in batches
+  const [displayCount, setDisplayCount] = useState(20)
+  const displayedMovies = filteredMovies.slice(0, displayCount)
+  const hasMore = displayCount < filteredMovies.length
+
+  // Load more function
+  const loadMore = () => {
+    if (hasMore) {
+      setDisplayCount(prev => Math.min(prev + 20, filteredMovies.length))
+    }
+  }
+
+  // Intersection observer for infinite scroll
+  const { ref: loadMoreRef, inView } = useInView({
+    threshold: 0.1,
+    rootMargin: '100px',
+  })
+
+  useEffect(() => {
+    if (inView && hasMore) {
+      loadMore()
+    }
+  }, [inView, hasMore])
 
   if (loading) return <div className="text-center py-12">Loading movies...</div>
 
@@ -369,14 +400,30 @@ function MovieCards({ address, searchQuery }: MovieCardsProps) {
     )
   }
 
-  // Movies are already sorted by newest first from the API
-  const displayMovies = filteredMovies
-
   return (
-    <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-center">
-      {displayMovies.map((movie) => (
-        <MovieCard key={movie._id || movie.id} movie={movie} address={address} />
-      ))}
+    <div>
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-center">
+        {displayedMovies.map((movie) => (
+          <MovieCard key={movie._id || movie.id} movie={movie} address={address} />
+        ))}
+      </div>
+      
+      {/* Infinite scroll trigger */}
+      {hasMore && (
+        <div ref={loadMoreRef} className="flex justify-center py-8">
+          <div className="flex items-center gap-2 text-zinc-400">
+            <div className="w-6 h-6 border-2 border-zinc-600 border-t-zinc-400 rounded-full animate-spin"></div>
+            <span>Loading more movies...</span>
+          </div>
+        </div>
+      )}
+      
+      {/* End of results indicator */}
+      {!hasMore && filteredMovies.length > 0 && (
+        <div className="text-center py-8">
+          <p className="text-zinc-500 text-sm">You've reached the end of the movie list</p>
+        </div>
+      )}
     </div>
   )
 }
