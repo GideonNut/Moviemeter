@@ -13,6 +13,7 @@ import { getAvailableWallets } from "@/lib/wallet-config"
 import Header from "@/components/header"
 import { updateUserStreak, getStreakStats } from "@/lib/streak-service"
 import StreakDisplay from "@/components/streak-display"
+import { useInView } from "react-intersection-observer"
 
 interface TVShow {
   _id: string
@@ -289,18 +290,73 @@ export default function TVShowsPage() {
             <p className="text-zinc-500 text-sm mt-2">Add some TV series through the admin panel.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {tvShows
-              .filter((show) => show.title.toLowerCase().includes(searchQuery.toLowerCase()))
-              .map((show) => (
-                <TVShowCard key={show._id} show={show} address={address} />
-              ))}
-          </div>
+          <TVShowsGrid tvShows={tvShows} searchQuery={searchQuery} address={address} />
         )}
 
 
       </div>
     </main>
+  )
+}
+
+function TVShowsGrid({ tvShows, searchQuery, address }: { 
+  tvShows: TVShow[], 
+  searchQuery: string, 
+  address?: string 
+}) {
+  const filteredShows = tvShows.filter((show) => 
+    show.title.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  // For infinite scroll, we'll show shows in batches
+  const [displayCount, setDisplayCount] = useState(20)
+  const displayedShows = filteredShows.slice(0, displayCount)
+  const hasMore = displayCount < filteredShows.length
+
+  // Load more function
+  const loadMore = () => {
+    if (hasMore) {
+      setDisplayCount(prev => Math.min(prev + 20, filteredShows.length))
+    }
+  }
+
+  // Intersection observer for infinite scroll
+  const { ref: loadMoreRef, inView } = useInView({
+    threshold: 0.1,
+    rootMargin: '100px',
+  })
+
+  useEffect(() => {
+    if (inView && hasMore) {
+      loadMore()
+    }
+  }, [inView, hasMore])
+
+  return (
+    <div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {displayedShows.map((show) => (
+          <TVShowCard key={show._id} show={show} address={address} />
+        ))}
+      </div>
+      
+      {/* Infinite scroll trigger */}
+      {hasMore && (
+        <div ref={loadMoreRef} className="flex justify-center py-8">
+          <div className="flex items-center gap-2 text-zinc-400">
+            <div className="w-6 h-6 border-2 border-zinc-600 border-t-zinc-400 rounded-full animate-spin"></div>
+            <span>Loading more TV shows...</span>
+          </div>
+        </div>
+      )}
+      
+      {/* End of results indicator */}
+      {!hasMore && filteredShows.length > 0 && (
+        <div className="text-center py-8">
+          <p className="text-zinc-500 text-sm">You've reached the end of the TV shows list</p>
+        </div>
+      )}
+    </div>
   )
 }
 
