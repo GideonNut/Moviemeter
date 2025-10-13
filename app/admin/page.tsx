@@ -348,9 +348,31 @@ export default function AdminDashboard() {
                 </button>
               </div>
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div
+                className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+                onDragOver={(e) => e.preventDefault()}
+              >
                 {featuredMovies.map((movie, index) => (
-                  <div key={movie.id} className="bg-muted/50 p-4 rounded-lg border">
+                  <div
+                    key={movie.id}
+                    className="bg-muted/50 p-4 rounded-lg border"
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData("text/plain", String(index))
+                    }}
+                    onDrop={(e) => {
+                      const fromIndexStr = e.dataTransfer.getData("text/plain")
+                      if (fromIndexStr === "") return
+                      const fromIndex = parseInt(fromIndexStr, 10)
+                      if (isNaN(fromIndex)) return
+                      if (fromIndex === index) return
+                      const updated = [...featuredMovies]
+                      const [moved] = updated.splice(fromIndex, 1)
+                      updated.splice(index, 0, moved)
+                      const reNumbered = updated.map((m, i) => ({ ...m, order: i + 1 }))
+                      setFeaturedMovies(reNumbered)
+                    }}
+                  >
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-sm text-muted-foreground">Order: {movie.order}</span>
                       <button
@@ -396,6 +418,25 @@ export default function AdminDashboard() {
                         className="w-full p-2 bg-background text-foreground rounded border border-input"
                         placeholder="Duration"
                       />
+                    </div>
+                    <div className="pt-2 text-xs text-muted-foreground flex items-center justify-between">
+                      <span>Drag to reorder</span>
+                      <button
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded border"
+                        onClick={async () => {
+                          try {
+                            const res = await fetch("/api/admin/featured-movies", {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ order: featuredMovies.map(m => m.id) })
+                            })
+                            if (!res.ok) throw new Error("Failed")
+                          } catch {}
+                        }}
+                      >
+                        <Save size={12} />
+                        Save order
+                      </button>
                     </div>
                   </div>
                 ))}
