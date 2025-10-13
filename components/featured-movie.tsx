@@ -5,47 +5,22 @@ import Image from "next/image"
 import { Play, ChevronLeft, ChevronRight } from "lucide-react"
 import VideoPlayer from "./video-player"
 
-// Sample featured movies data with real images
-const featuredMovies = [
-  {
-    id: "mission-impossible-final-reckoning",
-    title: "Mission: Impossible - The Final Reckoning",
-    description: "Ethan Hunt and his IMF team embark on their most dangerous mission yet, facing a mysterious enemy that threatens all of humanity.",
-    trailerUrl: "https://www.youtube.com/embed/fsQgc9pCyDU",
-    imageUrl: "https://i.postimg.cc/MGNwGPQb/mission-impossible.jpg",
-    posterUrl:
-      "https://m.media-amazon.com/images/M/MV5BNDc0YTQ5NGEtMWQ4OC00NjM2LThmNDAtZTI0MDI5OGYzYjFjXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_.jpg",
-    duration: "2:35",
-  },
-  {
-    id: "dune-2",
-    title: "Dune: Part Two",
-    description:
-      "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.",
-    trailerUrl: "https://www.youtube.com/embed/Way9Dexny3w",
-    imageUrl: "https://i.ytimg.com/vi/Way9Dexny3w/maxresdefault.jpg",
-    posterUrl:
-      "https://m.media-amazon.com/images/M/MV5BODI0YjNhNjUtYjM0My00MTUwLWFlYTMtMWI2NGUzYjhkZWY5XkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_.jpg",
-    duration: "2:35",
-  },
-  {
-    id: "deadpool-wolverine",
-    title: "Deadpool & Wolverine",
-    description:
-      "Wade Wilson's peaceful life is interrupted when former colleagues come calling, forcing him to team up with Wolverine.",
-    trailerUrl: "https://www.youtube.com/embed/4sUQfaQjKd8",
-    imageUrl: "https://i.ytimg.com/vi/4sUQfaQjKd8/maxresdefault.jpg",
-    posterUrl:
-      "https://m.media-amazon.com/images/M/MV5BNzQ5MGQyODAtNTg3OC00Y2VjLTkzODktNmU0MWYyZjZmMmRkXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_.jpg",
-    duration: "2:15",
-  },
-]
+type FeaturedMovieItem = {
+  id: string
+  title: string
+  description: string
+  trailerUrl: string
+  imageUrl: string
+  posterUrl: string
+  duration: string
+}
 
 export default function FeaturedMovie() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [movies, setMovies] = useState<FeaturedMovieItem[]>([])
 
-  const currentMovie = featuredMovies[currentIndex]
+  const currentMovie = movies[currentIndex] ?? movies[0]
 
   const nextMovie = () => {
     setCurrentIndex((prev) => (prev + 1) % featuredMovies.length)
@@ -55,9 +30,18 @@ export default function FeaturedMovie() {
     setCurrentIndex((prev) => (prev - 1 + featuredMovies.length) % featuredMovies.length)
   }
 
-  // Set Mission: Impossible - The Final Reckoning as the default featured movie on initial load
   useEffect(() => {
-    setCurrentIndex(0) // Index 0 is Mission: Impossible - The Final Reckoning
+    const load = async () => {
+      try {
+        const res = await fetch("/api/admin/featured-movies")
+        const json = await res.json()
+        if (json?.success && Array.isArray(json.data)) {
+          setMovies(json.data)
+          setCurrentIndex(0)
+        }
+      } catch {}
+    }
+    load()
   }, [])
 
   return (
@@ -65,8 +49,8 @@ export default function FeaturedMovie() {
       {/* Movie Poster/Trailer */}
       <div className="relative aspect-[16/9] w-full">
         <Image
-          src={currentMovie.imageUrl || "/placeholder.svg"}
-          alt={currentMovie.title}
+          src={(currentMovie?.imageUrl) || "/placeholder.svg"}
+          alt={currentMovie?.title || "Featured"}
           fill
           className="object-cover"
           priority
@@ -100,10 +84,12 @@ export default function FeaturedMovie() {
       {/* Movie Info */}
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6">
         <div className="flex items-center mb-2">
-          <div className="bg-rose-600 text-white text-xs font-bold px-2 py-1 rounded mr-2">{currentMovie.duration}</div>
+          {currentMovie && (
+            <div className="bg-rose-600 text-white text-xs font-bold px-2 py-1 rounded mr-2">{currentMovie.duration}</div>
+          )}
         </div>
-        <h2 className="text-2xl md:text-3xl font-bold mb-2">{currentMovie.title}</h2>
-        <p className="text-zinc-300 text-sm md:text-base mb-4 max-w-2xl">{currentMovie.description}</p>
+        <h2 className="text-2xl md:text-3xl font-bold mb-2">{currentMovie?.title || ""}</h2>
+        <p className="text-zinc-300 text-sm md:text-base mb-4 max-w-2xl">{currentMovie?.description || ""}</p>
         <div className="flex items-center">
           <button
             onClick={() => setIsPlaying(true)}
@@ -116,7 +102,7 @@ export default function FeaturedMovie() {
       </div>
 
       {/* Video Modal */}
-      {isPlaying && (
+      {isPlaying && currentMovie && (
         <VideoPlayer
           src={currentMovie.trailerUrl}
           title={`${currentMovie.title} - Trailer`}
