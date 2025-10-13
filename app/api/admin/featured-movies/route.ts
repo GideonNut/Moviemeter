@@ -138,3 +138,51 @@ export async function DELETE(req: NextRequest) {
     )
   }
 }
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json()
+    const order = body?.order as string[]
+
+    if (!Array.isArray(order) || order.length === 0) {
+      return NextResponse.json(
+        { success: false, message: "Order array is required" },
+        { status: 400 }
+      )
+    }
+
+    // Update order based on provided array of ids
+    const idToIndex = new Map(order.map((id: string, index: number) => [id, index + 1]))
+    featuredMovies = featuredMovies.map(movie => {
+      const newOrder = idToIndex.get(movie.id)
+      return newOrder ? { ...movie, order: newOrder } : movie
+    })
+
+    // Normalize any movies not included to end
+    const missing = featuredMovies.filter(m => !idToIndex.has(m.id))
+    if (missing.length > 0) {
+      // Place missing after provided, preserving relative order
+      const maxProvided = order.length
+      let offset = 1
+      featuredMovies = featuredMovies.map(movie => {
+        if (!idToIndex.has(movie.id)) {
+          return { ...movie, order: maxProvided + offset++ }
+        }
+        return movie
+      })
+    }
+
+    featuredMovies.sort((a, b) => a.order - b.order)
+
+    return NextResponse.json({
+      success: true,
+      message: "Featured movies reordered successfully",
+      data: featuredMovies
+    })
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, message: "Failed to reorder featured movies" },
+      { status: 500 }
+    )
+  }
+}
