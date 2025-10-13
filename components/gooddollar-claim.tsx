@@ -2,6 +2,10 @@
 import React, { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { useActiveAccount, useSendTransaction } from "thirdweb/react"
+import { getContract, prepareContractCall } from "thirdweb"
+import { celoMainnet } from "@/lib/blockchain-service"
+import { client } from "@/app/client"
 
 interface GoodDollarClaimProps {
   address?: string
@@ -13,6 +17,10 @@ export default function GoodDollarClaim(props: GoodDollarClaimProps) {
   const elementRef = useRef<HTMLElement | null>(null)
   const [isReady, setIsReady] = useState(false)
   const [open, setOpen] = useState(false)
+  const [isClaiming, setIsClaiming] = useState(false)
+  const account = useActiveAccount()
+  const { mutate: sendTransaction } = useSendTransaction()
+
   const claimUrl = props.address
     ? `https://wallet.gooddollar.org/claim?address=${encodeURIComponent(props.address)}`
     : "https://wallet.gooddollar.org/claim"
@@ -70,6 +78,27 @@ export default function GoodDollarClaim(props: GoodDollarClaimProps) {
     }
   }, [])
 
+  // Direct contract call implementation
+  const handleDirectClaim = async () => {
+    if (!account?.address) {
+      alert("Please connect your wallet first")
+      return
+    }
+
+    setIsClaiming(true)
+    try {
+      // Note: This is a placeholder implementation
+      // The actual GoodDollar UBI claim contract on Celo would need to be identified
+      // For now, we'll show a message that direct claiming is not yet available
+      alert("Direct contract claiming is not yet configured. Please use the web component or external link.")
+    } catch (error) {
+      console.error("Claim failed:", error)
+      alert("Claim failed. Please try again.")
+    } finally {
+      setIsClaiming(false)
+    }
+  }
+
   return (
     <div className="inline-flex flex-col items-center gap-3">
       <claim-button id="gd-claim-button" environment="production"></claim-button>
@@ -87,26 +116,36 @@ export default function GoodDollarClaim(props: GoodDollarClaimProps) {
 
       <div className="text-xs text-zinc-400">or</div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button className="bg-zinc-800 hover:bg-zinc-700 text-white">
-            Claim in app
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-3xl w-[95vw] p-0 overflow-hidden">
-          <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle>Claim your daily GoodDollar (G$)</DialogTitle>
-          </DialogHeader>
-          <div className="w-full h-[70vh]">
-            <iframe
-              src={claimUrl}
-              title="GoodDollar Claim"
-              className="w-full h-full border-0"
-              allow="clipboard-write; payment;"
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <div className="flex gap-2">
+        <Button 
+          onClick={handleDirectClaim}
+          disabled={isClaiming || !account?.address}
+          className="bg-green-600 hover:bg-green-700 text-white"
+        >
+          {isClaiming ? "Claiming..." : "Claim Direct"}
+        </Button>
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-zinc-800 hover:bg-zinc-700 text-white">
+              Claim in app
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl w-[95vw] p-0 overflow-hidden">
+            <DialogHeader className="px-6 pt-6 pb-2">
+              <DialogTitle>Claim your daily GoodDollar (G$)</DialogTitle>
+            </DialogHeader>
+            <div className="w-full h-[70vh]">
+              <iframe
+                src={claimUrl}
+                title="GoodDollar Claim"
+                className="w-full h-full border-0"
+                allow="clipboard-write; payment;"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   )
 }
