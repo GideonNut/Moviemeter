@@ -80,6 +80,33 @@ export async function POST(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json()
+
+    // Bulk replace mode
+    if (Array.isArray(body?.items)) {
+      const items = body.items
+
+      // Basic validation and normalization
+      let nextOrder = 1
+      featuredMovies = items.map((m: any) => ({
+        id: m.id,
+        title: m.title || "",
+        description: m.description || "",
+        trailerUrl: m.trailerUrl || "",
+        imageUrl: m.imageUrl || "",
+        posterUrl: m.posterUrl || "",
+        duration: m.duration || "2:00",
+        order: typeof m.order === "number" ? m.order : nextOrder++
+      }))
+      featuredMovies.sort((a, b) => a.order - b.order)
+
+      return NextResponse.json({
+        success: true,
+        message: "Featured movies saved successfully",
+        data: featuredMovies
+      })
+    }
+
+    // Single item update mode
     const { id, ...updates } = body
 
     const movieIndex = featuredMovies.findIndex(movie => movie.id === id)
