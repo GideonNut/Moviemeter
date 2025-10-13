@@ -2,33 +2,42 @@
 
 import Image from "next/image"
 import { Play } from "lucide-react"
+import { useEffect, useState } from "react"
 
-// Sample up next videos with proper thumbnails
-const upNextVideos = [
-  {
-    id: "snow-white",
-    title: "Snow White Stars Test Their Disney Knowledge",
-    description: "Rachel and Gal Get Quizzed",
-    duration: "1:57",
-    imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/udq.jpg-bk7q8GErMTwH4wyBd1b8AiT7azSoVs.jpeg",
-  },
-  {
-    id: "andor",
-    title: "'Andor' Returns April 22",
-    description: "Watch the Season 2 Trailer",
-    duration: "1:23",
-    imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/andor.jpg-32pDg7f7SzDaExY2gKBxA3iUb8ccio.jpeg",
-  },
-  {
-    id: "tearjerkers",
-    title: "Need Some Emotional Release?",
-    description: "Top-Rated Tearjerkers to Stream Now",
-    duration: "2:30",
-    imageUrl: "https://i.ytimg.com/vi/gn5QmllRCn4/maxresdefault.jpg",
-  },
-]
+type UpNextItem = {
+  id: string
+  title: string
+  description: string
+  duration: string
+  imageUrl: string
+}
 
 export default function UpNextSection() {
+  const [items, setItems] = useState<UpNextItem[]>([])
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch("/api/admin/featured-movies", { cache: "no-store" })
+        const json = await res.json()
+        if (json?.success && Array.isArray(json.data)) {
+          const videos: UpNextItem[] = (json.data as any[])
+            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+            .slice(1) // everything after the hero (order 1)
+            .map(m => ({
+              id: m.slug || m.id,
+              title: m.title || "",
+              description: m.description || "",
+              duration: m.duration || "2:00",
+              imageUrl: m.imageUrl || "/placeholder.svg",
+            }))
+          setItems(videos)
+        }
+      } catch {}
+    }
+    load()
+  }, [])
+
   return (
     <div className="bg-zinc-900 rounded-lg overflow-hidden">
       <div className="p-4 border-b border-zinc-800">
@@ -36,7 +45,7 @@ export default function UpNextSection() {
       </div>
 
       <div className="divide-y divide-zinc-800">
-        {upNextVideos.map((video) => (
+        {items.map((video) => (
           <div key={video.id} className="p-4 hover:bg-zinc-800 transition-colors">
             <div className="flex">
               <div className="relative w-24 h-16 flex-shrink-0">
@@ -45,7 +54,7 @@ export default function UpNextSection() {
                   alt={video.title}
                   fill
                   className="object-cover rounded"
-                  unoptimized
+                  sizes="96px"
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="bg-black/50 rounded-full p-1">
@@ -64,6 +73,9 @@ export default function UpNextSection() {
             </div>
           </div>
         ))}
+        {items.length === 0 && (
+          <div className="p-4 text-sm text-zinc-400">No upcoming trailers yet.</div>
+        )}
       </div>
 
       <div className="p-4 border-t border-zinc-800">
