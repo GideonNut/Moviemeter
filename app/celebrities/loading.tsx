@@ -34,14 +34,11 @@ export default function CelebritiesLoading() {
           ))}
         </div>
 
-        {/* Pagination Skeleton */}
-        <div className="flex justify-center mt-8">
-          <div className="flex gap-2">
-            <Skeleton className="h-10 w-10" />
-            <Skeleton className="h-10 w-10" />
-            <Skeleton className="h-10 w-10" />
-            <Skeleton className="h-10 w-10" />
-            <Skeleton className="h-10 w-10" />
+        {/* Infinite scroll loading indicator */}
+        <div className="flex justify-center py-8">
+          <div className="flex items-center gap-2 text-zinc-400">
+            <div className="w-6 h-6 border-2 border-zinc-600 border-t-zinc-400 rounded-full animate-spin"></div>
+            <span>Loading more celebrities...</span>
           </div>
         </div>
       </div>
