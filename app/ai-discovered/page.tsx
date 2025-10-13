@@ -138,14 +138,7 @@ export default function NewMoviesSection() {
       ]
 
       setMovies(mockNewMovies)
-
-      // Initially show only the first 4 movies for better performance
-      setVisibleMovies(mockNewMovies.slice(0, 4))
-
-      // After a short delay, show all movies
-      setTimeout(() => {
-        setVisibleMovies(mockNewMovies)
-      }, 500)
+      setVisibleMovies(mockNewMovies)
     } catch (err) {
       setError("Failed to fetch new movies")
       console.error(err)
@@ -179,6 +172,30 @@ export default function NewMoviesSection() {
     transition: { duration: 0.3 },
   }
 
+  // For infinite scroll, we'll show movies in batches
+  const [displayCount, setDisplayCount] = useState(12)
+  const displayedMovies = visibleMovies.slice(0, displayCount)
+  const hasMore = displayCount < visibleMovies.length
+
+  // Load more function
+  const loadMore = () => {
+    if (hasMore) {
+      setDisplayCount(prev => Math.min(prev + 12, visibleMovies.length))
+    }
+  }
+
+  // Intersection observer for infinite scroll
+  const { ref: loadMoreRef, inView: loadMoreInView } = useInView({
+    threshold: 0.1,
+    rootMargin: '100px',
+  })
+
+  useEffect(() => {
+    if (loadMoreInView && hasMore) {
+      loadMore()
+    }
+  }, [loadMoreInView, hasMore])
+
   return (
     <motion.section ref={ref} className="mb-12" {...containerAnimation}>
       <div className="flex items-center justify-between mb-4">
@@ -197,19 +214,16 @@ export default function NewMoviesSection() {
 
       {error && <div className="bg-red-900/20 border border-red-900 text-red-200 p-4 rounded-md mb-4">{error}</div>}
 
-      <div
-        className="relative group"
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-      >
-        <div
-          ref={scrollContainerRef}
-          className="flex overflow-x-auto pb-4 scrollbar-hide gap-4 scroll-smooth"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {visibleMovies.map((movie) => (
-            <div key={movie.id} className="flex-shrink-0 w-[180px]">
-              <Link href={`/movies/${movie.id}`} className="group">
+      {displayedMovies.length === 0 && !loading ? (
+        <div className="text-center py-12">
+          <p className="text-zinc-400 text-lg">No new movies found.</p>
+          <p className="text-zinc-500 text-sm mt-2">Check back later for new releases.</p>
+        </div>
+      ) : (
+        <div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {displayedMovies.map((movie) => (
+              <Link key={movie.id} href={`/movies/${movie.id}`} className="group">
                 <div className="bg-zinc-900 rounded-lg overflow-hidden hover:bg-zinc-800 transition-colors h-full border border-zinc-800">
                   <div className="relative aspect-[2/3] w-full">
                     <Image
@@ -231,33 +245,27 @@ export default function NewMoviesSection() {
                   </div>
                 </div>
               </Link>
+            ))}
+          </div>
+
+          {/* Infinite scroll trigger */}
+          {hasMore && (
+            <div ref={loadMoreRef} className="flex justify-center py-8">
+              <div className="flex items-center gap-2 text-zinc-400">
+                <div className="w-6 h-6 border-2 border-zinc-600 border-t-zinc-400 rounded-full animate-spin"></div>
+                <span>Loading more new releases...</span>
+              </div>
             </div>
-          ))}
+          )}
+          
+          {/* End of results indicator */}
+          {!hasMore && displayedMovies.length > 0 && (
+            <div className="text-center py-8">
+              <p className="text-zinc-500 text-sm">You've reached the end of new releases</p>
+            </div>
+          )}
         </div>
-
-        {/* Navigation arrows - only show when needed */}
-        {visibleMovies.length > 3 && (
-          <>
-            <button
-              onClick={scrollLeft}
-              className={`absolute left-0 top-1/2 -translate-y-1/2 bg-black/70 text-white rounded-full p-2 ${isHovering ? "opacity-100" : "opacity-0"} transition-opacity z-10`}
-              aria-label="Scroll left"
-            >
-              <ChevronLeft size={24} />
-            </button>
-            <button
-              onClick={scrollRight}
-              className={`absolute right-0 top-1/2 -translate-y-1/2 bg-black/70 text-white rounded-full p-2 ${isHovering ? "opacity-100" : "opacity-0"} transition-opacity z-10`}
-              aria-label="Scroll right"
-            >
-              <ChevronRight size={24} />
-            </button>
-          </>
-        )}
-
-        {/* Add a gradient fade effect on the right side to indicate more content */}
-        <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-black to-transparent pointer-events-none"></div>
-      </div>
+      )}
     </motion.section>
   )
 } 
