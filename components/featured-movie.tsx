@@ -47,12 +47,13 @@ export default function FeaturedMovie() {
   return (
     <div className="relative rounded-lg overflow-hidden group">
       {/* Movie Poster/Trailer */}
-      <div className="relative aspect-[16/9] w-full">
+      <div className="relative w-full aspect-[4/5] sm:aspect-[16/9] min-h-[320px]">
         <Image
           src={(currentMovie?.imageUrl) || "/placeholder.svg"}
           alt={currentMovie?.title || "Featured"}
           fill
           className="object-cover"
+          sizes="(max-width: 640px) 100vw, 100vw"
           priority
         />
 
@@ -82,14 +83,14 @@ export default function FeaturedMovie() {
       </div>
 
       {/* Movie Info */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6">
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 sm:p-6">
         <div className="flex items-center mb-2">
           {currentMovie && (
             <div className="bg-rose-600 text-white text-xs font-bold px-2 py-1 rounded mr-2">{currentMovie.duration}</div>
           )}
         </div>
-        <h2 className="text-2xl md:text-3xl font-bold mb-2">{currentMovie?.title || ""}</h2>
-        <p className="text-zinc-300 text-sm md:text-base mb-4 max-w-2xl">{currentMovie?.description || ""}</p>
+        <h2 className="text-xl md:text-3xl font-bold mb-2">{currentMovie?.title || ""}</h2>
+        <p className="text-zinc-300 text-sm md:text-base mb-4 max-w-2xl line-clamp-3 sm:line-clamp-none">{currentMovie?.description || ""}</p>
         <div className="flex items-center">
           <button
             onClick={() => setIsPlaying(true)}
