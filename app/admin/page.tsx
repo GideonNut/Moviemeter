@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { RefreshCw, Film, Clock, AlertTriangle, Settings, Users, Star, TrendingUp, Eye, Edit3, Plus, Trash2, Save } from "lucide-react"
 
 export default function AdminDashboard() {
@@ -9,38 +9,21 @@ export default function AdminDashboard() {
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null)
 
   // Featured Movies Management
-  const [featuredMovies, setFeaturedMovies] = useState([
-    {
-      id: "mission-impossible-final-reckoning",
-      title: "Mission: Impossible - The Final Reckoning",
-      description: "Ethan Hunt and his IMF team embark on their most dangerous mission yet, facing a mysterious enemy that threatens all of humanity.",
-      trailerUrl: "https://www.youtube.com/embed/fsQgc9pCyDU",
-      imageUrl: "https://i.postimg.cc/MGNwGPQb/mission-impossible.jpg",
-      posterUrl: "https://m.media-amazon.com/images/M/MV5BNDc0YTQ5NGEtMWQ4OC00NjM2LThmNDAtZTI0MDI5OGYzYjFjXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_.jpg",
-      duration: "2:35",
-      order: 1
-    },
-    {
-      id: "dune-2",
-      title: "Dune: Part Two",
-      description: "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.",
-      trailerUrl: "https://www.youtube.com/embed/Way9Dexny3w",
-      imageUrl: "https://i.ytimg.com/vi/Way9Dexny3w/maxresdefault.jpg",
-      posterUrl: "https://m.media-amazon.com/images/M/MV5BODI0YjNhNjUtYjM0My00MTUwLWFlYTMtMWI2NGUzYjhkZWY5XkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_.jpg",
-      duration: "2:35",
-      order: 2
-    },
-    {
-      id: "deadpool-wolverine",
-      title: "Deadpool & Wolverine",
-      description: "Wade Wilson's peaceful life is interrupted when former colleagues come calling, forcing him to team up with Wolverine.",
-      trailerUrl: "https://www.youtube.com/embed/4sUQfaQjKd8",
-      imageUrl: "https://i.ytimg.com/vi/4sUQfaQjKd8/maxresdefault.jpg",
-      posterUrl: "https://m.media-amazon.com/images/M/MV5BNzQ5MGQyODAtNTg3OC00Y2VjLTkzODktNmU0MWYyZjZmMmRkXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_.jpg",
-      duration: "2:15",
-      order: 3
+  const [featuredMovies, setFeaturedMovies] = useState<any[]>([])
+  const [savingFeatured, setSavingFeatured] = useState(false)
+
+  useEffect(() => {
+    const loadFeatured = async () => {
+      try {
+        const res = await fetch("/api/admin/featured-movies")
+        const json = await res.json()
+        if (json?.success && Array.isArray(json.data)) {
+          setFeaturedMovies(json.data)
+        }
+      } catch {}
     }
-  ])
+    loadFeatured()
+  }, [])
 
   // Featured Today Content Management
   const [featuredContent, setFeaturedContent] = useState([
@@ -339,13 +322,37 @@ export default function AdminDashboard() {
                   <Star className="mr-2" />
                   Featured Movies
                 </h2>
-                <button
-                  onClick={addFeaturedMovie}
-                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded"
-                >
-                  <Plus size={16} />
-                  Add Movie
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={addFeaturedMovie}
+                    className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded"
+                  >
+                    <Plus size={16} />
+                    Add Movie
+                  </button>
+                  <button
+                    onClick={async () => {
+                      try {
+                        setSavingFeatured(true)
+                        const body = { items: featuredMovies.map((m, i) => ({ ...m, order: i + 1 })) }
+                        const res = await fetch("/api/admin/featured-movies", {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify(body)
+                        })
+                        if (!res.ok) throw new Error("Failed")
+                      } catch (e) {
+                      } finally {
+                        setSavingFeatured(false)
+                      }
+                    }}
+                    className="flex items-center gap-2 bg-muted hover:bg-muted/80 text-foreground px-4 py-2 rounded"
+                    disabled={savingFeatured}
+                  >
+                    <Save size={16} />
+                    {savingFeatured ? "Saving..." : "Save changes"}
+                  </button>
+                </div>
               </div>
               
               <div
@@ -419,25 +426,7 @@ export default function AdminDashboard() {
                         placeholder="Duration"
                       />
                     </div>
-                    <div className="pt-2 text-xs text-muted-foreground flex items-center justify-between">
-                      <span>Drag to reorder</span>
-                      <button
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded border"
-                        onClick={async () => {
-                          try {
-                            const res = await fetch("/api/admin/featured-movies", {
-                              method: "PATCH",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ order: featuredMovies.map(m => m.id) })
-                            })
-                            if (!res.ok) throw new Error("Failed")
-                          } catch {}
-                        }}
-                      >
-                        <Save size={12} />
-                        Save order
-                      </button>
-                    </div>
+                    <div className="pt-2 text-xs text-muted-foreground">Drag to reorder</div>
                   </div>
                 ))}
               </div>
