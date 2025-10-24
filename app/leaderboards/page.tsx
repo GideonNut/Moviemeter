@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Trophy, Users, Flame, Loader2, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface LeaderboardData {
 	topVoters: Array<{
@@ -162,15 +163,34 @@ export default function LeaderboardsPage() {
 									</thead>
 									<tbody>
 										{loading && (
-											<tr>
-												<td colSpan={4} className="px-6 py-8 text-center text-zinc-400">
-													<Loader2 className="inline-block mr-2 animate-spin" /> Loading...
-												</td>
-											</tr>
+											<>
+												{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+													<tr key={`skeleton-${i}`} className="border-b border-zinc-800">
+														<td className="px-6 py-4 whitespace-nowrap">
+															<Skeleton className="h-6 w-6" />
+														</td>
+														<td className="px-6 py-4">
+															<div className="space-y-1">
+																<Skeleton className="h-4 w-32" />
+																<Skeleton className="h-3 w-24" />
+															</div>
+														</td>
+														<td className="px-6 py-4">
+															<Skeleton className="h-4 w-16" />
+														</td>
+														<td className="px-6 py-4">
+															<Skeleton className="h-5 w-12" />
+														</td>
+														<td className="px-6 py-4">
+															<Skeleton className="h-4 w-16" />
+														</td>
+													</tr>
+												))}
+											</>
 										)}
 										{error && (
 											<tr>
-												<td colSpan={4} className="px-6 py-8 text-center text-red-400">{error}</td>
+												<td colSpan={5} className="px-6 py-8 text-center text-red-400">{error}</td>
 											</tr>
 										)}
 										{!loading && !error && getCurrentLeaderboardData().map((user: any) => (
