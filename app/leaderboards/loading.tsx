@@ -1,66 +1,78 @@
-import Header from "@/components/header"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ArrowLeft } from "lucide-react"
 
 export default function LeaderboardsLoading() {
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-black text-white">
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Back Button */}
+        <div className="flex items-center text-zinc-400 mb-6">
+          <ArrowLeft className="mr-2" size={18} />
+          <Skeleton className="h-5 w-12" />
+        </div>
+
         {/* Header Section */}
         <div className="text-center mb-8">
-          <Skeleton className="h-12 w-64 mx-auto mb-4" />
-          <Skeleton className="h-6 w-96 mx-auto mb-6" />
+          <Skeleton className="h-9 w-64 mx-auto mb-2" />
+          <Skeleton className="h-6 w-96 mx-auto" />
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex justify-center gap-2 mb-8">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-10 w-32" />
-          ))}
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-zinc-900 rounded-lg p-6 border border-zinc-800 text-center">
-              <Skeleton className="h-8 w-8 mx-auto mb-2" />
-              <Skeleton className="h-6 w-24 mx-auto mb-1" />
-              <Skeleton className="h-4 w-16 mx-auto" />
-            </div>
-          ))}
+        <div className="flex justify-center space-x-3 mb-6">
+          <Skeleton className="h-10 w-32" />
+          <Skeleton className="h-10 w-36" />
         </div>
 
         {/* Leaderboard Table */}
         <div className="max-w-4xl mx-auto">
           <div className="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800">
             {/* Table Header */}
-            <div className="bg-zinc-800 px-6 py-4">
-              <Skeleton className="h-6 w-48" />
+            <div className="bg-zinc-800 px-6 py-4 border-b border-zinc-700">
+              <div className="flex items-center mb-1">
+                <Skeleton className="h-5 w-5 mr-2" />
+                <Skeleton className="h-6 w-32" />
+              </div>
+              <Skeleton className="h-4 w-64" />
             </div>
-            
-            {/* Table Body */}
-            <div className="p-6">
+
+            {/* Table Headers */}
+            <div className="bg-zinc-800 border-b border-zinc-700">
+              <div className="grid grid-cols-5 gap-4 px-6 py-3">
+                <Skeleton className="h-4 w-12" />
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-20" />
+              </div>
+            </div>
+
+            {/* Table Body - Skeleton Rows */}
+            <div className="overflow-x-auto">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
-                <div key={i} className="flex items-center py-4 border-b border-zinc-700 last:border-b-0">
+                <div key={i} className="grid grid-cols-5 gap-4 px-6 py-4 border-b border-zinc-800 last:border-b-0">
                   {/* Rank */}
-                  <div className="w-12 text-center">
-                    <Skeleton className="h-6 w-6 mx-auto" />
+                  <div className="flex items-center">
+                    <Skeleton className="h-6 w-6" />
                   </div>
                   
                   {/* User Info */}
-                  <div className="flex items-center flex-1 ml-4">
-                    <Skeleton className="w-8 h-8 rounded-full mr-3" />
-                    <div className="flex-1">
-                      <Skeleton className="h-4 w-32 mb-1" />
-                      <Skeleton className="h-3 w-24" />
-                    </div>
+                  <div className="flex flex-col">
+                    <Skeleton className="h-4 w-32 mb-1" />
+                    <Skeleton className="h-3 w-24" />
                   </div>
                   
-                  {/* Stats */}
-                  <div className="flex gap-6">
+                  {/* Points */}
+                  <div className="flex items-center">
                     <Skeleton className="h-4 w-16" />
-                    <Skeleton className="h-4 w-16" />
+                  </div>
+                  
+                  {/* Votes/Streak */}
+                  <div className="flex items-center">
+                    <Skeleton className="h-5 w-12" />
+                  </div>
+                  
+                  {/* Streak/Votes */}
+                  <div className="flex items-center">
                     <Skeleton className="h-4 w-16" />
                   </div>
                 </div>
@@ -69,6 +81,6 @@ export default function LeaderboardsLoading() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 } 
