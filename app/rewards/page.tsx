@@ -155,9 +155,9 @@ export default function RewardsPage() {
           </div>
         )}
       </div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-center mb-4 relative">
         <h2 className="text-2xl font-bold">Available Rewards</h2>
-        <div className="flex items-center gap-2">
+        <div className="absolute right-0 flex items-center gap-2">
           <button
             onClick={fetchRewards}
             disabled={loading}
