@@ -14,6 +14,7 @@ import Header from "@/components/header"
 import { updateUserStreak, getStreakStats } from "@/lib/streak-service"
 import StreakDisplay from "@/components/streak-display"
 import CommentsSection from "@/components/comments-section"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface TVShow {
   _id: string
@@ -233,8 +234,136 @@ export default function TVShowDetailPage({ params }: { params: Promise<{ id: str
       <main className="min-h-screen bg-zinc-950 text-white">
         <Header />
         <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-xl">Loading TV show...</div>
+          {/* Breadcrumb Navigation */}
+          <div className="flex items-center space-x-2 mb-6">
+            <Skeleton className="h-4 w-12" />
+            <Skeleton className="h-4 w-1" />
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-1" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          
+          {/* Back Button */}
+          <div className="flex items-center mb-6">
+            <ArrowLeft size={20} className="mr-2 text-rose-500" />
+            <Skeleton className="h-5 w-32" />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Poster */}
+            <div className="lg:col-span-1">
+              <Skeleton className="aspect-[2/3] w-full rounded-lg" />
+            </div>
+
+            {/* Content */}
+            <div className="lg:col-span-2">
+              {/* Date and Type */}
+              <div className="flex items-center gap-4 mb-4">
+                <Calendar size={20} className="text-zinc-400" />
+                <Skeleton className="h-5 w-16" />
+                <Clock size={20} className="text-zinc-400" />
+                <Skeleton className="h-5 w-20" />
+              </div>
+
+              {/* Title and Comments */}
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex-1">
+                  <Skeleton className="h-10 w-3/4 mb-2" />
+                  <div className="flex items-center gap-4">
+                    <MessageCircle size={18} className="text-zinc-400" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                </div>
+                <Skeleton className="h-12 w-12 rounded-full" />
+              </div>
+              
+              {/* Description */}
+              <div className="mb-6">
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+
+              {/* Vote Stats */}
+              <div className="bg-zinc-800/50 p-4 rounded-lg mb-6">
+                <div className="flex items-center justify-between">
+                  <div className="text-center">
+                    <Skeleton className="h-8 w-8 mx-auto mb-1" />
+                    <Skeleton className="h-4 w-16 mx-auto" />
+                  </div>
+                  <div className="text-center">
+                    <Skeleton className="h-8 w-8 mx-auto mb-1" />
+                    <Skeleton className="h-4 w-16 mx-auto" />
+                  </div>
+                  <div className="text-center">
+                    <Skeleton className="h-8 w-8 mx-auto mb-1" />
+                    <Skeleton className="h-4 w-20 mx-auto" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Voting Section */}
+              <div className="bg-zinc-900 p-6 rounded-lg mb-6">
+                <Skeleton className="h-6 w-40 mb-4" />
+                <div className="flex gap-3 max-w-md">
+                  <Skeleton className="h-12 flex-1" />
+                  <Skeleton className="h-12 flex-1" />
+                </div>
+              </div>
+
+              {/* Streak Display */}
+              <div className="bg-zinc-900 p-6 rounded-lg mb-6">
+                <Skeleton className="h-6 w-32 mb-4" />
+                <div className="space-y-3">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-8 w-24" />
+                </div>
+              </div>
+
+              {/* About Section */}
+              <div className="mt-8 p-6 bg-zinc-900 rounded-lg">
+                <Skeleton className="h-6 w-40 mb-4" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+
+              {/* Comments Section */}
+              <div className="mt-8">
+                <Skeleton className="h-6 w-32 mb-4" />
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Skeleton className="w-8 h-8 rounded-full" />
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-3 w-16" />
+                      </div>
+                      <Skeleton className="h-4 w-full mb-1" />
+                      <Skeleton className="h-4 w-3/4" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Related TV Shows Section */}
+          <div className="mt-12">
+            <Skeleton className="h-8 w-32 mb-6" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-zinc-900 rounded-lg overflow-hidden">
+                  <Skeleton className="aspect-[2/3] w-full" />
+                  <div className="p-3">
+                    <Skeleton className="h-5 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-full mb-1" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </main>
