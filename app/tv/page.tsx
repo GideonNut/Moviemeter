@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Star, Filter, MessageCircle, Bell, BellOff } from "lucide-react"
 import { ConnectButton, useActiveAccount, useSendTransaction, darkTheme } from "thirdweb/react"
-import { TVShowCardSkeleton } from "@/components/skeleton-card"
+import { TVShowsPageSkeleton } from "@/components/page-skeleton"
 import { getContract, prepareContractCall } from "thirdweb"
 import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
@@ -205,18 +205,7 @@ export default function TVShowsPage() {
 
 
   if (loading) {
-    return (
-      <main className="min-h-screen bg-zinc-950 text-white">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <TVShowCardSkeleton key={`skeleton-${i}`} />
-            ))}
-          </div>
-        </div>
-      </main>
-    )
+    return <TVShowsPageSkeleton />
   }
 
   return (
