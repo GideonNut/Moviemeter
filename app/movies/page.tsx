@@ -378,7 +378,27 @@ function MovieCards({ address, searchQuery }: MovieCardsProps) {
     }
   }, [inView, hasMore])
 
-  if (loading) return <div className="text-center py-12">Loading movies...</div>
+  if (loading) return (
+    <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={`skeleton-${i}`} className="group relative bg-zinc-900 rounded-lg overflow-hidden shadow-lg border border-zinc-800 hover:border-zinc-700 transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
+          <div className="w-full aspect-[2/3] bg-zinc-800 animate-pulse"></div>
+          <div className="p-4">
+            <div className="h-6 w-3/4 bg-zinc-800 rounded mb-2 animate-pulse"></div>
+            <div className="space-y-2">
+              <div className="h-4 w-full bg-zinc-800 rounded animate-pulse"></div>
+              <div className="h-4 w-5/6 bg-zinc-800 rounded animate-pulse"></div>
+              <div className="h-4 w-2/3 bg-zinc-800 rounded animate-pulse"></div>
+            </div>
+            <div className="mt-4 flex justify-between items-center">
+              <div className="h-10 w-20 bg-zinc-800 rounded animate-pulse"></div>
+              <div className="h-10 w-20 bg-zinc-800 rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 
   if (filteredMovies.length === 0) {
     return (
