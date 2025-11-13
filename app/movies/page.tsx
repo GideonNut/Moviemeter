@@ -11,9 +11,8 @@ import { supportedTokens } from "@/lib/token-config"
 import { getAvailableWallets } from "@/lib/wallet-config"
 import Header from "@/components/header"
 import { Share2, Bell, BellOff, MessageCircle } from "lucide-react"
-import { updateUserStreak, getStreakStats } from "@/lib/streak-service"
-import StreakDisplay from "@/components/streak-display"
 import { useInView } from "react-intersection-observer"
+import { MovieCardSkeleton } from "@/components/skeleton-card"
 
 // Add VoteButtons component back
 function VoteButtons({
@@ -253,17 +252,27 @@ export default function MoviesPage() {
   const account = useActiveAccount()
   const address: string | undefined = account?.address
   const [searchQuery, setSearchQuery] = useState<string>("")
-  const [streakStats, setStreakStats] = useState<any>(null)
-
   const wallets = getAvailableWallets()
+  const [loading, setLoading] = useState(true)
 
-  // Load streak stats for the main page
   useEffect(() => {
-    if (address) {
-      const stats = getStreakStats(address)
-      setStreakStats(stats)
-    }
-  }, [address])
+    setLoading(false)
+  }, [])
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-zinc-950 text-white">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <MovieCardSkeleton key={`skeleton-${i}`} />
+            ))}
+          </div>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
@@ -301,15 +310,6 @@ export default function MoviesPage() {
             </div>
           )}
 
-          {address && streakStats && (
-            <div className="w-full max-w-2xl mb-8">
-              <StreakDisplay 
-                streak={streakStats}
-                nextMilestone={streakStats.nextMilestone}
-                daysToNextMilestone={streakStats.daysToNextMilestone}
-              />
-            </div>
-          )}
 
           {address && (
             <input
@@ -436,7 +436,6 @@ function MovieCard({ movie, address }: MovieCardProps) {
   const [userVoteType, setUserVoteType] = useState<boolean | null>(null)
   const [voteCountYes, setVoteCountYes] = useState<number>(0)
   const [voteCountNo, setVoteCountNo] = useState<number>(0)
-  const [streakStats, setStreakStats] = useState<any>(null)
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false)
   const [isInWatchlist, setIsInWatchlist] = useState<boolean>(false)
   const [watchlistLoading, setWatchlistLoading] = useState<boolean>(false)
@@ -464,13 +463,6 @@ function MovieCard({ movie, address }: MovieCardProps) {
     if (address) fetchVotes()
   }, [dbMovieId, address])
 
-  // Load streak stats
-  useEffect(() => {
-    if (address) {
-      const stats = getStreakStats(address)
-      setStreakStats(stats)
-    }
-  }, [address])
 
   // Check if movie is in watchlist
   useEffect(() => {
@@ -581,7 +573,7 @@ function MovieCard({ movie, address }: MovieCardProps) {
         {description && description.length > 110 && (
           <button
             type="button"
-            aria-expanded={isDescriptionExpanded}
+            aria-expanded={isDescriptionExpanded ? "true" : "false"}
             onClick={() => setIsDescriptionExpanded((prev) => !prev)}
             className="mt-2 text-xs font-medium text-white hover:text-zinc-300"
           >
@@ -616,13 +608,6 @@ function MovieCard({ movie, address }: MovieCardProps) {
         setVoteCountYes={setVoteCountYes}
         setVoteCountNo={setVoteCountNo}
         address={address}
-        onVoteSuccess={() => {
-          if (address) {
-            const updatedStreak = updateUserStreak(address)
-            const stats = getStreakStats(address)
-            setStreakStats(stats)
-          }
-        }}
       />
     </div>
   )
