@@ -5,14 +5,13 @@ import Image from "next/image"
 import Link from "next/link"
 import { Star, Filter, MessageCircle, Bell, BellOff } from "lucide-react"
 import { ConnectButton, useActiveAccount, useSendTransaction, darkTheme } from "thirdweb/react"
+import { TVShowCardSkeleton } from "@/components/skeleton-card"
 import { getContract, prepareContractCall } from "thirdweb"
 import { client } from "@/app/client"
 import { celoMainnet } from "@/lib/blockchain-service"
 import { supportedTokens } from "@/lib/token-config"
 import { getAvailableWallets } from "@/lib/wallet-config"
 import Header from "@/components/header"
-import { updateUserStreak, getStreakStats } from "@/lib/streak-service"
-import StreakDisplay from "@/components/streak-display"
 import { useInView } from "react-intersection-observer"
 
 interface TVShow {
@@ -183,8 +182,6 @@ export default function TVShowsPage() {
   const [searchQuery, setSearchQuery] = useState<string>("")
   const account = useActiveAccount()
   const address: string | undefined = account?.address
-  const [streakStats, setStreakStats] = useState<any>(null)
-
   const wallets = getAvailableWallets()
 
   useEffect(() => {
@@ -206,21 +203,16 @@ export default function TVShowsPage() {
     fetchTVShows()
   }, [])
 
-  // Load streak stats for the main page
-  useEffect(() => {
-    if (address) {
-      const stats = getStreakStats(address)
-      setStreakStats(stats)
-    }
-  }, [address])
 
   if (loading) {
     return (
       <main className="min-h-screen bg-zinc-950 text-white">
         <Header />
         <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-xl">Loading TV shows...</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <TVShowCardSkeleton key={`skeleton-${i}`} />
+            ))}
           </div>
         </div>
       </main>
@@ -263,15 +255,6 @@ export default function TVShowsPage() {
             </div>
           )}
 
-          {address && streakStats && (
-            <div className="w-full max-w-2xl mb-8">
-              <StreakDisplay 
-                streak={streakStats}
-                nextMilestone={streakStats.nextMilestone}
-                daysToNextMilestone={streakStats.daysToNextMilestone}
-              />
-            </div>
-          )}
 
           {address && (
             <input
@@ -365,7 +348,6 @@ function TVShowCard({ show, address }: { show: TVShow; address?: string }) {
   const [userVoteType, setUserVoteType] = useState<boolean | null>(null)
   const [voteCountYes, setVoteCountYes] = useState<number>(0)
   const [voteCountNo, setVoteCountNo] = useState<number>(0)
-  const [streakStats, setStreakStats] = useState<any>(null)
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false)
   const [isInWatchlist, setIsInWatchlist] = useState<boolean>(false)
   const [watchlistLoading, setWatchlistLoading] = useState<boolean>(false)
@@ -393,13 +375,6 @@ function TVShowCard({ show, address }: { show: TVShow; address?: string }) {
     if (address) fetchVotes()
   }, [show._id, address])
 
-  // Load streak stats
-  useEffect(() => {
-    if (address) {
-      const stats = getStreakStats(address)
-      setStreakStats(stats)
-    }
-  }, [address])
 
   // Check if TV show is in watchlist
   useEffect(() => {
@@ -503,16 +478,17 @@ function TVShowCard({ show, address }: { show: TVShow; address?: string }) {
       
       <div className="mb-4">
         <p className="text-sm text-zinc-400">
-          {!isDescriptionExpanded && show.description && show.description.length > 110
-            ? `${show.description.slice(0, 110)}...`
+          {show.description && show.description.length > 110 && !isDescriptionExpanded 
+            ? `${show.description.slice(0, 110)}...` 
             : show.description}
         </p>
         {show.description && show.description.length > 110 && (
           <button
             type="button"
-            aria-expanded={isDescriptionExpanded}
-            onClick={() => setIsDescriptionExpanded((prev) => !prev)}
-            className="mt-2 text-xs font-medium text-white hover:text-zinc-300"
+            aria-expanded={isDescriptionExpanded ? "true" : "false"}
+            aria-controls={`tvshow-description-${show._id}`}
+            onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+            className="text-blue-400 hover:text-blue-300 text-sm font-medium mt-2 flex items-center gap-1"
           >
             {isDescriptionExpanded ? "See less" : "See more"}
           </button>
@@ -546,13 +522,6 @@ function TVShowCard({ show, address }: { show: TVShow; address?: string }) {
           setVoteCountYes={setVoteCountYes}
           setVoteCountNo={setVoteCountNo}
           address={address}
-          onVoteSuccess={() => {
-            if (address) {
-              const updatedStreak = updateUserStreak(address)
-              const stats = getStreakStats(address)
-              setStreakStats(stats)
-            }
-          }}
         />
       )}
     </div>
