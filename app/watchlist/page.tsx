@@ -89,12 +89,12 @@ export default function WatchlistPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
             <div className="mb-6">
-              <Bell size={64} className="mx-auto text-zinc-400 mb-4" />
+              <Bell size={64} className="mx-auto text-white mb-4" />
             </div>
             <h1 className="text-3xl font-bold mb-4">Your Watchlist</h1>
-            <p className="text-zinc-400 mb-6">Connect your wallet to view and manage your watchlist</p>
+            <p className="text-white mb-6">Connect your wallet to view and manage your watchlist</p>
             <div className="bg-zinc-900 p-6 rounded-lg max-w-md mx-auto">
-              <p className="text-zinc-300">Please connect your wallet to access your watchlist</p>
+              <p className="text-white">Please connect your wallet to access your watchlist</p>
             </div>
           </div>
         </div>
@@ -147,10 +147,10 @@ export default function WatchlistPage() {
 
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <Bell size={32} className="text-rose-500" />
-            <h1 className="text-4xl font-bold">Your Watchlist</h1>
+            <Bell size={32} className="text-white" />
+            <h1 className="text-4xl font-bold text-white">Your Watchlist</h1>
           </div>
-          <p className="text-zinc-400 text-lg">
+          <p className="text-white text-lg">
             {watchlist.length === 0 
               ? "No movies in your watchlist yet. Start adding movies you want to watch!"
               : `You have ${watchlist.length} movie${watchlist.length === 1 ? '' : 's'} in your watchlist`
@@ -167,8 +167,8 @@ export default function WatchlistPage() {
         {watchlist.length === 0 ? (
           <div className="text-center py-12">
             <div className="bg-zinc-900 p-8 rounded-lg max-w-md mx-auto">
-              <Bell size={48} className="mx-auto text-zinc-600 mb-4" />
-              <p className="text-zinc-400 mb-4">Your watchlist is empty</p>
+              <Bell size={48} className="mx-auto text-white mb-4" />
+              <p className="text-white mb-4">Your watchlist is empty</p>
               <Link 
                 href="/movies" 
                 className="inline-flex items-center px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors"
@@ -206,16 +206,16 @@ export default function WatchlistPage() {
                   <p className="text-zinc-400 text-sm line-clamp-3 mb-3">
                     {movie.description}
                   </p>
-                  <div className="flex items-center justify-between text-xs text-zinc-500">
+                  <div className="flex items-center justify-between text-xs text-white">
                     <span>{new Date(movie.createdAt).getFullYear()}</span>
                     <div className="flex items-center gap-3">
                       <span className="flex items-center gap-1">
-                        <MessageCircle size={14} className="text-zinc-400" />
+                        <MessageCircle size={14} className="text-white" />
                         {commentCounts[movie._id] || 0}
                       </span>
                       <span className="flex items-center gap-1">
-                        <Bell size={14} className="text-rose-500" />
-                        In Watchlist
+                        <Bell size={14} className="text-white" />
+                        <span className="text-white">In Watchlist</span>
                       </span>
                     </div>
                   </div>
