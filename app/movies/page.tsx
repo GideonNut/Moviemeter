@@ -12,7 +12,7 @@ import { getAvailableWallets } from "@/lib/wallet-config"
 import Header from "@/components/header"
 import { Share2, Bell, BellOff, MessageCircle } from "lucide-react"
 import { useInView } from "react-intersection-observer"
-import { MovieCardSkeleton } from "@/components/skeleton-card"
+import { MoviesPageSkeleton } from "@/components/page-skeleton"
 
 // Add VoteButtons component back
 function VoteButtons({
@@ -260,18 +260,7 @@ export default function MoviesPage() {
   }, [])
 
   if (loading) {
-    return (
-      <main className="min-h-screen bg-zinc-950 text-white">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <MovieCardSkeleton key={`skeleton-${i}`} />
-            ))}
-          </div>
-        </div>
-      </main>
-    )
+    return <MoviesPageSkeleton />
   }
 
   return (
