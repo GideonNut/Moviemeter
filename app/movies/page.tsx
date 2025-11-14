@@ -58,12 +58,18 @@ function VoteButtons({
       if (voteType) setVoteCountYes((prev: number) => prev + 1)
       else setVoteCountNo((prev: number) => prev + 1)
 
-      // Create contract instance
-      const contract = getContract({ 
-        client, 
-        chain: celoMainnet, 
-        address: "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828" 
-      })
+      // Create contract instance with error handling
+      let contract;
+      try {
+        contract = getContract({ 
+          client, 
+          chain: celoMainnet, 
+          address: "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828"
+        });
+      } catch (contractError) {
+        console.error("Error creating contract instance:", contractError);
+        throw new Error("Failed to connect to the blockchain. Please try again.");
+      }
 
       // Send transaction to contract using account abstraction
       const transaction = prepareContractCall({
@@ -114,20 +120,21 @@ function VoteButtons({
   }
 
   return (
-    <div className="flex flex-col items-center gap-3 mt-4">
-      <div className="group">
-        <div className="flex gap-3 w-full">
-        <button
-          onClick={() => handleVote(true)}
-          disabled={isPending || hasVoted}
-                      className={`flex-1 px-4 py-2 rounded-lg text-white transition-colors duration-150 ${
+    <div className="w-full">
+      <div className="group relative">
+        <div className="flex gap-3 w-full h-[44px]">
+          <button
+            onClick={() => handleVote(true)}
+            disabled={isPending || hasVoted}
+            className={`flex-1 px-2 py-2 rounded-lg text-white transition-colors duration-150 flex items-center justify-center ${
               hasVoted && userVoteType === true 
                 ? "bg-green-600/70 border-2 border-green-500/70" 
                 : "bg-black border-2 border-zinc-700 hover:border-white"
             } ${hasVoted ? "opacity-90" : ""}`}
-                  >
+            style={{ minHeight: '44px' }}
+          >
             {isPending ? "Processing..." : (
-              <span className="flex items-center justify-center gap-2">
+              <span className="flex items-center justify-center gap-2 whitespace-nowrap">
                 <span>Yes</span>
                 <span className="text-sm opacity-80">({voteCountYes})</span>
               </span>
@@ -136,19 +143,20 @@ function VoteButtons({
           <button
             onClick={() => handleVote(false)}
             disabled={isPending || hasVoted}
-            className={`flex-1 px-4 py-2 rounded-lg text-white transition-colors duration-150 ${
+            className={`flex-1 px-2 py-2 rounded-lg text-white transition-colors duration-150 flex items-center justify-center ${
               hasVoted && userVoteType === false 
                 ? "bg-red-600/70 border-2 border-red-500/70" 
                 : "bg-black border-2 border-zinc-700 hover:border-white"
-            } ${hasVoted ? "opacity-80" : ""}`}
+            } ${hasVoted ? "opacity-90" : ""}`}
+            style={{ minHeight: '44px' }}
           >
             {isPending ? "Processing..." : (
-              <span className="flex items-center justify-center gap-2">
+              <span className="flex items-center justify-center gap-2 whitespace-nowrap">
                 <span>No</span>
                 <span className="text-sm opacity-80">({voteCountNo})</span>
               </span>
             )}
-        </button>
+          </button>
         </div>
         {hasVoted && (
           <div className="relative">
@@ -162,71 +170,93 @@ function VoteButtons({
           </div>
         )}
       </div>
-      {error && <p className="text-base font-medium text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg border border-red-200 dark:border-red-800">{error}</p>}
+      {error && (
+        <div className="mt-2">
+          <p className="text-sm font-medium text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-800">
+            {error}
+          </p>
+        </div>
+      )}
     </div>
   )
 }
 
-const contractAddress: string = "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828";
+// Define the ABI with proper typing for thirdweb
 const contractAbi = [
   {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": true, "internalType": "uint256", "name": "movieId", "type": "uint256" },
-      { "indexed": false, "internalType": "address", "name": "voter", "type": "address" },
-      { "indexed": false, "internalType": "bool", "name": "vote", "type": "bool" }
+    type: 'event',
+    name: 'Voted',
+    inputs: [
+      { name: 'movieId', type: 'uint256', indexed: true },
+      { name: 'voter', type: 'address', indexed: false },
+      { name: 'vote', type: 'bool', indexed: false }
     ],
-    "name": "Voted",
-    "type": "event"
+    anonymous: false
   },
   {
-    "inputs": [ { "internalType": "string", "name": "_title", "type": "string" } ],
-    "name": "addMovie",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [ { "internalType": "uint256", "name": "_movieId", "type": "uint256" } ],
-    "name": "getVotes",
-    "outputs": [
-      { "internalType": "uint256", "name": "", "type": "uint256" },
-      { "internalType": "uint256", "name": "", "type": "uint256" }
+    type: 'function',
+    name: 'addMovie',
+    inputs: [
+      { name: '_title', type: 'string' }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    outputs: [],
+    stateMutability: 'nonpayable'
   },
   {
-    "inputs": [],
-    "name": "movieCount",
-    "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ],
-    "name": "movies",
-    "outputs": [
-      { "internalType": "uint256", "name": "id", "type": "uint256" },
-      { "internalType": "string", "name": "title", "type": "string" },
-      { "internalType": "uint256", "name": "yesVotes", "type": "uint256" },
-      { "internalType": "uint256", "name": "noVotes", "type": "uint256" }
+    type: 'function',
+    name: 'getVotes',
+    inputs: [
+      { name: '_movieId', type: 'uint256' }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    outputs: [
+      { name: 'yesVotes', type: 'uint256' },
+      { name: 'noVotes', type: 'uint256' }
+    ],
+    stateMutability: 'view'
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "_movieId", "type": "uint256" },
-      { "internalType": "bool", "name": "_vote", "type": "bool" }
+    type: 'function',
+    name: 'movieCount',
+    inputs: [],
+    outputs: [
+      { name: '', type: 'uint256' }
     ],
-    "name": "vote",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    stateMutability: 'view'
+  },
+  {
+    type: 'function',
+    name: 'movies',
+    inputs: [
+      { name: '', type: 'uint256' }
+    ],
+    outputs: [
+      { name: 'id', type: 'uint256' },
+      { name: 'title', type: 'string' },
+      { name: 'yesVotes', type: 'uint256' },
+      { name: 'noVotes', type: 'uint256' }
+    ],
+    stateMutability: 'view'
+  },
+  {
+    type: 'function',
+    name: 'vote',
+    inputs: [
+      { name: '_movieId', type: 'uint256' },
+      { name: '_vote', type: 'bool' }
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable'
   }
 ] as const;
-const contract = getContract({ client, chain: celoMainnet, address: contractAddress, abi: contractAbi });
+
+const contractAddress = "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828";
+// Create contract instance
+const contract = getContract({
+  client,
+  chain: celoMainnet,
+  address: contractAddress,
+  abi: contractAbi
+});
 
 interface Movie {
   _id: string
@@ -320,6 +350,30 @@ export default function MoviesPage() {
 function MovieCards({ address, searchQuery }: MovieCardsProps) {
   const [allMovies, setAllMovies] = useState<Movie[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Handle ethereum provider initialization
+  useEffect(() => {
+    // Skip if window is not available (SSR)
+    if (typeof window === 'undefined') return;
+
+    // Store the original ethereum object if it exists
+    const originalEthereum = (window as any).ethereum;
+    
+    return () => {
+      // Restore original ethereum object on unmount if it was modified
+      if (originalEthereum) {
+        try {
+          Object.defineProperty(window, 'ethereum', {
+            value: originalEthereum,
+            writable: true,
+            configurable: true
+          });
+        } catch (error) {
+          console.warn('Could not restore original ethereum object', error);
+        }
+      }
+    };
+  }, []);
 
   useEffect(() => {
     async function fetchAllMovies() {
@@ -536,7 +590,7 @@ function MovieCard({ movie, address }: MovieCardProps) {
   }, [dbMovieId])
 
   return (
-    <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full">
+    <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full flex flex-col h-full">
       {/* Clickable poster and title area */}
       <Link href={`/movies/${dbMovieId}`} className="block group">
         <div className="relative aspect-[2/3] mb-4 overflow-hidden rounded-md">
@@ -592,7 +646,7 @@ function MovieCard({ movie, address }: MovieCardProps) {
       </div>
 
       {/* View Details Link and Comment Count */}
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mt-auto mb-4 flex items-center justify-between">
         <Link 
           href={`/movies/${dbMovieId}`}
           className="inline-flex items-center text-rose-500 hover:text-rose-400 text-sm font-medium"
@@ -605,19 +659,22 @@ function MovieCard({ movie, address }: MovieCardProps) {
         </div>
       </div>
       
-      <VoteButtons
-        movieId={contractMovieId}
-        dbMovieId={dbMovieId}
-        hasVoted={hasVoted}
-        userVoteType={userVoteType}
-        setHasVoted={setHasVoted}
-        setUserVoteType={setUserVoteType}
-        voteCountYes={voteCountYes}
-        voteCountNo={voteCountNo}
-        setVoteCountYes={setVoteCountYes}
-        setVoteCountNo={setVoteCountNo}
-        address={address}
-      />
+
+      <div className="mt-auto">
+        <VoteButtons
+          movieId={contractMovieId}
+          dbMovieId={dbMovieId}
+          hasVoted={hasVoted}
+          userVoteType={userVoteType}
+          setHasVoted={setHasVoted}
+          setUserVoteType={setUserVoteType}
+          voteCountYes={voteCountYes}
+          voteCountNo={voteCountNo}
+          setVoteCountYes={setVoteCountYes}
+          setVoteCountNo={setVoteCountNo}
+          address={address}
+        />
+      </div>
     </div>
   )
 }
