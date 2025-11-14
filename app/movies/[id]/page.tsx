@@ -60,7 +60,8 @@ function VoteButtons({
       // Debug: Log account info for account abstraction
       console.log("Account info:", { 
         address, 
-        movieId, 
+        movieId,
+        dbMovieId,
         voteType 
       })
       
@@ -74,14 +75,37 @@ function VoteButtons({
       const contract = getContract({ 
         client, 
         chain: celoMainnet, 
-        address: "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828" 
+        address: "0x6d83eF793A7e82BFa20B57a60907F85c06fB8828",
+        abi: [
+          {
+            "inputs": [
+              { "name": "_movieId", "type": "uint256" },
+              { "name": "_vote", "type": "bool" }
+            ],
+            "name": "vote",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }
+        ]
       })
+
+      // Use dbMovieId (MongoDB _id) for the database and movieId for the smart contract
+      const contractMovieId = movieId || 0; // Fallback to 0 if movieId is not available
+      
+      // Convert to number for the smart contract
+      const movieIdNum = Number(contractMovieId);
+      if (isNaN(movieIdNum)) {
+        throw new Error("Invalid movie ID format for smart contract");
+      }
+
+      console.log("Voting with movie ID:", { contractMovieId, movieIdNum });
 
       // Send transaction to contract using account abstraction
       const transaction = prepareContractCall({
         contract,
-        method: "function vote(uint256, bool)",
-        params: [BigInt(movieId), voteType],
+        method: "vote",
+        params: [BigInt(movieIdNum), voteType],
       })
 
       console.log("Prepared transaction for account abstraction:", transaction)
@@ -100,15 +124,30 @@ function VoteButtons({
         })
       })
 
-      // Save vote to MongoDB (use dbMovieId)
+          // Save vote to MongoDB (use dbMovieId)
       try {
-        await fetch("/api/votes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ movieId: dbMovieId, address, voteType }),
-        })
+        if (!dbMovieId) {
+          console.warn("No database movie ID provided, skipping database update");
+        } else {
+          const response = await fetch("/api/votes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+              movieId: dbMovieId, 
+              address, 
+              voteType,
+              contractMovieId: movieIdNum // Include contract movie ID for reference
+            }),
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error("Failed to save vote to database:", response.status, errorData);
+            // Don't fail the entire vote if database save fails
+          }
+        }
       } catch (dbError) {
-        console.error("Failed to save vote to database:", dbError)
+        console.error("Error saving vote to database:", dbError);
         // Don't fail the entire vote if database save fails
       }
 
@@ -125,21 +164,32 @@ function VoteButtons({
     setIsPending(false)
   }
 
+  console.log("Rendering VoteButtons with:", { 
+    movieId, 
+    dbMovieId, 
+    hasVoted, 
+    userVoteType, 
+    voteCountYes, 
+    voteCountNo,
+    address: address ? `${address.substring(0, 6)}...${address.substring(38)}` : 'none'
+  });
+
   return (
-    <div className="flex flex-col items-center gap-3 mt-6">
-      <div className="group">
-        <div className="flex gap-3 w-full max-w-md">
+    <div className="w-full">
+      <div className="group relative">
+        <div className="flex gap-3 w-full h-[44px]">
           <button
             onClick={() => handleVote(true)}
             disabled={isPending || hasVoted}
-            className={`flex-1 px-4 py-2 rounded-lg text-white transition-colors duration-150 ${
+            className={`flex-1 px-2 py-2 rounded-lg text-white transition-colors duration-150 flex items-center justify-center ${
               hasVoted && userVoteType === true 
                 ? "bg-green-600/70 border-2 border-green-500/70" 
                 : "bg-black border-2 border-zinc-700 hover:border-white"
             } ${hasVoted ? "opacity-90" : ""}`}
+            style={{ minHeight: '44px' }}
           >
             {isPending ? "Processing..." : (
-              <span className="flex items-center justify-center gap-2">
+              <span className="flex items-center justify-center gap-2 whitespace-nowrap">
                 <span>Yes</span>
                 <span className="text-sm opacity-80">({voteCountYes})</span>
               </span>
@@ -148,14 +198,15 @@ function VoteButtons({
           <button
             onClick={() => handleVote(false)}
             disabled={isPending || hasVoted}
-            className={`flex-1 px-4 py-2 rounded-lg text-white transition-colors duration-150 ${
+            className={`flex-1 px-2 py-2 rounded-lg text-white transition-colors duration-150 flex items-center justify-center ${
               hasVoted && userVoteType === false 
                 ? "bg-red-600/70 border-2 border-red-500/70" 
                 : "bg-black border-2 border-zinc-700 hover:border-white"
             } ${hasVoted ? "opacity-90" : ""}`}
+            style={{ minHeight: '44px' }}
           >
             {isPending ? "Processing..." : (
-              <span className="flex items-center justify-center gap-2">
+              <span className="flex items-center justify-center gap-2 whitespace-nowrap">
                 <span>No</span>
                 <span className="text-sm opacity-80">({voteCountNo})</span>
               </span>
@@ -179,11 +230,12 @@ function VoteButtons({
   )
 }
 
-export default function MovieDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function MovieDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params
   const [movie, setMovie] = useState<Movie | null>(null)
   const [allMovies, setAllMovies] = useState<Movie[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const account = useActiveAccount()
   const address: string | undefined = account?.address
   const [hasVoted, setHasVoted] = useState<boolean>(false)
@@ -198,25 +250,48 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
   const wallets = getAvailableWallets()
 
   useEffect(() => {
+    let isMounted = true
+
     async function fetchMovie() {
       try {
         setLoading(true)
+        setError(null)
         const res = await fetch(`/api/movies`)
+        
+        if (!res.ok) {
+          throw new Error('Failed to fetch movie data')
+        }
+        
         const allMovies = await res.json()
         const foundMovie = allMovies.find((m: Movie) => m._id === id && m.isTVSeries !== true)
-        setMovie(foundMovie || null)
         
-        // Also fetch all movies for the related section
-        const regularMovies = allMovies.filter((m: Movie) => m.isTVSeries !== true)
-        setAllMovies(regularMovies)
+        if (!foundMovie) {
+          throw new Error('Movie not found')
+        }
+        
+        if (isMounted) {
+          setMovie(foundMovie)
+          // Also fetch all movies for the related section
+          const regularMovies = allMovies.filter((m: Movie) => m.isTVSeries !== true)
+          setAllMovies(regularMovies)
+        }
       } catch (error) {
         console.error("Failed to fetch movie:", error)
+        if (isMounted) {
+          setError(error instanceof Error ? error.message : 'An unknown error occurred')
+        }
       } finally {
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+        }
       }
     }
 
     fetchMovie()
+    
+    return () => {
+      isMounted = false
+    }
   }, [id])
 
   // Fetch votes from MongoDB
@@ -309,85 +384,48 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
     try {
       const response = await fetch(`/api/comments?movieId=${movie?._id}`)
       if (response.ok) {
-        const comments = await response.json()
-        setCommentCount(comments.length)
+        const comments = await response.json();
+        setCommentCount(comments.length);
       }
     } catch (error) {
-      console.error("Failed to fetch comment count:", error)
+      console.error("Failed to fetch comment count:", error);
     }
   }
 
+  // Render loading state
   if (loading) {
     return (
-      <main className="min-h-screen bg-zinc-950 text-white">
+      <div className="min-h-screen bg-zinc-950 text-white">
         <Header />
         <div className="container mx-auto px-4 py-8">
-          {/* Breadcrumb Navigation */}
-          <div className="flex items-center space-x-2 mb-6">
-            <Skeleton className="h-4 w-12" />
-            <Skeleton className="h-4 w-1" />
-            <Skeleton className="h-4 w-16" />
-            <Skeleton className="h-4 w-1" />
-            <Skeleton className="h-4 w-24" />
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 w-48 bg-zinc-800 rounded"></div>
+            <div className="h-96 w-full bg-zinc-800 rounded-lg"></div>
           </div>
-          
-          {/* Back Button */}
-          <div className="flex items-center mb-6">
-            <ArrowLeft size={20} className="mr-2 text-rose-500" />
-            <Skeleton className="h-5 w-32" />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Poster */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
             <div className="lg:col-span-1">
               <Skeleton className="aspect-[2/3] w-full rounded-lg" />
             </div>
-
-            {/* Content */}
-            <div className="lg:col-span-2">
-              {/* Date and Type */}
-              <div className="flex items-center gap-4 mb-4">
-                <Calendar size={20} className="text-zinc-400" />
-                <Skeleton className="h-5 w-16" />
-                <Clock size={20} className="text-zinc-400" />
-                <Skeleton className="h-5 w-12" />
+            <div className="lg:col-span-2 space-y-4">
+              <Skeleton className="h-8 w-3/4" />
+              <Skeleton className="h-6 w-1/2" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6" />
+                <Skeleton className="h-4 w-2/3" />
               </div>
-
-              {/* Title and Comments */}
-              <div className="flex items-center gap-4 mb-6">
-                <div className="flex-1">
-                  <Skeleton className="h-10 w-3/4 mb-2" />
-                  <div className="flex items-center gap-4">
-                    <MessageCircle size={18} className="text-zinc-400" />
-                    <Skeleton className="h-4 w-20" />
-                  </div>
+              <div className="flex items-center justify-between">
+                <div className="text-center">
+                  <Skeleton className="h-8 w-8 mx-auto mb-1" />
+                  <Skeleton className="h-4 w-16 mx-auto" />
                 </div>
-                <Skeleton className="h-12 w-12 rounded-full" />
-              </div>
-              
-              {/* Description */}
-              <div className="mb-6">
-                <Skeleton className="h-4 w-full mb-2" />
-                <Skeleton className="h-4 w-full mb-2" />
-                <Skeleton className="h-4 w-3/4 mb-2" />
-                <Skeleton className="h-4 w-1/2" />
-              </div>
-
-              {/* Vote Stats */}
-              <div className="bg-zinc-800/50 p-4 rounded-lg mb-6">
-                <div className="flex items-center justify-between">
-                  <div className="text-center">
-                    <Skeleton className="h-8 w-8 mx-auto mb-1" />
-                    <Skeleton className="h-4 w-16 mx-auto" />
-                  </div>
-                  <div className="text-center">
-                    <Skeleton className="h-8 w-8 mx-auto mb-1" />
-                    <Skeleton className="h-4 w-16 mx-auto" />
-                  </div>
-                  <div className="text-center">
-                    <Skeleton className="h-8 w-8 mx-auto mb-1" />
-                    <Skeleton className="h-4 w-20 mx-auto" />
-                  </div>
+                <div className="text-center">
+                  <Skeleton className="h-8 w-8 mx-auto mb-1" />
+                  <Skeleton className="h-4 w-16 mx-auto" />
+                </div>
+                <div className="text-center">
+                  <Skeleton className="h-8 w-8 mx-auto mb-1" />
+                  <Skeleton className="h-4 w-20 mx-auto" />
                 </div>
               </div>
 
@@ -411,29 +449,29 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
               </div>
 
               {/* About Section */}
-              <div className="mt-8 p-6 bg-zinc-900 rounded-lg">
+              <div className="p-6 bg-zinc-900 rounded-lg">
                 <Skeleton className="h-6 w-40 mb-4" />
                 <Skeleton className="h-4 w-full mb-2" />
                 <Skeleton className="h-4 w-3/4" />
               </div>
+            </div>
+          </div>
 
-              {/* Comments Section */}
-              <div className="mt-8">
-                <Skeleton className="h-6 w-32 mb-4" />
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
-                      <div className="flex items-center gap-3 mb-3">
-                        <Skeleton className="w-8 h-8 rounded-full" />
-                        <Skeleton className="h-4 w-24" />
-                        <Skeleton className="h-3 w-16" />
-                      </div>
-                      <Skeleton className="h-4 w-full mb-1" />
-                      <Skeleton className="h-4 w-3/4" />
-                    </div>
-                  ))}
+          {/* Comments Section */}
+          <div className="mt-8">
+            <Skeleton className="h-6 w-32 mb-4" />
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Skeleton className="w-8 h-8 rounded-full" />
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                  <Skeleton className="h-4 w-full mb-1" />
+                  <Skeleton className="h-4 w-3/4" />
                 </div>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -454,29 +492,13 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
         </div>
-      </main>
+      </div>
     )
   }
 
-  if (!movie) {
-    return (
-      <main className="min-h-screen bg-zinc-950 text-white">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center py-12">
-            <h1 className="text-2xl font-bold mb-4">Movie Not Found</h1>
-            <p className="text-zinc-400 mb-6">The movie you're looking for doesn't exist.</p>
-            <Link href="/movies" className="text-rose-500 hover:text-rose-400">
-              ← Back to Movies
-            </Link>
-          </div>
-        </div>
-      </main>
-    )
-  }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-zinc-950 text-white">
       <Header />
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb Navigation */}
@@ -683,6 +705,6 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 }
