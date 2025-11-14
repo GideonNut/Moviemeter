@@ -590,7 +590,7 @@ function MovieCard({ movie, address }: MovieCardProps) {
   }, [dbMovieId])
 
   return (
-    <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full flex flex-col h-full">
+    <div className="border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 w-full flex flex-col h-full" style={{ minHeight: '500px' }}>
       {/* Clickable poster and title area */}
       <Link href={`/movies/${dbMovieId}`} className="block group">
         <div className="relative aspect-[2/3] mb-4 overflow-hidden rounded-md">
@@ -627,40 +627,46 @@ function MovieCard({ movie, address }: MovieCardProps) {
         <h2 className="text-lg font-semibold mb-2 group-hover:text-rose-500 transition-colors">{title}</h2>
       </Link>
       
-      <div className="mb-4">
-        <p className="text-sm text-zinc-400">
-          {!isDescriptionExpanded && description && description.length > 110
-            ? `${description.slice(0, 110)}...`
-            : description}
-        </p>
-        {description && description.length > 110 && (
-          <button
-            type="button"
-            aria-expanded={isDescriptionExpanded ? "true" : "false"}
-            onClick={() => setIsDescriptionExpanded((prev) => !prev)}
-            className="mt-2 text-xs font-medium text-white hover:text-zinc-300"
-          >
-            {isDescriptionExpanded ? "See less" : "See more"}
-          </button>
-        )}
+      <div className="mb-4 flex-grow">
+        <div className="h-full flex flex-col">
+          <p className="text-sm text-zinc-400 flex-grow">
+            {!isDescriptionExpanded && description && description.length > 110
+              ? `${description.slice(0, 110)}...`
+              : description}
+          </p>
+          {description && description.length > 110 && (
+            <button
+              type="button"
+              aria-expanded={isDescriptionExpanded ? "true" : "false"}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDescriptionExpanded((prev) => !prev);
+              }}
+              className="mt-2 text-xs font-medium text-white hover:text-zinc-300 self-start"
+            >
+              {isDescriptionExpanded ? "See less" : "See more"}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* View Details Link and Comment Count */}
-      <div className="mt-auto mb-4 flex items-center justify-between">
+      <div className="mt-auto mb-4 flex items-center justify-between h-8">
         <Link 
           href={`/movies/${dbMovieId}`}
-          className="inline-flex items-center text-rose-500 hover:text-rose-400 text-sm font-medium"
+          className="inline-flex items-center text-rose-500 hover:text-rose-400 text-sm font-medium whitespace-nowrap"
         >
           View Details →
         </Link>
-        <div className="flex items-center gap-2 text-zinc-400 text-sm">
-          <MessageCircle size={16} />
-          <span>{commentCount}</span>
+        <div className="flex items-center gap-2 text-zinc-400 text-sm min-w-[40px] justify-end">
+          <MessageCircle size={16} className="shrink-0" />
+          <span className="tabular-nums">{commentCount}</span>
         </div>
       </div>
       
 
-      <div className="mt-auto">
+      <div className="mt-4">
         <VoteButtons
           movieId={contractMovieId}
           dbMovieId={dbMovieId}
