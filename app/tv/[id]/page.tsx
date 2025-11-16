@@ -108,6 +108,18 @@ function VoteButtons({
         // Don't fail the entire vote if database save fails
       }
 
+      // Award points for voting
+      try {
+        await fetch('/api/points', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ address, type: 'vote' }),
+        })
+      } catch (e) {
+        console.warn("Failed to award voting points", e)
+        // Don't fail the vote if points update fails
+      }
+      
       onVoteSuccess?.()
     } catch (error: any) {
       console.error("Voting failed:", error)
