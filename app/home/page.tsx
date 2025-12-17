@@ -1,13 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import FeaturedMovie from "@/components/featured-movie"
-import UpNextSection from "@/components/up-next-section"
-import FeaturedToday from "@/components/featured-today"
-import TrendingStars from "@/components/trending-stars"
-import NewMoviesSection from "@/components/new-movies-section"
-import Header from "@/components/header"
-import NicknameModal from "@/components/nickname-modal"
+import FeaturedMovie from "@/components/features/featured-movie"
+import UpNextSection from "@/components/features/up-next-section"
+import FeaturedToday from "@/components/features/featured-today"
+import TrendingStars from "@/components/features/trending-stars"
+import NewMoviesSection from "@/components/features/new-movies-section"
+import Header from "@/components/layout/header"
+import NicknameModal from "@/components/shared/nickname-modal"
 
 export default function HomePage() {
   return (
