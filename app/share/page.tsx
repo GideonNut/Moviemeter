@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { movies } from "@/lib/movie-data"
+import { movies } from "@/lib/services/movie-data"
 
 interface PageProps {
   searchParams: { id?: string }
