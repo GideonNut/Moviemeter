@@ -5,9 +5,9 @@ import { useActiveAccount, useSendTransaction } from "thirdweb/react"
 import { prepareContractCall, getContract } from "thirdweb"
 import { Button } from "@/components/ui/button"
 import { ThumbsUp, ThumbsDown } from "lucide-react"
-import { databases } from '../lib/appwrite'
+import { databases } from '@/lib/db/appwrite'
 import { Query } from 'appwrite'
-import { celoMainnet } from '@/lib/blockchain-service'
+import { celoMainnet } from '@/lib/services/blockchain-service'
 import { client } from '@/app/client'
 
 interface VoteButtonsProps {
