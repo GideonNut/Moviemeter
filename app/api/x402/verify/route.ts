@@ -4,7 +4,7 @@ import {
   createX402Error,
   X402ErrorType,
   type X402PaymentRequest
-} from "@/lib/x402-config"
+} from "@/lib/config/x402-config"
 
 /**
  * x402 Payment Verification API Route
