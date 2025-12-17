@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft, Trash2, Bell, MessageCircle } from "lucide-react"
 import { useActiveAccount } from "thirdweb/react"
-import Header from "@/components/header"
+import Header from "@/components/layout/header"
 
 interface Movie {
   _id: string
