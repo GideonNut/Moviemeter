@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useActiveAccount, useSendTransaction } from "thirdweb/react"
 import { prepareTransaction } from "thirdweb"
 import { client } from "@/app/client"
-import { celoMainnet } from "@/lib/blockchain-service"
+import { celoMainnet } from "@/lib/services/blockchain-service"
 import { 
   PAYMENT_RECIPIENT_ADDRESS, 
   PAYMENT_AMOUNT_WEI,
@@ -13,7 +13,7 @@ import {
   PAYMENT_DESCRIPTION,
   PAYWALL_FEATURES,
   PAYMENT_MESSAGES
-} from "@/lib/payment-config"
+} from "@/lib/config/payment-config"
 import { X, Lock, Sparkles, CreditCard } from "lucide-react"
 
 interface AIPaywallProps {
