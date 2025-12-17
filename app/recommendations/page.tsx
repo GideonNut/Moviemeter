@@ -6,10 +6,10 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Star, ThumbsUp, Search, Loader2 } from "lucide-react"
-import Header from "@/components/header"
-import X402Payment from "@/components/x402-payment"
+import Header from "@/components/layout/header"
+import X402Payment from "@/components/features/x402-payment"
 import { useActiveAccount } from "thirdweb/react"
-import type { MovieData } from "@/lib/ai-agent"
+import type { MovieData } from "@/lib/services/ai-agent"
 
 export default function RecommendationsPage() {
   const [preferences, setPreferences] = useState("")
