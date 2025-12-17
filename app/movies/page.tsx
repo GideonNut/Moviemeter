@@ -6,13 +6,13 @@ import Link from "next/link"
 import { ConnectButton, useActiveAccount, useReadContract, useSendTransaction, useContractEvents, darkTheme } from "thirdweb/react"
 import { getContract, prepareContractCall } from "thirdweb"
 import { client } from "@/app/client"
-import { celoMainnet } from "@/lib/blockchain-service"
-import { supportedTokens } from "@/lib/token-config"
-import { getAvailableWallets } from "@/lib/wallet-config"
-import Header from "@/components/header"
+import { celoMainnet } from "@/lib/services/blockchain-service"
+import { supportedTokens } from "@/lib/config/token-config"
+import { getAvailableWallets } from "@/lib/config/wallet-config"
+import Header from "@/components/layout/header"
 import { Share2, Bell, BellOff, MessageCircle } from "lucide-react"
 import { useInView } from "react-intersection-observer"
-import { MoviesPageSkeleton } from "@/components/page-skeleton"
+import { MoviesPageSkeleton } from "@/components/shared/page-skeleton"
 
 // Add VoteButtons component back
 function VoteButtons({
