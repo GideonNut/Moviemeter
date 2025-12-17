@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { fetchNewMovies } from "@/lib/ai-agent"
+import { fetchNewMovies } from "@/lib/services/ai-agent"
 
 export async function GET(req: NextRequest) {
   try {
