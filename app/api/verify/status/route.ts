@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { SelfBackendVerifier, getUserIdentifier } from "@selfxyz/core"
-import { connectToDatabase } from "../../../../lib/mongodb"
+import { connectToDatabase } from "@/lib/db/mongodb"
 import mongoose from "mongoose"
 
 // Simple schema for storing verification status
