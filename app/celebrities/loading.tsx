@@ -1,4 +1,4 @@
-import Header from "@/components/header"
+import Header from "@/components/layout/header"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function CelebritiesLoading() {
