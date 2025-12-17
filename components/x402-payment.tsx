@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useActiveAccount, useSendTransaction } from "thirdweb/react"
 import { prepareTransaction } from "thirdweb"
 import { client } from "@/app/client"
-import { celoMainnet } from "@/lib/blockchain-service"
+import { celoMainnet } from "@/lib/services/blockchain-service"
 import { 
   X402_CONFIG,
   formatX402PaymentAmount,
@@ -14,7 +14,7 @@ import {
   X402ErrorType,
   type X402PaymentRequest,
   type X402PaymentResponse
-} from "@/lib/x402-config"
+} from "@/lib/config/x402-config"
 import { X, Lock, Sparkles, CreditCard, Loader2 } from "lucide-react"
 
 interface X402PaymentProps {
