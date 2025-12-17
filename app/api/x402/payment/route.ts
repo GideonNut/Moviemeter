@@ -7,7 +7,7 @@ import {
   X402ErrorType,
   type X402PaymentRequest,
   type X402PaymentResponse
-} from "@/lib/x402-config"
+} from "@/lib/config/x402-config"
 
 /**
  * x402 Payment API Route
@@ -100,7 +100,7 @@ async function verifyPaymentToken(paymentToken: string): Promise<boolean> {
 async function processAIRecommendations(preferences: string): Promise<any[]> {
   try {
     // Import and use the existing AI recommendation function
-    const { getMovieRecommendations } = await import("@/lib/ai-agent")
+    const { getMovieRecommendations } = await import("@/lib/services/ai-agent")
     return await getMovieRecommendations(preferences)
   } catch (error) {
     console.error("AI recommendations processing failed:", error)
