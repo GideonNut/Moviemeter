@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
-import { connectToDatabase } from "../../../lib/mongodb"
+import { connectToDatabase } from "@/lib/db/mongodb"
 import Vote from "../../../models/Vote"
 import User from "@/models/User"
-import { getVotesFromApillon } from "@/lib/apillon-vote-service"
+import { getVotesFromApillon } from "@/lib/services/apillon-vote-service"
 
 interface LeaderboardEntry {
 	address: string
