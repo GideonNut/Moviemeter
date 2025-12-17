@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { updateMovieInformation } from "@/lib/ai-agent"
+import { updateMovieInformation } from "@/lib/services/ai-agent"
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
