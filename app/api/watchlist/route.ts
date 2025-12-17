@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/mongodb"
+import { connectToDatabase } from "@/lib/db/mongodb"
 import Watchlist from "@/models/Watchlist"
 import Movie from "@/models/Movie"
 
