@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from "react"
 import { Flame, Trophy, Target, Zap, Calendar, TrendingUp, ArrowLeft } from "lucide-react"
-import { getStreakRewards, getStreakStats } from "@/lib/streak-service"
+import { getStreakRewards, getStreakStats } from "@/lib/services/streak-service"
 import { useActiveAccount } from "thirdweb/react"
 import { useRouter } from "next/navigation"
 
