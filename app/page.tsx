@@ -7,17 +7,17 @@ import { createThirdwebClient } from "thirdweb";
 import { ConnectButton } from "thirdweb/react";
 import { darkTheme } from "thirdweb/react";
 import { inAppWallet, createWallet } from "thirdweb/wallets";
-import { celoMainnet } from "@/lib/blockchain-service";
+import { celoMainnet } from "@/lib/services/blockchain-service";
 import { motion } from "framer-motion"
-import Header from "@/components/header"
-import PartnersSection from "@/components/partners-section"
-import EarningProcess from "@/components/earning-process"
-import FAQSection from "@/components/faq-section"
+import Header from "@/components/layout/header"
+import PartnersSection from "@/components/shared/partners-section"
+import EarningProcess from "@/components/shared/earning-process"
+import FAQSection from "@/components/shared/faq-section"
 import { AnimatedMovies } from "@/components/ui/animatedmovies"
 import { useTheme } from "next-themes"
 import { Sun, Moon, Trophy, Star, Users } from "lucide-react"
 import { AnimatedBackground } from '@/components/motion-primitives/animated-background'
-import { account } from '../lib/appwrite'
+import { account } from '@/lib/db/appwrite'
 
 const client = createThirdwebClient({
   clientId: "e56828eab87b58000cb9a78170fac45b",
