@@ -1,6 +1,6 @@
 import React from 'react'
 import { Flame, Trophy, Target, Zap } from 'lucide-react'
-import { UserStreak, StreakReward } from '@/lib/streak-service'
+import { UserStreak, StreakReward } from '@/lib/services/streak-service'
 
 interface StreakDisplayProps {
   streak: UserStreak
