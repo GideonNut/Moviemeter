@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getMovieRecommendations } from "@/lib/ai-agent"
+import { getMovieRecommendations } from "@/lib/services/ai-agent"
 
 // Simple in-memory store for paid users (in production, use a database)
 const paidUsers = new Set<string>()
