@@ -8,7 +8,7 @@ import { createThirdwebClient } from "thirdweb";
 import { ConnectButton } from "thirdweb/react";
 import { darkTheme } from "thirdweb/react";
 import { inAppWallet, createWallet } from "thirdweb/wallets";
-import { celoMainnet } from "@/lib/blockchain-service";
+import { celoMainnet } from "@/lib/services/blockchain-service";
 import { useTheme } from "next-themes";
 
 export default function Header() {
