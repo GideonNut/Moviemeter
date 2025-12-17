@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server"
 import { ImageResponse } from "next/og"
-import { movies } from "@/lib/movie-data"
+import { movies } from "@/lib/services/movie-data"
 
 export const runtime = "edge"
 
