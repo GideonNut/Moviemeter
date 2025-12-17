@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { prepareVoteTransaction } from "@/lib/blockchain-service"
+import { prepareVoteTransaction } from "@/lib/services/blockchain-service"
 import { rateLimit } from "@/lib/security/rate-limit"
 import { Storage } from '@apillon/sdk'
 
