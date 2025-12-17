@@ -6,7 +6,7 @@
  */
 
 import { getContract, defineChain, prepareContractCall } from "thirdweb"
-import { client } from "@/lib/client"
+import { client } from "@/lib/utils/client"
 
 // Define Celo mainnet with proper configuration
 export const celoMainnet = defineChain({

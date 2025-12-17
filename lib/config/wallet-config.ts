@@ -1,5 +1,5 @@
 import { inAppWallet, createWallet } from "thirdweb/wallets"
-import { celoMainnet } from "./blockchain-service"
+import { celoMainnet } from "@/lib/services/blockchain-service"
 
 // Safe wallet creation that handles conflicts
 export function createSafeWallet(type: string) {

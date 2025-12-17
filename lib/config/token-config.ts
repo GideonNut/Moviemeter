@@ -1,4 +1,4 @@
-import { celoMainnet } from "./blockchain-service"
+import { celoMainnet } from "@/lib/services/blockchain-service"
 
 // Token configurations for supported tokens (Celo network only)
 export const supportedTokens = {
