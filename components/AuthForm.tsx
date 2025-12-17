@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { account } from '../lib/appwrite';
+import { account } from '@/lib/db/appwrite';
 
 export default function AuthForm({ onAuth }: { onAuth?: () => void }) {
   const [email, setEmail] = useState('');
