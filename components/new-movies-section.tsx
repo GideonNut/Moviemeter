@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import type { MovieData } from "@/lib/ai-agent"
+import type { MovieData } from "@/lib/services/ai-agent"
 import { motion } from "framer-motion"
 import { useInView } from "react-intersection-observer"
 import { RefreshCw, ChevronLeft, ChevronRight } from "lucide-react"
