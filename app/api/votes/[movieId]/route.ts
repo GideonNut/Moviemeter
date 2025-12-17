@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getVotesFromApillon } from "@/lib/apillon-vote-service";
+import { getVotesFromApillon } from "@/lib/services/apillon-vote-service";
 
 export async function GET(req: NextRequest, { params }: { params: { movieId: string } }) {
   const { movieId } = params;
