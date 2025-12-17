@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getAnalytics } from "@/lib/analytics"
+import { getAnalytics } from "@/lib/services/analytics"
 
 // Simple admin-only API route
 // In production, use proper authentication
