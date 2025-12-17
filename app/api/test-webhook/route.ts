@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { storeNotificationToken } from "@/lib/notification-service"
+import { storeNotificationToken } from "@/lib/services/notification-service"
 
 export async function POST(req: NextRequest) {
   try {
