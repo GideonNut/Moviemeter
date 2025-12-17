@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useActiveAccount, useSendTransaction } from "thirdweb/react"
 import { getContract, prepareContractCall } from "thirdweb"
-import { celoMainnet } from "@/lib/blockchain-service"
+import { celoMainnet } from "@/lib/services/blockchain-service"
 import { client } from "@/app/client"
 
 interface GoodDollarClaimProps {
